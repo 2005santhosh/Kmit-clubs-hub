@@ -1,0 +1,884 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Faculty Coordinator Dashboard - KMIT Clubs Hub</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+    <style>
+        /* CSS Variables */
+        :root {
+            --primary: #003366; /* Deep Navy */
+            --primary-dark: #002244;
+            --secondary: #f8fafc; /* Soft Gray */
+            --accent: #ffc107; /* Gold Accent */
+            --accent-light: #ffcd39;
+            --text: #212529; /* Darker Text */
+            --light-text: #6c757d;
+            --border-radius: 12px;
+            --box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+            --transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            --section-padding: 100px 0;
+            --container-padding: 0 20px;
+            --gradient-primary: linear-gradient(135deg, #003366 0%, #0055a4 100%);
+            --gradient-accent: linear-gradient(135deg, #ffc107 0%, #ffcd39 100%);
+        }
+
+        /* Global Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Lato', sans-serif;
+            line-height: 1.7;
+            color: var(--text);
+            background-color: #fff;
+            overflow-x: hidden;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: var(--container-padding);
+        }
+
+        /* Typography */
+        h1, h2, h3, h4 {
+            font-family: 'Poppins', sans-serif;
+            margin-bottom: 1.2rem;
+            font-weight: 600;
+            line-height: 1.2;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        h2 {
+            font-size: 2rem;
+            color: var(--primary);
+            margin-bottom: 1.5rem;
+            position: relative;
+        }
+
+        h3 {
+            font-size: 1.5rem;
+            margin-bottom: 0.8rem;
+            color: var(--primary);
+        }
+
+        p {
+            margin-bottom: 1.2rem;
+            color: var(--light-text);
+            font-weight: 300;
+        }
+
+        a {
+            text-decoration: none;
+            color: var(--primary);
+            transition: var(--transition);
+        }
+
+        a:hover {
+            color: var(--accent);
+        }
+
+        /* Dashboard Layout */
+        .dashboard {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 260px;
+            background: var(--gradient-primary);
+            color: white;
+            padding: 2rem 0;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            z-index: 1000;
+            transition: var(--transition);
+        }
+
+        .sidebar-header {
+            padding: 0 1.5rem 2rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 1rem;
+        }
+
+        .sidebar-header h2 {
+            color: white;
+            font-size: 1.5rem;
+            background: none;
+            -webkit-text-fill-color: initial;
+        }
+
+        .sidebar-menu {
+            list-style: none;
+        }
+
+        .sidebar-menu li {
+            margin-bottom: 0.5rem;
+        }
+
+        .sidebar-menu a {
+            display: flex;
+            align-items: center;
+            padding: 0.8rem 1.5rem;
+            color: rgba(255, 255, 255, 0.8);
+            transition: var(--transition);
+        }
+
+        .sidebar-menu a:hover,
+        .sidebar-menu a.active {
+            background-color: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+
+        .sidebar-menu i {
+            margin-right: 0.8rem;
+            font-size: 1.2rem;
+        }
+
+        .user-profile {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 1.5rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1rem;
+            font-weight: 600;
+        }
+
+        .user-info h4 {
+            color: white;
+            font-size: 1rem;
+            margin-bottom: 0.2rem;
+        }
+
+        .user-info p {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.85rem;
+            margin: 0;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            margin-left: 260px;
+            padding: 2rem;
+            background-color: #f8fafc;
+        }
+
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .dashboard-title h1 {
+            margin-bottom: 0.5rem;
+        }
+
+        .dashboard-actions {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .notification-icon {
+            position: relative;
+            font-size: 1.5rem;
+            color: var(--primary);
+            cursor: pointer;
+        }
+
+        .notification-badge {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background-color: var(--accent);
+            color: white;
+            font-size: 0.7rem;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Stats Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background-color: white;
+            border-radius: var(--border-radius);
+            padding: 1.5rem;
+            box-shadow: var(--box-shadow);
+            transition: var(--transition);
+            border-left: 4px solid var(--primary);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+        }
+
+        .stat-card h3 {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            color: var(--primary);
+        }
+
+        .stat-card p {
+            margin: 0;
+            color: var(--light-text);
+        }
+
+        .stat-card i {
+            float: right;
+            font-size: 2rem;
+            color: var(--accent);
+            opacity: 0.7;
+        }
+
+        /* Content Sections */
+        .content-section {
+            background-color: white;
+            border-radius: var(--border-radius);
+            padding: 1.5rem;
+            box-shadow: var(--box-shadow);
+            margin-bottom: 2rem;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .section-title {
+            font-size: 1.3rem;
+            color: var(--primary);
+            margin: 0;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            border-radius: 50px;
+            font-weight: 600;
+            text-align: center;
+            cursor: pointer;
+            transition: var(--transition);
+            border: none;
+            font-size: 0.9rem;
+        }
+
+        .btn-primary {
+            background: var(--gradient-primary);
+            color: white;
+            box-shadow: 0 4px 15px rgba(0, 51, 102, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 51, 102, 0.4);
+        }
+
+        .btn-secondary {
+            background-color: transparent;
+            color: var(--primary);
+            border: 2px solid var(--primary);
+        }
+
+        .btn-secondary:hover {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .btn-success {
+            background-color: #28a745;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background-color: #218838;
+            transform: translateY(-2px);
+        }
+
+        .btn-warning {
+            background-color: #ffc107;
+            color: var(--primary-dark);
+        }
+
+        .btn-warning:hover {
+            background-color: #e0a800;
+            transform: translateY(-2px);
+        }
+
+        .btn-danger {
+            background-color: #dc3545;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background-color: #c82333;
+            transform: translateY(-2px);
+        }
+
+        /* Approvals List */
+        .approvals-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .approval-item {
+            display: flex;
+            align-items: center;
+            padding: 1rem;
+            background-color: var(--secondary);
+            border-radius: var(--border-radius);
+            transition: var(--transition);
+        }
+
+        .approval-item:hover {
+            background-color: #e9f2f9;
+        }
+
+        .approval-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background-color: var(--accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1rem;
+            font-size: 1.2rem;
+            color: white;
+        }
+
+        .approval-info {
+            flex: 1;
+        }
+
+        .approval-title {
+            font-weight: 600;
+            margin-bottom: 0.3rem;
+        }
+
+        .approval-details {
+            font-size: 0.9rem;
+            color: var(--light-text);
+        }
+
+        .approval-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        /* Clubs List */
+        .clubs-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .club-item {
+            display: flex;
+            align-items: center;
+            padding: 1rem;
+            background-color: var(--secondary);
+            border-radius: var(--border-radius);
+            transition: var(--transition);
+        }
+
+        .club-item:hover {
+            background-color: #e9f2f9;
+        }
+
+        .club-logo {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background-color: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1rem;
+            font-size: 1.2rem;
+            color: white;
+        }
+
+        .club-info {
+            flex: 1;
+        }
+
+        .club-name {
+            font-weight: 600;
+            margin-bottom: 0.3rem;
+        }
+
+        .club-leader {
+            font-size: 0.9rem;
+            color: var(--light-text);
+        }
+
+        .club-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        /* Reports List */
+        .reports-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .report-item {
+            display: flex;
+            align-items: center;
+            padding: 1rem;
+            background-color: var(--secondary);
+            border-radius: var(--border-radius);
+            transition: var(--transition);
+        }
+
+        .report-item:hover {
+            background-color: #e9f2f9;
+        }
+
+        .report-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background-color: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1rem;
+            font-size: 1.2rem;
+            color: white;
+        }
+
+        .report-info {
+            flex: 1;
+        }
+
+        .report-title {
+            font-weight: 600;
+            margin-bottom: 0.3rem;
+        }
+
+        .report-details {
+            font-size: 0.9rem;
+            color: var(--light-text);
+        }
+
+        .report-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        /* Mobile Menu Toggle */
+        .mobile-menu-toggle {
+            display: none;
+            position: fixed;
+            top: 1rem;
+            left: 1rem;
+            z-index: 1001;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            box-shadow: var(--box-shadow);
+        }
+
+        /* Responsive Styles */
+        @media (max-width: 992px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            
+            .sidebar.active {
+                transform: translateX(0);
+            }
+            
+            .main-content {
+                margin-left: 0;
+            }
+            
+            .mobile-menu-toggle {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+            
+            .stats-grid {
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            }
+        }
+
+        @media (max-width: 768px) {
+            .dashboard-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+            
+            .approval-item {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .approval-icon {
+                margin-right: 0;
+                margin-bottom: 0.5rem;
+            }
+            
+            .approval-actions {
+                margin-left: 0;
+                margin-top: 0.5rem;
+            }
+            
+            .club-item {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .club-logo {
+                margin-right: 0;
+                margin-bottom: 0.5rem;
+            }
+            
+            .club-actions {
+                margin-left: 0;
+                margin-top: 0.5rem;
+            }
+            
+            .report-item {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .report-icon {
+                margin-right: 0;
+                margin-bottom: 0.5rem;
+            }
+            
+            .report-actions {
+                margin-left: 0;
+                margin-top: 0.5rem;
+            }
+        }
+
+        @media (max-width: 576px) {
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .main-content {
+                padding: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard">
+        <!-- Sidebar -->
+        <nav class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <h2><i class="fas fa-university"></i> KMIT Clubs Hub</h2>
+            </div>
+            <ul class="sidebar-menu">
+                <li><a href="#" class="active"><i class="fas fa-home"></i> Dashboard</a></li>
+                <li><a href="#"><i class="fas fa-check-circle"></i> Approvals</a></li>
+                <li><a href="#"><i class="fas fa-users"></i> Monitored Clubs</a></li>
+                <li><a href="#"><i class="fas fa-file-alt"></i> Reports</a></li>
+                <li><a href="#"><i class="fas fa-chart-line"></i> Analytics</a></li>
+                <li><a href="#"><i class="fas fa-cog"></i> Settings</a></li>
+            </ul>
+            <div class="user-profile">
+                <div class="user-avatar">RS</div>
+                <div class="user-info">
+                    <h4>Dr. Rajesh Singh</h4>
+                    <p>Faculty Coordinator</p>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <button class="mobile-menu-toggle" id="mobileMenuToggle">
+                <i class="fas fa-bars"></i>
+            </button>
+
+            <!-- Dashboard Header -->
+            <div class="dashboard-header">
+                <div class="dashboard-title">
+                    <h1>Faculty Coordinator Dashboard</h1>
+                    <p>Welcome back, Dr. Singh! Monitor and approve club activities.</p>
+                </div>
+                <div class="dashboard-actions">
+                    <div class="notification-icon">
+                        <i class="fas fa-bell"></i>
+                        <span class="notification-badge">5</span>
+                    </div>
+                    <button class="btn btn-secondary">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </button>
+                </div>
+            </div>
+
+            <!-- Stats Cards -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <i class="fas fa-users"></i>
+                    <h3>8</h3>
+                    <p>Monitored Clubs</p>
+                </div>
+                <div class="stat-card">
+                    <i class="fas fa-check-circle"></i>
+                    <h3>12</h3>
+                    <p>Pending Approvals</p>
+                </div>
+                <div class="stat-card">
+                    <i class="fas fa-calendar-check"></i>
+                    <h3>24</h3>
+                    <p>Events This Month</p>
+                </div>
+                <div class="stat-card">
+                    <i class="fas fa-file-alt"></i>
+                    <h3>6</h3>
+                    <p>Reports to Review</p>
+                </div>
+            </div>
+
+            <!-- Pending Approvals -->
+            <div class="content-section">
+                <div class="section-header">
+                    <h3 class="section-title">Pending Approvals</h3>
+                    <a href="#" class="btn btn-secondary">View All</a>
+                </div>
+                <div class="approvals-list">
+                    <div class="approval-item">
+                        <div class="approval-icon">
+                            <i class="fas fa-calendar-alt"></i>
+                        </div>
+                        <div class="approval-info">
+                            <div class="approval-title">AI Workshop - Recurse Club</div>
+                            <div class="approval-details">Proposed for March 20, 2024 • Budget: ₹15,000</div>
+                        </div>
+                        <div class="approval-actions">
+                            <button class="btn btn-success">Approve</button>
+                            <button class="btn btn-danger">Reject</button>
+                        </div>
+                    </div>
+                    <div class="approval-item">
+                        <div class="approval-icon">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <div class="approval-info">
+                            <div class="approval-title">New Club Leader - Mudra Club</div>
+                            <div class="approval-details">Sneha Rao proposed as new leader • 5 member endorsements</div>
+                        </div>
+                        <div class="approval-actions">
+                            <button class="btn btn-success">Approve</button>
+                            <button class="btn btn-danger">Reject</button>
+                        </div>
+                    </div>
+                    <div class="approval-item">
+                        <div class="approval-icon">
+                            <i class="fas fa-money-bill-wave"></i>
+                        </div>
+                        <div class="approval-info">
+                            <div class="approval-title">Budget Request - NSS Club</div>
+                            <div class="approval-details">Blood Donation Camp • Requested: ₹25,000</div>
+                        </div>
+                        <div class="approval-actions">
+                            <button class="btn btn-success">Approve</button>
+                            <button class="btn btn-danger">Reject</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Monitored Clubs -->
+            <div class="content-section">
+                <div class="section-header">
+                    <h3 class="section-title">Monitored Clubs</h3>
+                    <a href="#" class="btn btn-secondary">View All</a>
+                </div>
+                <div class="clubs-list">
+                    <div class="club-item">
+                        <div class="club-logo">
+                            <i class="fas fa-laptop-code"></i>
+                        </div>
+                        <div class="club-info">
+                            <div class="club-name">Recurse (Technical Club)</div>
+                            <div class="club-leader">Leader: Arjun Mehta • 130 members</div>
+                        </div>
+                        <div class="club-actions">
+                            <button class="btn btn-primary">View Details</button>
+                        </div>
+                    </div>
+                    <div class="club-item">
+                        <div class="club-logo">
+                            <i class="fas fa-music"></i>
+                        </div>
+                        <div class="club-info">
+                            <div class="club-name">Mudra (Dance Club)</div>
+                            <div class="club-leader">Leader: Sneha Rao • 125 members</div>
+                        </div>
+                        <div class="club-actions">
+                            <button class="btn btn-primary">View Details</button>
+                        </div>
+                    </div>
+                    <div class="club-item">
+                        <div class="club-logo">
+                            <i class="fas fa-hands-helping"></i>
+                        </div>
+                        <div class="club-info">
+                            <div class="club-name">NSS (Social Service Club)</div>
+                            <div class="club-leader">Leader: Deepak Kumar • 150 members</div>
+                        </div>
+                        <div class="club-actions">
+                            <button class="btn btn-primary">View Details</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Reports to Review -->
+            <div class="content-section">
+                <div class="section-header">
+                    <h3 class="section-title">Reports to Review</h3>
+                    <a href="#" class="btn btn-secondary">View All</a>
+                </div>
+                <div class="reports-list">
+                    <div class="report-item">
+                        <div class="report-icon">
+                            <i class="fas fa-file-alt"></i>
+                        </div>
+                        <div class="report-info">
+                            <div class="report-title">Hackathon 2024 Report</div>
+                            <div class="report-details">Recurse Club • Submitted: March 16, 2024</div>
+                        </div>
+                        <div class="report-actions">
+                            <button class="btn btn-primary">Review</button>
+                        </div>
+                    </div>
+                    <div class="report-item">
+                        <div class="report-icon">
+                            <i class="fas fa-file-alt"></i>
+                        </div>
+                        <div class="report-info">
+                            <div class="report-title">Annual Dance Show Report</div>
+                            <div class="report-details">Mudra Club • Submitted: March 10, 2024</div>
+                        </div>
+                        <div class="report-actions">
+                            <button class="btn btn-primary">Review</button>
+                        </div>
+                    </div>
+                    <div class="report-item">
+                        <div class="report-icon">
+                            <i class="fas fa-file-alt"></i>
+                        </div>
+                        <div class="report-info">
+                            <div class="report-title">Blood Donation Camp Report</div>
+                            <div class="report-details">NSS Club • Submitted: March 8, 2024</div>
+                        </div>
+                        <div class="report-actions">
+                            <button class="btn btn-primary">Review</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Mobile menu toggle
+        document.addEventListener('DOMContentLoaded', function() {
+            const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+            const sidebar = document.getElementById('sidebar');
+            
+            mobileMenuToggle.addEventListener('click', function() {
+                sidebar.classList.toggle('active');
+            });
+            
+            // Close sidebar when clicking on a link
+            document.querySelectorAll('.sidebar-menu a').forEach(link => {
+                link.addEventListener('click', () => {
+                    sidebar.classList.remove('active');
+                });
+            });
+            
+            // Simulate real-time notifications
+            const notificationIcon = document.querySelector('.notification-icon');
+            const notificationBadge = document.querySelector('.notification-badge');
+            
+            // Simulate receiving a new notification
+            setTimeout(() => {
+                const currentCount = parseInt(notificationBadge.textContent);
+                notificationBadge.textContent = currentCount + 1;
+                
+                // Add a pulse animation to the notification icon
+                notificationIcon.style.animation = 'pulse 1s';
+                setTimeout(() => {
+                    notificationIcon.style.animation = '';
+                }, 1000);
+            }, 5000);
+        });
+        
+        // Add pulse animation keyframes
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes pulse {
+                0% { transform: scale(1); }
+                50% { transform: scale(1.2); }
+                100% { transform: scale(1); }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>

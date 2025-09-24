@@ -1,0 +1,1374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Event Management - KMIT Clubs Hub</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+    <style>
+        /* CSS Variables */
+        :root {
+            --primary: #003366;
+            --primary-dark: #002244;
+            --secondary: #f8fafc;
+            --accent: #ffc107;
+            --accent-light: #ffcd39;
+            --text: #212529;
+            --light-text: #6c757d;
+            --border-radius: 12px;
+            --box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+            --transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            --section-padding: 100px 0;
+            --container-padding: 0 20px;
+            --gradient-primary: linear-gradient(135deg, #003366 0%, #0055a4 100%);
+            --gradient-accent: linear-gradient(135deg, #ffc107 0%, #ffcd39 100%);
+        }
+
+        /* Global Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Lato', sans-serif;
+            line-height: 1.7;
+            color: var(--text);
+            background-color: #fff;
+            overflow-x: hidden;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: var(--container-padding);
+        }
+
+        /* Typography */
+        h1, h2, h3, h4 {
+            font-family: 'Poppins', sans-serif;
+            margin-bottom: 1.2rem;
+            font-weight: 600;
+            line-height: 1.2;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        h2 {
+            font-size: 2rem;
+            color: var(--primary);
+            margin-bottom: 1.5rem;
+            position: relative;
+        }
+
+        h3 {
+            font-size: 1.5rem;
+            margin-bottom: 0.8rem;
+            color: var(--primary);
+        }
+
+        p {
+            margin-bottom: 1.2rem;
+            color: var(--light-text);
+            font-weight: 300;
+        }
+
+        a {
+            text-decoration: none;
+            color: var(--primary);
+            transition: var(--transition);
+        }
+
+        a:hover {
+            color: var(--accent);
+        }
+
+        /* Dashboard Layout */
+        .dashboard {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 260px;
+            background: var(--gradient-primary);
+            color: white;
+            padding: 2rem 0;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            z-index: 1000;
+            transition: var(--transition);
+        }
+
+        .sidebar-header {
+            padding: 0 1.5rem 2rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 1rem;
+        }
+
+        .sidebar-header h2 {
+            color: white;
+            font-size: 1.5rem;
+            background: none;
+            -webkit-text-fill-color: initial;
+        }
+
+        .sidebar-menu {
+            list-style: none;
+        }
+
+        .sidebar-menu li {
+            margin-bottom: 0.5rem;
+        }
+
+        .sidebar-menu a {
+            display: flex;
+            align-items: center;
+            padding: 0.8rem 1.5rem;
+            color: rgba(255, 255, 255, 0.8);
+            transition: var(--transition);
+        }
+
+        .sidebar-menu a:hover,
+        .sidebar-menu a.active {
+            background-color: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+
+        .sidebar-menu i {
+            margin-right: 0.8rem;
+            font-size: 1.2rem;
+        }
+
+        .user-profile {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 1.5rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1rem;
+            font-weight: 600;
+        }
+
+        .user-info h4 {
+            color: white;
+            font-size: 1rem;
+            margin-bottom: 0.2rem;
+        }
+
+        .user-info p {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.85rem;
+            margin: 0;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            margin-left: 260px;
+            padding: 2rem;
+            background-color: #f8fafc;
+        }
+
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .dashboard-title h1 {
+            margin-bottom: 0.5rem;
+        }
+
+        .dashboard-actions {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .notification-icon {
+            position: relative;
+            font-size: 1.5rem;
+            color: var(--primary);
+            cursor: pointer;
+        }
+
+        .notification-badge {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background-color: var(--accent);
+            color: white;
+            font-size: 0.7rem;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Content Sections */
+        .content-section {
+            background-color: white;
+            border-radius: var(--border-radius);
+            padding: 1.5rem;
+            box-shadow: var(--box-shadow);
+            margin-bottom: 2rem;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .section-title {
+            font-size: 1.3rem;
+            color: var(--primary);
+            margin: 0;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            border-radius: 50px;
+            font-weight: 600;
+            text-align: center;
+            cursor: pointer;
+            transition: var(--transition);
+            border: none;
+            font-size: 0.9rem;
+        }
+
+        .btn-primary {
+            background: var(--gradient-primary);
+            color: white;
+            box-shadow: 0 4px 15px rgba(0, 51, 102, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 51, 102, 0.4);
+        }
+
+        .btn-secondary {
+            background-color: transparent;
+            color: var(--primary);
+            border: 2px solid var(--primary);
+        }
+
+        .btn-secondary:hover {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .btn-success {
+            background-color: #28a745;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background-color: #218838;
+            transform: translateY(-2px);
+        }
+
+        .btn-warning {
+            background-color: #ffc107;
+            color: var(--primary-dark);
+        }
+
+        .btn-warning:hover {
+            background-color: #e0a800;
+            transform: translateY(-2px);
+        }
+
+        .btn-danger {
+            background-color: #dc3545;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background-color: #c82333;
+            transform: translateY(-2px);
+        }
+
+        /* Events Table */
+        .events-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .events-table th,
+        .events-table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .events-table th {
+            background-color: #f8fafc;
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .events-table tr:hover {
+            background-color: #f8fafc;
+        }
+
+        .event-status {
+            display: flex;
+            align-items: center;
+        }
+
+        .status-badge {
+            padding: 0.3rem 0.6rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .status-badge.pending {
+            background-color: #ffc107;
+            color: var(--primary-dark);
+        }
+
+        .status-badge.approved {
+            background-color: #28a745;
+            color: white;
+        }
+
+        .status-badge.rejected {
+            background-color: #dc3545;
+            color: white;
+        }
+
+        .status-badge.completed {
+            background-color: #17a2b8;
+            color: white;
+        }
+
+        .status-badge.cancelled {
+            background-color: #6c757d;
+            color: white;
+        }
+
+        .event-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        /* Event Filters */
+        .event-filters {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .filter-group {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .filter-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .filter-control {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+        }
+
+        /* Pagination */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            margin-top: 1.5rem;
+            gap: 0.5rem;
+        }
+
+        .page-item {
+            display: inline-block;
+        }
+
+        .page-link {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: white;
+            color: var(--primary);
+            border: 1px solid #ddd;
+            transition: var(--transition);
+        }
+
+        .page-link:hover,
+        .page-item.active .page-link {
+            background-color: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        /* Mobile Menu Toggle */
+        .mobile-menu-toggle {
+            display: none;
+            position: fixed;
+            top: 1rem;
+            left: 1rem;
+            z-index: 1001;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            box-shadow: var(--box-shadow);
+        }
+
+        /* Loading Spinner */
+        .spinner {
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            border-radius: 50%;
+            border-top: 4px solid var(--primary);
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 500px;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            margin-top: 5px;
+        }
+
+        /* Responsive Styles */
+        @media (max-width: 992px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            
+            .sidebar.active {
+                transform: translateX(0);
+            }
+            
+            .main-content {
+                margin-left: 0;
+            }
+            
+            .mobile-menu-toggle {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .dashboard-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+            
+            .event-filters {
+                flex-direction: column;
+            }
+            
+            .events-table {
+                font-size: 0.9rem;
+            }
+            
+            .events-table th,
+            .events-table td {
+                padding: 8px 10px;
+            }
+            
+            .event-actions {
+                flex-direction: column;
+            }
+        }
+
+        @media (max-width: 576px) {
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .main-content {
+                padding: 1rem;
+            }
+            
+            .events-table {
+                display: block;
+                overflow-x: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard">
+        <!-- Sidebar -->
+        <nav class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <h2><i class="fas fa-university"></i> KMIT Clubs Hub</h2>
+            </div>
+            <ul class="sidebar-menu">
+                <li><a href="admin.html"><i class="fas fa-home"></i> Dashboard</a></li>
+                <li><a href="user-management.html"><i class="fas fa-users"></i> User Management</a></li>
+                <li><a href="role-management.html"><i class="fas fa-user-shield"></i> Role Management</a></li>
+                <li><a href="club-management.html"><i class="fas fa-users-cog"></i> Club Management</a></li>
+                <li><a href="event-management.html" class="active"><i class="fas fa-calendar-alt"></i> Event Management</a></li>
+                <li><a href="reports.html"><i class="fas fa-file-alt"></i> Reports</a></li>
+                <li><a href="analytics.html"><i class="fas fa-chart-line"></i> Analytics</a></li>
+                <li><a href="system-settings.html"><i class="fas fa-cog"></i> System Settings</a></li>
+            </ul>
+            <div class="user-profile">
+                <div class="user-avatar" id="userAvatar">SA</div>
+                <div class="user-info">
+                    <h4 id="userName">Loading...</h4>
+                    <p id="userRole">System Administrator</p>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <button class="mobile-menu-toggle" id="mobileMenuToggle">
+                <i class="fas fa-bars"></i>
+            </button>
+
+            <!-- Dashboard Header -->
+            <div class="dashboard-header">
+                <div class="dashboard-title">
+                    <h1>Event Management</h1>
+                    <p>Manage all events in the KMIT Clubs Hub platform.</p>
+                </div>
+                <div class="dashboard-actions">
+                    <div class="notification-icon">
+                        <i class="fas fa-bell"></i>
+                        <span class="notification-badge" id="notificationCount">0</span>
+                    </div>
+                    <button class="btn btn-secondary" id="logoutBtn">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </button>
+                </div>
+            </div>
+
+            <!-- Event Filters -->
+            <div class="content-section">
+                <div class="section-header">
+                    <h3 class="section-title">Filter Events</h3>
+                </div>
+                <div class="event-filters">
+                    <div class="filter-group">
+                        <label for="searchEvent">Search Events</label>
+                        <input type="text" id="searchEvent" class="filter-control" placeholder="Search by title or description...">
+                    </div>
+                    <div class="filter-group">
+                        <label for="filterClub">Filter by Club</label>
+                        <select id="filterClub" class="filter-control">
+                            <option value="">All Clubs</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label for="filterStatus">Filter by Status</label>
+                        <select id="filterStatus" class="filter-control">
+                            <option value="">All Status</option>
+                            <option value="pending">Pending</option>
+                            <option value="approved">Approved</option>
+                            <option value="rejected">Rejected</option>
+                            <option value="completed">Completed</option>
+                            <option value="cancelled">Cancelled</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label for="filterDate">Filter by Date</label>
+                        <input type="date" id="filterDate" class="filter-control">
+                    </div>
+                </div>
+                <div style="display: flex; gap: 1rem;">
+                    <button class="btn btn-primary" id="applyFilters">Apply Filters</button>
+                    <button class="btn btn-secondary" id="resetFilters">Reset Filters</button>
+                </div>
+            </div>
+
+            <!-- Events Table -->
+            <div class="content-section">
+                <div class="section-header">
+                    <h3 class="section-title">All Events</h3>
+                    <button class="btn btn-primary" id="createEventBtn">
+                        <i class="fas fa-plus"></i> Create Event
+                    </button>
+                </div>
+                <div id="eventsTableContainer">
+                    <div class="spinner"></div>
+                </div>
+                <div class="pagination" id="pagination">
+                    <!-- Pagination will be generated dynamically -->
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Create Event Modal -->
+    <div id="createEventModal" class="modal">
+        <div class="modal-content">
+            <h3>Create New Event</h3>
+            <form id="createEventForm">
+                <div style="margin-bottom: 1rem;">
+                    <label for="eventTitle">Event Title</label>
+                    <input type="text" id="eventTitle" class="form-control" required>
+                </div>
+                <div style="margin-bottom: 1rem;">
+                    <label for="eventDescription">Description</label>
+                    <textarea id="eventDescription" class="form-control" style="min-height: 100px;" required></textarea>
+                </div>
+                <div style="margin-bottom: 1rem;">
+                    <label for="eventDate">Date</label>
+                    <input type="date" id="eventDate" class="form-control" required>
+                </div>
+                <div style="margin-bottom: 1rem;">
+                    <label for="eventTime">Time</label>
+                    <input type="time" id="eventTime" class="form-control" required>
+                </div>
+                <div style="margin-bottom: 1rem;">
+                    <label for="eventLocation">Location</label>
+                    <input type="text" id="eventLocation" class="form-control" required>
+                </div>
+                <div style="margin-bottom: 1rem;">
+                    <label for="eventClub">Club</label>
+                    <select id="eventClub" class="form-control" required>
+                        <option value="">Select a club</option>
+                    </select>
+                </div>
+                <div style="display: flex; justify-content: flex-end; gap: 1rem;">
+                    <button type="button" class="btn btn-secondary" id="cancelCreateEvent">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Create Event</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Edit Event Modal -->
+    <div id="editEventModal" class="modal">
+        <div class="modal-content">
+            <h3>Edit Event</h3>
+            <form id="editEventForm">
+                <input type="hidden" id="editEventId">
+                <div style="margin-bottom: 1rem;">
+                    <label for="editEventTitle">Event Title</label>
+                    <input type="text" id="editEventTitle" class="form-control" required>
+                </div>
+                <div style="margin-bottom: 1rem;">
+                    <label for="editEventDescription">Description</label>
+                    <textarea id="editEventDescription" class="form-control" style="min-height: 100px;" required></textarea>
+                </div>
+                <div style="margin-bottom: 1rem;">
+                    <label for="editEventDate">Date</label>
+                    <input type="date" id="editEventDate" class="form-control" required>
+                </div>
+                <div style="margin-bottom: 1rem;">
+                    <label for="editEventTime">Time</label>
+                    <input type="time" id="editEventTime" class="form-control" required>
+                </div>
+                <div style="margin-bottom: 1rem;">
+                    <label for="editEventLocation">Location</label>
+                    <input type="text" id="editEventLocation" class="form-control" required>
+                </div>
+                <div style="margin-bottom: 1rem;">
+                    <label for="editEventClub">Club</label>
+                    <select id="editEventClub" class="form-control" required>
+                        <option value="">Select a club</option>
+                    </select>
+                </div>
+                <div style="margin-bottom: 1rem;">
+                    <label for="editEventStatus">Status</label>
+                    <select id="editEventStatus" class="form-control">
+                        <option value="pending">Pending</option>
+                        <option value="approved">Approved</option>
+                        <option value="rejected">Rejected</option>
+                        <option value="completed">Completed</option>
+                        <option value="cancelled">Cancelled</option>
+                    </select>
+                </div>
+                <div style="display: flex; justify-content: flex-end; gap: 1rem;">
+                    <button type="button" class="btn btn-secondary" id="cancelEditEvent">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Update Event</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check if user is logged in
+            const token = localStorage.getItem('token');
+            const user = JSON.parse(localStorage.getItem('user') || '{}');
+            
+            if (!token) {
+                window.location.href = '/login';
+                return;
+            }
+            
+            // Check if user has admin role
+            if (user.role !== 'admin') {
+                window.location.href = '/login';
+                return;
+            }
+            
+            // Update user profile
+            const userAvatar = document.getElementById('userAvatar');
+            const userName = document.getElementById('userName');
+            const userRole = document.getElementById('userRole');
+            
+            // Set user initials for avatar
+            if (user.name) {
+                const initials = user.name.split(' ').map(n => n[0]).join('').toUpperCase();
+                userAvatar.textContent = initials;
+                userName.textContent = user.name;
+            }
+            
+            // Set user role
+            if (user.role) {
+                userRole.textContent = user.role === 'admin' ? 'System Administrator' : 
+                                         user.role === 'faculty' ? 'Faculty Coordinator' :
+                                         user.role === 'clubLeader' ? 'Club Leader' : 'Student';
+            }
+            
+            // Mobile menu toggle
+            const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+            const sidebar = document.getElementById('sidebar');
+            
+            mobileMenuToggle.addEventListener('click', function() {
+                sidebar.classList.toggle('active');
+            });
+            
+            // Close sidebar when clicking on a link
+            document.querySelectorAll('.sidebar-menu a').forEach(link => {
+                link.addEventListener('click', () => {
+                    sidebar.classList.remove('active');
+                });
+            });
+            
+            // Logout functionality
+            document.getElementById('logoutBtn').addEventListener('click', function() {
+                localStorage.removeItem('token');
+                localStorage.removeItem('user');
+                window.location.href = '/login';
+            });
+            
+            // Pagination variables
+            let currentPage = 1;
+            const eventsPerPage = 10;
+            let filteredEvents = [];
+            let allEvents = [];
+            let allClubs = [];
+            
+            // Fetch events data
+            async function fetchEvents() {
+                try {
+                    const response = await fetch('/api/events', {
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        }
+                    });
+                    
+                    if (!response.ok) {
+                        throw new Error(`Failed to fetch events: ${response.status}`);
+                    }
+                    
+                    allEvents = await response.json();
+                    filteredEvents = [...allEvents];
+                    
+                    // Update events table
+                    renderEventsTable();
+                    
+                    // Update pagination
+                    renderPagination();
+                    
+                    // Update notification count (only if there are pending events)
+                    const notificationCount = document.getElementById('notificationCount');
+                    const pendingEvents = allEvents.filter(e => e.status === 'pending').length;
+                    notificationCount.textContent = pendingEvents;
+                    notificationCount.style.display = pendingEvents > 0 ? 'flex' : 'none';
+                } catch (error) {
+                    console.error('Error fetching events:', error);
+                    document.getElementById('eventsTableContainer').innerHTML = `<p style="color: red;">Error loading events: ${error.message}. Please try again.</p>`;
+                }
+            }
+            
+            // Fetch clubs data
+            async function fetchClubs() {
+                try {
+                    const response = await fetch('/api/clubs', {
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        }
+                    });
+                    
+                    if (!response.ok) {
+                        throw new Error(`Failed to fetch clubs: ${response.status}`);
+                    }
+                    
+                    allClubs = await response.json();
+                    
+                    // Update club filter dropdown
+                    const clubFilter = document.getElementById('filterClub');
+                    clubFilter.innerHTML = '<option value="">All Clubs</option>';
+                    allClubs.forEach(club => {
+                        const option = document.createElement('option');
+                        option.value = club._id;
+                        option.textContent = club.name;
+                        clubFilter.appendChild(option);
+                    });
+                    
+                    // Update club dropdown in create event modal
+                    const eventClubSelect = document.getElementById('eventClub');
+                    eventClubSelect.innerHTML = '<option value="">Select a club</option>';
+                    allClubs.forEach(club => {
+                        const option = document.createElement('option');
+                        option.value = club._id;
+                        option.textContent = club.name;
+                        eventClubSelect.appendChild(option);
+                    });
+                    
+                    // Update club dropdown in edit event modal
+                    const editEventClubSelect = document.getElementById('editEventClub');
+                    editEventClubSelect.innerHTML = '<option value="">Select a club</option>';
+                    allClubs.forEach(club => {
+                        const option = document.createElement('option');
+                        option.value = club._id;
+                        option.textContent = club.name;
+                        editEventClubSelect.appendChild(option);
+                    });
+                } catch (error) {
+                    console.error('Error fetching clubs:', error);
+                }
+            }
+            
+            // Render events table
+            function renderEventsTable() {
+                const eventsTableContainer = document.getElementById('eventsTableContainer');
+                
+                // Calculate pagination
+                const startIndex = (currentPage - 1) * eventsPerPage;
+                const endIndex = startIndex + eventsPerPage;
+                const paginatedEvents = filteredEvents.slice(startIndex, endIndex);
+                
+                if (paginatedEvents.length === 0) {
+                    eventsTableContainer.innerHTML = '<p>No events found.</p>';
+                    return;
+                }
+                
+                // Create table
+                let tableHTML = `
+                    <table class="events-table">
+                        <thead>
+                            <tr>
+                                <th>Event</th>
+                                <th>Date & Time</th>
+                                <th>Location</th>
+                                <th>Club</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                `;
+                
+                paginatedEvents.forEach(event => {
+                    const eventDate = event.date ? new Date(event.date).toLocaleDateString() : 'Unknown';
+                    const eventTime = event.time || 'Unknown';
+                    const clubName = event.club && event.club.name ? event.club.name : 'Unknown';
+                    
+                    tableHTML += `
+                        <tr>
+                            <td>
+                                <div style="font-weight: 600;">${event.title || 'Unknown Event'}</div>
+                                <div style="font-size: 0.85rem; color: var(--light-text);">${event.description ? event.description.substring(0, 50) + '...' : 'No description'}</div>
+                            </td>
+                            <td>${eventDate} at ${eventTime}</td>
+                            <td>${event.location || 'Unknown'}</td>
+                            <td>${clubName}</td>
+                            <td>
+                                <div class="event-status">
+                                    <span class="status-badge ${event.status || 'unknown'}">${event.status || 'Unknown'}</span>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="event-actions">
+                                    <button class="btn btn-primary btn-sm view-event" data-id="${event._id}">View</button>
+                                    <button class="btn btn-secondary btn-sm edit-event" data-id="${event._id}">Edit</button>
+                                    ${event.status === 'pending' ? `
+                                        <button class="btn btn-success btn-sm approve-event" data-id="${event._id}">Approve</button>
+                                        <button class="btn btn-danger btn-sm reject-event" data-id="${event._id}">Reject</button>
+                                    ` : ''}
+                                    ${event.status === 'approved' ? `
+                                        <button class="btn btn-warning btn-sm complete-event" data-id="${event._id}">Complete</button>
+                                        <button class="btn btn-danger btn-sm cancel-event" data-id="${event._id}">Cancel</button>
+                                    ` : ''}
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                });
+                
+                tableHTML += `
+                        </tbody>
+                    </table>
+                `;
+                
+                eventsTableContainer.innerHTML = tableHTML;
+                
+                // Add event listeners for action buttons
+                document.querySelectorAll('.edit-event').forEach(button => {
+                    button.addEventListener('click', function() {
+                        const eventId = this.getAttribute('data-id');
+                        editEvent(eventId);
+                    });
+                });
+                
+                document.querySelectorAll('.approve-event').forEach(button => {
+                    button.addEventListener('click', function() {
+                        const eventId = this.getAttribute('data-id');
+                        approveEvent(eventId);
+                    });
+                });
+                
+                document.querySelectorAll('.reject-event').forEach(button => {
+                    button.addEventListener('click', function() {
+                        const eventId = this.getAttribute('data-id');
+                        rejectEvent(eventId);
+                    });
+                });
+                
+                document.querySelectorAll('.complete-event').forEach(button => {
+                    button.addEventListener('click', function() {
+                        const eventId = this.getAttribute('data-id');
+                        completeEvent(eventId);
+                    });
+                });
+                
+                document.querySelectorAll('.cancel-event').forEach(button => {
+                    button.addEventListener('click', function() {
+                        const eventId = this.getAttribute('data-id');
+                        cancelEvent(eventId);
+                    });
+                });
+            }
+            
+            // Render pagination
+            function renderPagination() {
+                const pagination = document.getElementById('pagination');
+                const totalPages = Math.ceil(filteredEvents.length / eventsPerPage);
+                
+                if (totalPages <= 1) {
+                    pagination.innerHTML = '';
+                    return;
+                }
+                
+                let paginationHTML = '';
+                
+                // Previous button
+                paginationHTML += `
+                    <li class="page-item ${currentPage === 1 ? 'disabled' : ''}">
+                        <a class="page-link" href="#" data-page="${currentPage - 1}">
+                            <i class="fas fa-chevron-left"></i>
+                        </a>
+                    </li>
+                `;
+                
+                // Page numbers
+                for (let i = 1; i <= totalPages; i++) {
+                    if (i === 1 || i === totalPages || (i >= currentPage - 1 && i <= currentPage + 1)) {
+                        paginationHTML += `
+                            <li class="page-item ${i === currentPage ? 'active' : ''}">
+                                <a class="page-link" href="#" data-page="${i}">${i}</a>
+                            </li>
+                        `;
+                    } else if (i === currentPage - 2 || i === currentPage + 2) {
+                        paginationHTML += `
+                            <li class="page-item">
+                                <span class="page-link">...</span>
+                            </li>
+                        `;
+                    }
+                }
+                
+                // Next button
+                paginationHTML += `
+                    <li class="page-item ${currentPage === totalPages ? 'disabled' : ''}">
+                        <a class="page-link" href="#" data-page="${currentPage + 1}">
+                            <i class="fas fa-chevron-right"></i>
+                        </a>
+                    </li>
+                `;
+                
+                pagination.innerHTML = paginationHTML;
+                
+                // Add event listeners for pagination links
+                document.querySelectorAll('.page-link').forEach(link => {
+                    link.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        const page = parseInt(this.getAttribute('data-page'));
+                        if (page && page !== currentPage) {
+                            currentPage = page;
+                            renderEventsTable();
+                            renderPagination();
+                        }
+                    });
+                });
+            }
+            
+            // Apply filters
+            document.getElementById('applyFilters').addEventListener('click', function() {
+                const searchTerm = document.getElementById('searchEvent').value.toLowerCase();
+                const clubFilter = document.getElementById('filterClub').value;
+                const statusFilter = document.getElementById('filterStatus').value;
+                const dateFilter = document.getElementById('filterDate').value;
+                
+                filteredEvents = allEvents.filter(event => {
+                    // Search filter
+                    const matchesSearch = !searchTerm || 
+                        (event.title && event.title.toLowerCase().includes(searchTerm)) ||
+                        (event.description && event.description.toLowerCase().includes(searchTerm));
+                    
+                    // Club filter
+                    const matchesClub = !clubFilter || 
+                        (event.club && event.club._id === clubFilter);
+                    
+                    // Status filter
+                    const matchesStatus = !statusFilter || event.status === statusFilter;
+                    
+                    // Date filter
+                    let matchesDate = true;
+                    if (dateFilter) {
+                        const eventDate = new Date(event.date).toISOString().split('T')[0];
+                        matchesDate = eventDate === dateFilter;
+                    }
+                    
+                    return matchesSearch && matchesClub && matchesStatus && matchesDate;
+                });
+                
+                // Reset to first page
+                currentPage = 1;
+                
+                // Update table and pagination
+                renderEventsTable();
+                renderPagination();
+            });
+            
+            // Reset filters
+            document.getElementById('resetFilters').addEventListener('click', function() {
+                document.getElementById('searchEvent').value = '';
+                document.getElementById('filterClub').value = '';
+                document.getElementById('filterStatus').value = '';
+                document.getElementById('filterDate').value = '';
+                
+                filteredEvents = [...allEvents];
+                currentPage = 1;
+                
+                renderEventsTable();
+                renderPagination();
+            });
+            
+            // Create Event Modal
+            const createEventModal = document.getElementById('createEventModal');
+            const createEventBtn = document.getElementById('createEventBtn');
+            const cancelCreateEvent = document.getElementById('cancelCreateEvent');
+            const createEventForm = document.getElementById('createEventForm');
+            
+            createEventBtn.addEventListener('click', function() {
+                createEventModal.style.display = 'flex';
+            });
+            
+            cancelCreateEvent.addEventListener('click', function() {
+                createEventModal.style.display = 'none';
+                createEventForm.reset();
+            });
+            
+            createEventForm.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                const title = document.getElementById('eventTitle').value;
+                const description = document.getElementById('eventDescription').value;
+                const date = document.getElementById('eventDate').value;
+                const time = document.getElementById('eventTime').value;
+                const location = document.getElementById('eventLocation').value;
+                const clubId = document.getElementById('eventClub').value;
+                
+                try {
+                    const response = await fetch('/api/events', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}`
+                        },
+                        body: JSON.stringify({ title, description, date, time, location, clubId })
+                    });
+                    
+                    if (response.ok) {
+                        alert('Event created successfully!');
+                        createEventModal.style.display = 'none';
+                        createEventForm.reset();
+                        fetchEvents(); // Refresh events list
+                    } else {
+                        const error = await response.json();
+                        alert(`Error: ${error.message}`);
+                    }
+                } catch (error) {
+                    console.error('Error creating event:', error);
+                    alert('Error creating event. Please try again.');
+                }
+            });
+            
+            // Edit Event Modal
+            const editEventModal = document.getElementById('editEventModal');
+            const cancelEditEvent = document.getElementById('cancelEditEvent');
+            const editEventForm = document.getElementById('editEventForm');
+            
+            cancelEditEvent.addEventListener('click', function() {
+                editEventModal.style.display = 'none';
+                editEventForm.reset();
+            });
+            
+            editEventForm.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                const eventId = document.getElementById('editEventId').value;
+                const title = document.getElementById('editEventTitle').value;
+                const description = document.getElementById('editEventDescription').value;
+                const date = document.getElementById('editEventDate').value;
+                const time = document.getElementById('editEventTime').value;
+                const location = document.getElementById('editEventLocation').value;
+                const clubId = document.getElementById('editEventClub').value;
+                const status = document.getElementById('editEventStatus').value;
+                
+                try {
+                    const response = await fetch(`/api/events/${eventId}`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}`
+                        },
+                        body: JSON.stringify({ title, description, date, time, location, clubId, status })
+                    });
+                    
+                    if (response.ok) {
+                        alert('Event updated successfully!');
+                        editEventModal.style.display = 'none';
+                        editEventForm.reset();
+                        fetchEvents(); // Refresh events list
+                    } else {
+                        const error = await response.json();
+                        alert(`Error: ${error.message}`);
+                    }
+                } catch (error) {
+                    console.error('Error updating event:', error);
+                    alert('Error updating event. Please try again.');
+                }
+            });
+            
+            // Edit event function
+            async function editEvent(eventId) {
+                try {
+                    const response = await fetch(`/api/events/${eventId}`, {
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        }
+                    });
+                    
+                    if (!response.ok) {
+                        throw new Error(`Failed to fetch event: ${response.status}`);
+                    }
+                    
+                    const event = await response.json();
+                    
+                    // Populate form fields
+                    document.getElementById('editEventId').value = event._id;
+                    document.getElementById('editEventTitle').value = event.title;
+                    document.getElementById('editEventDescription').value = event.description;
+                    document.getElementById('editEventDate').value = event.date ? new Date(event.date).toISOString().split('T')[0] : '';
+                    document.getElementById('editEventTime').value = event.time;
+                    document.getElementById('editEventLocation').value = event.location;
+                    document.getElementById('editEventStatus').value = event.status || 'pending';
+                    
+                    if (event.club && event.club._id) {
+                        document.getElementById('editEventClub').value = event.club._id;
+                    } else {
+                        document.getElementById('editEventClub').value = '';
+                    }
+                    
+                    // Show modal
+                    editEventModal.style.display = 'flex';
+                } catch (error) {
+                    console.error('Error fetching event for edit:', error);
+                    alert('Error fetching event details. Please try again.');
+                }
+            }
+            
+            // Approve event function
+            async function approveEvent(eventId) {
+                try {
+                    const response = await fetch(`/api/events/${eventId}/approve`, {
+                        method: 'PUT',
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        }
+                    });
+                    
+                    if (response.ok) {
+                        alert('Event approved successfully!');
+                        fetchEvents(); // Refresh events list
+                    } else {
+                        const error = await response.json();
+                        alert(`Error: ${error.message}`);
+                    }
+                } catch (error) {
+                    console.error('Error approving event:', error);
+                    alert('Error approving event. Please try again.');
+                }
+            }
+            
+            // Reject event function
+            async function rejectEvent(eventId) {
+                try {
+                    const response = await fetch(`/api/events/${eventId}/reject`, {
+                        method: 'PUT',
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        }
+                    });
+                    
+                    if (response.ok) {
+                        alert('Event rejected successfully!');
+                        fetchEvents(); // Refresh events list
+                    } else {
+                        const error = await response.json();
+                        alert(`Error: ${error.message}`);
+                    }
+                } catch (error) {
+                    console.error('Error rejecting event:', error);
+                    alert('Error rejecting event. Please try again.');
+                }
+            }
+            
+            // Complete event function
+            async function completeEvent(eventId) {
+                try {
+                    const response = await fetch(`/api/events/${eventId}/complete`, {
+                        method: 'PUT',
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        }
+                    });
+                    
+                    if (response.ok) {
+                        alert('Event marked as completed successfully!');
+                        fetchEvents(); // Refresh events list
+                    } else {
+                        const error = await response.json();
+                        alert(`Error: ${error.message}`);
+                    }
+                } catch (error) {
+                    console.error('Error completing event:', error);
+                    alert('Error completing event. Please try again.');
+                }
+            }
+            
+            // Cancel event function
+            async function cancelEvent(eventId) {
+                if (confirm('Are you sure you want to cancel this event?')) {
+                    try {
+                        const response = await fetch(`/api/events/${eventId}/cancel`, {
+                            method: 'PUT',
+                            headers: {
+                                'Authorization': `Bearer ${token}`
+                            }
+                        });
+                        
+                        if (response.ok) {
+                            alert('Event cancelled successfully!');
+                            fetchEvents(); // Refresh events list
+                        } else {
+                            const error = await response.json();
+                            alert(`Error: ${error.message}`);
+                        }
+                    } catch (error) {
+                        console.error('Error cancelling event:', error);
+                        alert('Error cancelling event. Please try again.');
+                    }
+                }
+            }
+            
+            // Initial data fetch
+            fetchEvents();
+            fetchClubs();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,1099 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reports - KMIT Clubs Hub</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+    <style>
+        /* CSS Variables */
+        :root {
+            --primary: #003366;
+            --primary-dark: #002244;
+            --secondary: #f8fafc;
+            --accent: #ffc107;
+            --accent-light: #ffcd39;
+            --text: #212529;
+            --light-text: #6c757d;
+            --border-radius: 12px;
+            --box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+            --transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            --section-padding: 100px 0;
+            --container-padding: 0 20px;
+            --gradient-primary: linear-gradient(135deg, #003366 0%, #0055a4 100%);
+            --gradient-accent: linear-gradient(135deg, #ffc107 0%, #ffcd39 100%);
+        }
+
+        /* Global Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Lato', sans-serif;
+            line-height: 1.7;
+            color: var(--text);
+            background-color: #fff;
+            overflow-x: hidden;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: var(--container-padding);
+        }
+
+        /* Typography */
+        h1, h2, h3, h4 {
+            font-family: 'Poppins', sans-serif;
+            margin-bottom: 1.2rem;
+            font-weight: 600;
+            line-height: 1.2;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        h2 {
+            font-size: 2rem;
+            color: var(--primary);
+            margin-bottom: 1.5rem;
+            position: relative;
+        }
+
+        h3 {
+            font-size: 1.5rem;
+            margin-bottom: 0.8rem;
+            color: var(--primary);
+        }
+
+        p {
+            margin-bottom: 1.2rem;
+            color: var(--light-text);
+            font-weight: 300;
+        }
+
+        a {
+            text-decoration: none;
+            color: var(--primary);
+            transition: var(--transition);
+        }
+
+        a:hover {
+            color: var(--accent);
+        }
+
+        /* Dashboard Layout */
+        .dashboard {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 260px;
+            background: var(--gradient-primary);
+            color: white;
+            padding: 2rem 0;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            z-index: 1000;
+            transition: var(--transition);
+        }
+
+        .sidebar-header {
+            padding: 0 1.5rem 2rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 1rem;
+        }
+
+        .sidebar-header h2 {
+            color: white;
+            font-size: 1.5rem;
+            background: none;
+            -webkit-text-fill-color: initial;
+        }
+
+        .sidebar-menu {
+            list-style: none;
+        }
+
+        .sidebar-menu li {
+            margin-bottom: 0.5rem;
+        }
+
+        .sidebar-menu a {
+            display: flex;
+            align-items: center;
+            padding: 0.8rem 1.5rem;
+            color: rgba(255, 255, 255, 0.8);
+            transition: var(--transition);
+        }
+
+        .sidebar-menu a:hover,
+        .sidebar-menu a.active {
+            background-color: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+
+        .sidebar-menu i {
+            margin-right: 0.8rem;
+            font-size: 1.2rem;
+        }
+
+        .user-profile {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 1.5rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1rem;
+            font-weight: 600;
+        }
+
+        .user-info h4 {
+            color: white;
+            font-size: 1rem;
+            margin-bottom: 0.2rem;
+        }
+
+        .user-info p {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.85rem;
+            margin: 0;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            margin-left: 260px;
+            padding: 2rem;
+            background-color: #f8fafc;
+        }
+
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .dashboard-title h1 {
+            margin-bottom: 0.5rem;
+        }
+
+        .dashboard-actions {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .notification-icon {
+            position: relative;
+            font-size: 1.5rem;
+            color: var(--primary);
+            cursor: pointer;
+        }
+
+        .notification-badge {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background-color: var(--accent);
+            color: white;
+            font-size: 0.7rem;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Content Sections */
+        .content-section {
+            background-color: white;
+            border-radius: var(--border-radius);
+            padding: 1.5rem;
+            box-shadow: var(--box-shadow);
+            margin-bottom: 2rem;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .section-title {
+            font-size: 1.3rem;
+            color: var(--primary);
+            margin: 0;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            border-radius: 50px;
+            font-weight: 600;
+            text-align: center;
+            cursor: pointer;
+            transition: var(--transition);
+            border: none;
+            font-size: 0.9rem;
+        }
+
+        .btn-primary {
+            background: var(--gradient-primary);
+            color: white;
+            box-shadow: 0 4px 15px rgba(0, 51, 102, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 51, 102, 0.4);
+        }
+
+        .btn-secondary {
+            background-color: transparent;
+            color: var(--primary);
+            border: 2px solid var(--primary);
+        }
+
+        .btn-secondary:hover {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .btn-success {
+            background-color: #28a745;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background-color: #218838;
+            transform: translateY(-2px);
+        }
+
+        .btn-warning {
+            background-color: #ffc107;
+            color: var(--primary-dark);
+        }
+
+        .btn-warning:hover {
+            background-color: #e0a800;
+            transform: translateY(-2px);
+        }
+
+        .btn-danger {
+            background-color: #dc3545;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background-color: #c82333;
+            transform: translateY(-2px);
+        }
+
+        /* Reports Grid */
+        .reports-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .report-card {
+            background-color: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            overflow: hidden;
+            transition: var(--transition);
+            border-left: 4px solid var(--primary);
+        }
+
+        .report-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+        }
+
+        .report-header {
+            padding: 1.5rem;
+            background-color: var(--secondary);
+            display: flex;
+            align-items: center;
+        }
+
+        .report-icon {
+            font-size: 2rem;
+            color: var(--primary);
+            margin-right: 1rem;
+        }
+
+        .report-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .report-content {
+            padding: 1.5rem;
+        }
+
+        .report-description {
+            margin-bottom: 1rem;
+            color: var(--light-text);
+        }
+
+        .report-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        /* Report Filters */
+        .report-filters {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .filter-group {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .filter-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .filter-control {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+        }
+
+        /* Generated Reports */
+        .reports-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .report-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem;
+            background-color: var(--secondary);
+            border-radius: var(--border-radius);
+            transition: var(--transition);
+        }
+
+        .report-item:hover {
+            background-color: #e9f2f9;
+        }
+
+        .report-info {
+            flex: 1;
+        }
+
+        .report-name {
+            font-weight: 600;
+            margin-bottom: 0.3rem;
+        }
+
+        .report-details {
+            font-size: 0.9rem;
+            color: var(--light-text);
+        }
+
+        .report-item-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        /* Mobile Menu Toggle */
+        .mobile-menu-toggle {
+            display: none;
+            position: fixed;
+            top: 1rem;
+            left: 1rem;
+            z-index: 1001;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            box-shadow: var(--box-shadow);
+        }
+
+        /* Loading Spinner */
+        .spinner {
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            border-radius: 50%;
+            border-top: 4px solid var(--primary);
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 500px;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            margin-top: 5px;
+        }
+
+        /* Responsive Styles */
+        @media (max-width: 992px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            
+            .sidebar.active {
+                transform: translateX(0);
+            }
+            
+            .main-content {
+                margin-left: 0;
+            }
+            
+            .mobile-menu-toggle {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .dashboard-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+            
+            .report-filters {
+                flex-direction: column;
+            }
+            
+            .reports-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 576px) {
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .main-content {
+                padding: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard">
+        <!-- Sidebar -->
+        <nav class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <h2><i class="fas fa-university"></i> KMIT Clubs Hub</h2>
+            </div>
+            <ul class="sidebar-menu">
+                <li><a href="admin.html"><i class="fas fa-home"></i> Dashboard</a></li>
+                <li><a href="user-management.html"><i class="fas fa-users"></i> User Management</a></li>
+                <li><a href="role-management.html"><i class="fas fa-user-shield"></i> Role Management</a></li>
+                <li><a href="club-management.html"><i class="fas fa-users-cog"></i> Club Management</a></li>
+                <li><a href="event-management.html"><i class="fas fa-calendar-alt"></i> Event Management</a></li>
+                <li><a href="reports.html" class="active"><i class="fas fa-file-alt"></i> Reports</a></li>
+                <li><a href="analytics.html"><i class="fas fa-chart-line"></i> Analytics</a></li>
+                <li><a href="system-settings.html"><i class="fas fa-cog"></i> System Settings</a></li>
+            </ul>
+            <div class="user-profile">
+                <div class="user-avatar" id="userAvatar">SA</div>
+                <div class="user-info">
+                    <h4 id="userName">Loading...</h4>
+                    <p id="userRole">System Administrator</p>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <button class="mobile-menu-toggle" id="mobileMenuToggle">
+                <i class="fas fa-bars"></i>
+            </button>
+
+            <!-- Dashboard Header -->
+            <div class="dashboard-header">
+                <div class="dashboard-title">
+                    <h1>Reports</h1>
+                    <p>Generate and manage reports for the KMIT Clubs Hub platform.</p>
+                </div>
+                <div class="dashboard-actions">
+                    <div class="notification-icon">
+                        <i class="fas fa-bell"></i>
+                        <span class="notification-badge" id="notificationCount">0</span>
+                    </div>
+                    <button class="btn btn-secondary" id="logoutBtn">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </button>
+                </div>
+            </div>
+
+            <!-- Report Filters -->
+            <div class="content-section">
+                <div class="section-header">
+                    <h3 class="section-title">Filter Reports</h3>
+                </div>
+                <div class="report-filters">
+                    <div class="filter-group">
+                        <label for="filterDateFrom">Date From</label>
+                        <input type="date" id="filterDateFrom" class="filter-control">
+                    </div>
+                    <div class="filter-group">
+                        <label for="filterDateTo">Date To</label>
+                        <input type="date" id="filterDateTo" class="filter-control">
+                    </div>
+                    <div class="filter-group">
+                        <label for="filterReportType">Report Type</label>
+                        <select id="filterReportType" class="filter-control">
+                            <option value="">All Types</option>
+                            <option value="users">Users</option>
+                            <option value="clubs">Clubs</option>
+                            <option value="events">Events</option>
+                            <option value="attendance">Attendance</option>
+                        </select>
+                    </div>
+                </div>
+                <div style="display: flex; gap: 1rem;">
+                    <button class="btn btn-primary" id="applyFilters">Apply Filters</button>
+                    <button class="btn btn-secondary" id="resetFilters">Reset Filters</button>
+                </div>
+            </div>
+
+            <!-- Available Reports -->
+            <div class="content-section">
+                <div class="section-header">
+                    <h3 class="section-title">Available Reports</h3>
+                </div>
+                <div class="reports-grid" id="reportsGrid">
+                    <div class="spinner"></div>
+                </div>
+            </div>
+
+            <!-- Generated Reports -->
+            <div class="content-section">
+                <div class="section-header">
+                    <h3 class="section-title">Generated Reports</h3>
+                </div>
+                <div class="reports-list" id="reportsList">
+                    <div class="spinner"></div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Generate Report Modal -->
+    <div id="generateReportModal" class="modal">
+        <div class="modal-content">
+            <h3>Generate Report</h3>
+            <form id="generateReportForm">
+                <input type="hidden" id="reportType">
+                <div style="margin-bottom: 1rem;">
+                    <label for="reportName">Report Name</label>
+                    <input type="text" id="reportName" class="form-control" required>
+                </div>
+                <div style="margin-bottom: 1rem;">
+                    <label for="reportDateFrom">Date From</label>
+                    <input type="date" id="reportDateFrom" class="form-control" required>
+                </div>
+                <div style="margin-bottom: 1rem;">
+                    <label for="reportDateTo">Date To</label>
+                    <input type="date" id="reportDateTo" class="form-control" required>
+                </div>
+                <div style="margin-bottom: 1rem;">
+                    <label for="reportFormat">Format</label>
+                    <select id="reportFormat" class="form-control" required>
+                        <option value="pdf">PDF</option>
+                        <option value="excel">Excel</option>
+                        <option value="csv">CSV</option>
+                    </select>
+                </div>
+                <div style="display: flex; justify-content: flex-end; gap: 1rem;">
+                    <button type="button" class="btn btn-secondary" id="cancelGenerateReport">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Generate Report</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check if user is logged in
+            const token = localStorage.getItem('token');
+            const user = JSON.parse(localStorage.getItem('user') || '{}');
+            
+            if (!token) {
+                window.location.href = '/login';
+                return;
+            }
+            
+            // Check if user has admin role
+            if (user.role !== 'admin') {
+                window.location.href = '/login';
+                return;
+            }
+            
+            // Update user profile
+            const userAvatar = document.getElementById('userAvatar');
+            const userName = document.getElementById('userName');
+            const userRole = document.getElementById('userRole');
+            
+            // Set user initials for avatar
+            if (user.name) {
+                const initials = user.name.split(' ').map(n => n[0]).join('').toUpperCase();
+                userAvatar.textContent = initials;
+                userName.textContent = user.name;
+            }
+            
+            // Set user role
+            if (user.role) {
+                userRole.textContent = user.role === 'admin' ? 'System Administrator' : 
+                                         user.role === 'faculty' ? 'Faculty Coordinator' :
+                                         user.role === 'clubLeader' ? 'Club Leader' : 'Student';
+            }
+            
+            // Mobile menu toggle
+            const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+            const sidebar = document.getElementById('sidebar');
+            
+            mobileMenuToggle.addEventListener('click', function() {
+                sidebar.classList.toggle('active');
+            });
+            
+            // Close sidebar when clicking on a link
+            document.querySelectorAll('.sidebar-menu a').forEach(link => {
+                link.addEventListener('click', () => {
+                    sidebar.classList.remove('active');
+                });
+            });
+            
+            // Logout functionality
+            document.getElementById('logoutBtn').addEventListener('click', function() {
+                localStorage.removeItem('token');
+                localStorage.removeItem('user');
+                window.location.href = '/login';
+            });
+            
+            // Fetch reports data
+            let allReports = [];
+            let generatedReports = [];
+            
+            async function fetchReports() {
+                try {
+                    // Fetch available reports
+                    const availableReports = [
+                        {
+                            id: 'users',
+                            title: 'Users Report',
+                            description: 'Generate a comprehensive report of all users in the system.',
+                            icon: 'fa-users'
+                        },
+                        {
+                            id: 'clubs',
+                            title: 'Clubs Report',
+                            description: 'Generate a report of all clubs and their activities.',
+                            icon: 'fa-users-cog'
+                        },
+                        {
+                            id: 'events',
+                            title: 'Events Report',
+                            description: 'Generate a report of all events and their status.',
+                            icon: 'fa-calendar-alt'
+                        },
+                        {
+                            id: 'attendance',
+                            title: 'Attendance Report',
+                            description: 'Generate a report of event attendance statistics.',
+                            icon: 'fa-user-check'
+                        },
+                        {
+                            id: 'activity',
+                            title: 'Activity Report',
+                            description: 'Generate a report of system activities and logs.',
+                            icon: 'fa-chart-line'
+                        },
+                        {
+                            id: 'feedback',
+                            title: 'Feedback Report',
+                            description: 'Generate a report of user feedback and ratings.',
+                            icon: 'fa-comment-alt'
+                        }
+                    ];
+                    
+                    allReports = availableReports;
+                    
+                    // Update reports grid
+                    renderReportsGrid();
+                    
+                    // Fetch generated reports
+                    const response = await fetch('/api/reports', {
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        }
+                    });
+                    
+                    if (!response.ok) {
+                        throw new Error(`Failed to fetch generated reports: ${response.status}`);
+                    }
+                    
+                    generatedReports = await response.json();
+                    
+                    // Update generated reports list
+                    renderGeneratedReports();
+                } catch (error) {
+                    console.error('Error fetching reports:', error);
+                    document.getElementById('reportsGrid').innerHTML = `<p style="color: red;">Error loading reports: ${error.message}. Please try again.</p>`;
+                    document.getElementById('reportsList').innerHTML = `<p style="color: red;">Error loading generated reports: ${error.message}. Please try again.</p>`;
+                }
+            }
+            
+            // Render reports grid
+            function renderReportsGrid() {
+                const reportsGrid = document.getElementById('reportsGrid');
+                
+                if (allReports.length === 0) {
+                    reportsGrid.innerHTML = '<p>No reports available.</p>';
+                    return;
+                }
+                
+                let gridHTML = '';
+                
+                allReports.forEach(report => {
+                    gridHTML += `
+                        <div class="report-card">
+                            <div class="report-header">
+                                <div class="report-icon">
+                                    <i class="fas ${report.icon}"></i>
+                                </div>
+                                <div class="report-title">${report.title}</div>
+                            </div>
+                            <div class="report-content">
+                                <div class="report-description">${report.description}</div>
+                                <div class="report-actions">
+                                    <button class="btn btn-primary generate-report" data-id="${report.id}" data-title="${report.title}">Generate</button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                reportsGrid.innerHTML = gridHTML;
+                
+                // Add event listeners for generate buttons
+                document.querySelectorAll('.generate-report').forEach(button => {
+                    button.addEventListener('click', function() {
+                        const reportId = this.getAttribute('data-id');
+                        const reportTitle = this.getAttribute('data-title');
+                        openGenerateReportModal(reportId, reportTitle);
+                    });
+                });
+            }
+            
+            // Render generated reports
+            function renderGeneratedReports() {
+                const reportsList = document.getElementById('reportsList');
+                
+                if (generatedReports.length === 0) {
+                    reportsList.innerHTML = '<p>No generated reports found.</p>';
+                    return;
+                }
+                
+                let listHTML = '';
+                
+                generatedReports.forEach(report => {
+                    const generatedDate = new Date(report.generatedAt).toLocaleDateString();
+                    const fileSize = report.fileSize || 'Unknown';
+                    
+                    listHTML += `
+                        <div class="report-item">
+                            <div class="report-info">
+                                <div class="report-name">${report.name}</div>
+                                <div class="report-details">
+                                    Generated on ${generatedDate} • ${fileSize} • ${report.format.toUpperCase()}
+                                </div>
+                            </div>
+                            <div class="report-item-actions">
+                                <button class="btn btn-primary download-report" data-id="${report._id}">Download</button>
+                                <button class="btn btn-danger delete-report" data-id="${report._id}">Delete</button>
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                reportsList.innerHTML = listHTML;
+                
+                // Add event listeners for action buttons
+                document.querySelectorAll('.download-report').forEach(button => {
+                    button.addEventListener('click', function() {
+                        const reportId = this.getAttribute('data-id');
+                        downloadReport(reportId);
+                    });
+                });
+                
+                document.querySelectorAll('.delete-report').forEach(button => {
+                    button.addEventListener('click', function() {
+                        const reportId = this.getAttribute('data-id');
+                        deleteReport(reportId);
+                    });
+                });
+            }
+            
+            // Apply filters
+            document.getElementById('applyFilters').addEventListener('click', function() {
+                const dateFrom = document.getElementById('filterDateFrom').value;
+                const dateTo = document.getElementById('filterDateTo').value;
+                const reportType = document.getElementById('filterReportType').value;
+                
+                // Filter generated reports
+                let filteredReports = [...generatedReports];
+                
+                if (dateFrom) {
+                    filteredReports = filteredReports.filter(report => {
+                        const reportDate = new Date(report.generatedAt);
+                        const filterDate = new Date(dateFrom);
+                        return reportDate >= filterDate;
+                    });
+                }
+                
+                if (dateTo) {
+                    filteredReports = filteredReports.filter(report => {
+                        const reportDate = new Date(report.generatedAt);
+                        const filterDate = new Date(dateTo);
+                        return reportDate <= filterDate;
+                    });
+                }
+                
+                if (reportType) {
+                    filteredReports = filteredReports.filter(report => report.type === reportType);
+                }
+                
+                // Update generated reports list
+                const reportsList = document.getElementById('reportsList');
+                
+                if (filteredReports.length === 0) {
+                    reportsList.innerHTML = '<p>No generated reports found with the selected filters.</p>';
+                    return;
+                }
+                
+                let listHTML = '';
+                
+                filteredReports.forEach(report => {
+                    const generatedDate = new Date(report.generatedAt).toLocaleDateString();
+                    const fileSize = report.fileSize || 'Unknown';
+                    
+                    listHTML += `
+                        <div class="report-item">
+                            <div class="report-info">
+                                <div class="report-name">${report.name}</div>
+                                <div class="report-details">
+                                    Generated on ${generatedDate} • ${fileSize} • ${report.format.toUpperCase()}
+                                </div>
+                            </div>
+                            <div class="report-item-actions">
+                                <button class="btn btn-primary download-report" data-id="${report._id}">Download</button>
+                                <button class="btn btn-danger delete-report" data-id="${report._id}">Delete</button>
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                reportsList.innerHTML = listHTML;
+                
+                // Add event listeners for action buttons
+                document.querySelectorAll('.download-report').forEach(button => {
+                    button.addEventListener('click', function() {
+                        const reportId = this.getAttribute('data-id');
+                        downloadReport(reportId);
+                    });
+                });
+                
+                document.querySelectorAll('.delete-report').forEach(button => {
+                    button.addEventListener('click', function() {
+                        const reportId = this.getAttribute('data-id');
+                        deleteReport(reportId);
+                    });
+                });
+            });
+            
+            // Reset filters
+            document.getElementById('resetFilters').addEventListener('click', function() {
+                document.getElementById('filterDateFrom').value = '';
+                document.getElementById('filterDateTo').value = '';
+                document.getElementById('filterReportType').value = '';
+                
+                // Reset to original generated reports list
+                renderGeneratedReports();
+            });
+            
+            // Generate Report Modal
+            const generateReportModal = document.getElementById('generateReportModal');
+            const cancelGenerateReport = document.getElementById('cancelGenerateReport');
+            const generateReportForm = document.getElementById('generateReportForm');
+            
+            cancelGenerateReport.addEventListener('click', function() {
+                generateReportModal.style.display = 'none';
+                generateReportForm.reset();
+            });
+            
+            generateReportForm.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                const reportType = document.getElementById('reportType').value;
+                const reportName = document.getElementById('reportName').value;
+                const dateFrom = document.getElementById('reportDateFrom').value;
+                const dateTo = document.getElementById('reportDateTo').value;
+                const format = document.getElementById('reportFormat').value;
+                
+                try {
+                    const response = await fetch('/api/reports/generate', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}`
+                        },
+                        body: JSON.stringify({ type: reportType, name: reportName, dateFrom, dateTo, format })
+                    });
+                    
+                    if (response.ok) {
+                        alert('Report generated successfully!');
+                        generateReportModal.style.display = 'none';
+                        generateReportForm.reset();
+                        fetchReports(); // Refresh reports list
+                    } else {
+                        const error = await response.json();
+                        alert(`Error: ${error.message}`);
+                    }
+                } catch (error) {
+                    console.error('Error generating report:', error);
+                    alert('Error generating report. Please try again.');
+                }
+            });
+            
+            // Open generate report modal
+            function openGenerateReportModal(reportId, reportTitle) {
+                // Set report type
+                document.getElementById('reportType').value = reportId;
+                
+                // Set default report name
+                document.getElementById('reportName').value = `${reportTitle} - ${new Date().toLocaleDateString()}`;
+                
+                // Set default date range (last 30 days)
+                const today = new Date();
+                const thirtyDaysAgo = new Date(today);
+                thirtyDaysAgo.setDate(today.getDate() - 30);
+                
+                document.getElementById('reportDateFrom').value = thirtyDaysAgo.toISOString().split('T')[0];
+                document.getElementById('reportDateTo').value = today.toISOString().split('T')[0];
+                
+                // Show modal
+                generateReportModal.style.display = 'flex';
+            }
+            
+            // Download report function
+            function downloadReport(reportId) {
+                window.open(`/api/reports/${reportId}/download?token=${token}`, '_blank');
+            }
+            
+            // Delete report function
+            function deleteReport(reportId) {
+                if (confirm('Are you sure you want to delete this report? This action cannot be undone.')) {
+                    fetch(`/api/reports/${reportId}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        }
+                    })
+                    .then(response => {
+                        if (response.ok) {
+                            alert('Report deleted successfully!');
+                            fetchReports(); // Refresh reports list
+                        } else {
+                            return response.json().then(error => {
+                                throw new Error(error.message);
+                            });
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error deleting report:', error);
+                        alert(`Error deleting report: ${error.message}`);
+                    });
+                }
+            }
+            
+            // Initial data fetch
+            fetchReports();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,2337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - KMIT Clubs Hub</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+    <style>
+        /* CSS Variables */
+        :root {
+            --primary: #003366; /* Deep Navy */
+            --primary-dark: #002244;
+            --secondary: #f8fafc; /* Soft Gray */
+            --accent: #ffc107; /* Gold Accent */
+            --accent-light: #ffcd39;
+            --text: #212529; /* Darker Text */
+            --light-text: #6c757d;
+            --border-radius: 12px;
+            --box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+            --transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            --section-padding: 100px 0;
+            --container-padding: 0 20px;
+            --gradient-primary: linear-gradient(135deg, #003366 0%, #0055a4 100%);
+            --gradient-accent: linear-gradient(135deg, #ffc107 0%, #ffcd39 100%);
+        }
+
+        /* Global Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Lato', sans-serif;
+            line-height: 1.7;
+            color: var(--text);
+            background-color: #fff;
+            overflow-x: hidden;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: var(--container-padding);
+        }
+
+        /* Typography */
+        h1, h2, h3, h4 {
+            font-family: 'Poppins', sans-serif;
+            margin-bottom: 1.2rem;
+            font-weight: 600;
+            line-height: 1.2;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        h2 {
+            font-size: 2rem;
+            color: var(--primary);
+            margin-bottom: 1.5rem;
+            position: relative;
+        }
+
+        h3 {
+            font-size: 1.5rem;
+            margin-bottom: 0.8rem;
+            color: var(--primary);
+        }
+
+        p {
+            margin-bottom: 1.2rem;
+            color: var(--light-text);
+            font-weight: 300;
+        }
+
+        a {
+            text-decoration: none;
+            color: var(--primary);
+            transition: var(--transition);
+        }
+
+        a:hover {
+            color: var(--accent);
+        }
+
+        /* Dashboard Layout */
+        .dashboard {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 260px;
+            background: var(--gradient-primary);
+            color: white;
+            padding: 2rem 0;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            z-index: 1000;
+            transition: var(--transition);
+        }
+
+        .sidebar-header {
+            padding: 0 1.5rem 2rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 1rem;
+        }
+
+        .sidebar-header h2 {
+            color: white;
+            font-size: 1.5rem;
+            background: none;
+            -webkit-text-fill-color: initial;
+        }
+
+        .sidebar-menu {
+            list-style: none;
+        }
+
+        .sidebar-menu li {
+            margin-bottom: 0.5rem;
+        }
+
+        .sidebar-menu a {
+            display: flex;
+            align-items: center;
+            padding: 0.8rem 1.5rem;
+            color: rgba(255, 255, 255, 0.8);
+            transition: var(--transition);
+        }
+
+        .sidebar-menu a:hover,
+        .sidebar-menu a.active {
+            background-color: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+
+        .sidebar-menu i {
+            margin-right: 0.8rem;
+            font-size: 1.2rem;
+        }
+
+        .user-profile {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 1.5rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1rem;
+            font-weight: 600;
+        }
+
+        .user-info h4 {
+            color: white;
+            font-size: 1rem;
+            margin-bottom: 0.2rem;
+        }
+
+        .user-info p {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.85rem;
+            margin: 0;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            margin-left: 260px;
+            padding: 2rem;
+            background-color: #f8fafc;
+        }
+
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .dashboard-title h1 {
+            margin-bottom: 0.5rem;
+        }
+
+        .dashboard-actions {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .notification-icon {
+            position: relative;
+            font-size: 1.5rem;
+            color: var(--primary);
+            cursor: pointer;
+        }
+
+        .notification-badge {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background-color: var(--accent);
+            color: white;
+            font-size: 0.7rem;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Stats Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background-color: white;
+            border-radius: var(--border-radius);
+            padding: 1.5rem;
+            box-shadow: var(--box-shadow);
+            transition: var(--transition);
+            border-left: 4px solid var(--primary);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+        }
+
+        .stat-card h3 {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            color: var(--primary);
+        }
+
+        .stat-card p {
+            margin: 0;
+            color: var(--light-text);
+        }
+
+        .stat-card i {
+            float: right;
+            font-size: 2rem;
+            color: var(--accent);
+            opacity: 0.7;
+        }
+
+        /* Content Sections */
+        .content-section {
+            background-color: white;
+            border-radius: var(--border-radius);
+            padding: 1.5rem;
+            box-shadow: var(--box-shadow);
+            margin-bottom: 2rem;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .section-title {
+            font-size: 1.3rem;
+            color: var(--primary);
+            margin: 0;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            border-radius: 50px;
+            font-weight: 600;
+            text-align: center;
+            cursor: pointer;
+            transition: var(--transition);
+            border: none;
+            font-size: 0.9rem;
+        }
+
+        .btn-primary {
+            background: var(--gradient-primary);
+            color: white;
+            box-shadow: 0 4px 15px rgba(0, 51, 102, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 51, 102, 0.4);
+        }
+
+        .btn-secondary {
+            background-color: transparent;
+            color: var(--primary);
+            border: 2px solid var(--primary);
+        }
+
+        .btn-secondary:hover {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .btn-success {
+            background-color: #28a745;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background-color: #218838;
+            transform: translateY(-2px);
+        }
+
+        .btn-warning {
+            background-color: #ffc107;
+            color: var(--primary-dark);
+        }
+
+        .btn-warning:hover {
+            background-color: #e0a800;
+            transform: translateY(-2px);
+        }
+
+        .btn-danger {
+            background-color: #dc3545;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background-color: #c82333;
+            transform: translateY(-2px);
+        }
+
+        /* System Overview */
+        .system-overview {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .overview-item {
+            background-color: var(--secondary);
+            border-radius: var(--border-radius);
+            padding: 1rem;
+            text-align: center;
+            transition: var(--transition);
+        }
+
+        .overview-item:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--box-shadow);
+        }
+
+        .overview-icon {
+            font-size: 2rem;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .overview-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 0.3rem;
+        }
+
+        .overview-label {
+            color: var(--light-text);
+            font-size: 0.9rem;
+        }
+
+        /* Users List */
+        .users-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .user-item {
+            display: flex;
+            align-items: center;
+            padding: 1rem;
+            background-color: var(--secondary);
+            border-radius: var(--border-radius);
+            transition: var(--transition);
+        }
+
+        .user-item:hover {
+            background-color: #e9f2f9;
+        }
+
+        .user-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background-color: var(--accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1rem;
+            font-weight: 600;
+            color: white;
+        }
+
+        .user-info {
+            flex: 1;
+        }
+
+        .user-name {
+            font-weight: 600;
+            margin-bottom: 0.3rem;
+        }
+
+        .user-details {
+            font-size: 0.9rem;
+            color: var(--light-text);
+        }
+
+        .user-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        /* Events List */
+        .events-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .event-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem;
+            background-color: var(--secondary);
+            border-radius: var(--border-radius);
+            transition: var(--transition);
+        }
+
+        .event-item:hover {
+            background-color: #e9f2f9;
+        }
+
+        .event-info {
+            flex: 1;
+        }
+
+        .event-title {
+            font-weight: 600;
+            margin-bottom: 0.3rem;
+        }
+
+        .event-details {
+            font-size: 0.9rem;
+            color: var(--light-text);
+            margin-bottom: 0.3rem;
+        }
+
+        .event-status {
+            display: flex;
+            align-items: center;
+        }
+
+        .status-badge {
+            padding: 0.3rem 0.6rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .status-badge.pending {
+            background-color: #ffc107;
+            color: var(--primary-dark);
+        }
+
+        .status-badge.approved {
+            background-color: #28a745;
+            color: white;
+        }
+
+        .status-badge.rejected {
+            background-color: #dc3545;
+            color: white;
+        }
+
+        .event-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        /* Activity Log */
+        .activity-log {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .activity-item {
+            display: flex;
+            align-items: flex-start;
+            padding: 1rem;
+            background-color: var(--secondary);
+            border-radius: var(--border-radius);
+            transition: var(--transition);
+        }
+
+        .activity-item:hover {
+            background-color: #e9f2f9;
+        }
+
+        .activity-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1rem;
+            font-size: 1rem;
+            color: white;
+            flex-shrink: 0;
+        }
+
+        .activity-info {
+            flex: 1;
+        }
+
+        .activity-text {
+            font-weight: 600;
+            margin-bottom: 0.3rem;
+        }
+
+        .activity-time {
+            font-size: 0.9rem;
+            color: var(--light-text);
+        }
+
+        /* Mobile Menu Toggle */
+        .mobile-menu-toggle {
+            display: none;
+            position: fixed;
+            top: 1rem;
+            left: 1rem;
+            z-index: 1001;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            box-shadow: var(--box-shadow);
+        }
+
+        /* Loading Spinner */
+        .spinner {
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            border-radius: 50%;
+            border-top: 4px solid var(--primary);
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Modal Styles - Improved for responsiveness */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal-content {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 12px;
+            width: 100%;
+            max-width: 500px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            animation: modalFadeIn 0.3s ease-out;
+        }
+
+        @keyframes modalFadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .modal-content h3 {
+            margin-bottom: 1.5rem;
+            color: var(--primary);
+            text-align: center;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            margin-top: 5px;
+            font-family: 'Lato', sans-serif;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+
+        .form-control:focus {
+            border-color: var(--primary);
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(0, 51, 102, 0.2);
+        }
+
+        .form-control textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        /* Notification Form Styles */
+        .notification-form {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .notification-recipients {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+
+        .recipient-option {
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+            padding: 0.5rem;
+            border-radius: 6px;
+            background-color: var(--secondary);
+            cursor: pointer;
+        }
+
+        .recipient-option:hover {
+            background-color: #e9f2f9;
+        }
+
+        .recipient-option input {
+            margin: 0;
+        }
+
+        /* Report Form Styles */
+        .report-form {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .report-options {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+            margin-top: 0.5rem;
+        }
+
+        .report-option {
+            padding: 1rem;
+            border-radius: 6px;
+            background-color: var(--secondary);
+            cursor: pointer;
+            text-align: center;
+            transition: var(--transition);
+        }
+
+        .report-option:hover {
+            background-color: #e9f2f9;
+        }
+
+        .report-option.selected {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .report-option i {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        /* Form Group Styles */
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        /* Form Actions */
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        /* Error message style */
+        .error-message {
+            background-color: #f8d7da;
+            color: #721c24;
+            padding: 10px 15px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            display: none;
+        }
+
+        /* Responsive Styles */
+        @media (max-width: 992px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            
+            .sidebar.active {
+                transform: translateX(0);
+            }
+            
+            .main-content {
+                margin-left: 0;
+            }
+            
+            .mobile-menu-toggle {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+            
+            .stats-grid {
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            }
+        }
+
+        @media (max-width: 768px) {
+            .dashboard-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+            
+            .user-item {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .user-avatar {
+                margin-right: 0;
+                margin-bottom: 0.5rem;
+            }
+            
+            .user-actions {
+                margin-left: 0;
+                margin-top: 0.5rem;
+            }
+            
+            .activity-item {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .activity-icon {
+                margin-right: 0;
+                margin-bottom: 0.5rem;
+            }
+            
+            .event-item {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .event-actions {
+                margin-left: 0;
+                margin-top: 0.5rem;
+            }
+
+            .report-options {
+                grid-template-columns: 1fr;
+            }
+            
+            /* Modal adjustments for mobile */
+            .modal-content {
+                padding: 1.5rem;
+                max-width: 100%;
+            }
+            
+            .form-actions {
+                flex-direction: column;
+            }
+            
+            .form-actions .btn {
+                width: 100%;
+            }
+        }
+
+        @media (max-width: 576px) {
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .main-content {
+                padding: 1rem;
+            }
+            
+            .system-overview {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            /* Further modal adjustments for small screens */
+            .modal-content {
+                padding: 1rem;
+            }
+            
+            .modal-content h3 {
+                font-size: 1.2rem;
+                margin-bottom: 1rem;
+            }
+            
+            .btn {
+                padding: 8px 16px;
+                font-size: 0.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard">
+        <!-- Sidebar -->
+        <nav class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <h2><i class="fas fa-university"></i> KMIT Clubs Hub</h2>
+            </div>
+            <ul class="sidebar-menu">
+                <li><a href="./admin.html" class="active"><i class="fas fa-home"></i> Dashboard</a></li>
+                <li><a href="./user-management.html"><i class="fas fa-users"></i> User Management</a></li>
+                <li><a href="./role-management.html"><i class="fas fa-user-shield"></i> Role Management</a></li>
+                <li><a href="./club-management.html"><i class="fas fa-users-cog"></i> Club Management</a></li>
+                <li><a href="./event-management.html"><i class="fas fa-calendar-alt"></i> Event Management</a></li>
+                <li><a href="./reports.html"><i class="fas fa-file-alt"></i> Reports</a></li>
+                <li><a href="./analytics.html"><i class="fas fa-chart-line"></i> Analytics</a></li>
+                <li><a href="./system-settings.html"><i class="fas fa-cog"></i> System Settings</a></li>
+            </ul>
+            <div class="user-profile">
+                <div class="user-avatar" id="userAvatar">SA</div>
+                <div class="user-info">
+                    <h4 id="userName">Loading...</h4>
+                    <p id="userRole">System Administrator</p>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <button class="mobile-menu-toggle" id="mobileMenuToggle">
+                <i class="fas fa-bars"></i>
+            </button>
+
+            <!-- Dashboard Header -->
+            <div class="dashboard-header">
+                <div class="dashboard-title">
+                    <h1>Admin Dashboard</h1>
+                    <p>Welcome back! Full control of the KMIT Clubs Hub platform.</p>
+                </div>
+                <div class="dashboard-actions">
+                    <div class="notification-icon">
+                        <i class="fas fa-bell"></i>
+                        <span class="notification-badge" id="notificationCount">0</span>
+                    </div>
+                    <button class="btn btn-secondary" id="logoutBtn">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </button>
+                </div>
+            </div>
+
+            <!-- System Overview -->
+            <div class="content-section">
+                <div class="section-header">
+                    <h3 class="section-title">System Overview</h3>
+                </div>
+                <div class="system-overview" id="systemOverview">
+                    <div class="spinner"></div>
+                </div>
+            </div>
+
+            <!-- Stats Cards -->
+            <div class="stats-grid" id="statsGrid">
+                <div class="spinner"></div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="content-section">
+                <div class="section-header">
+                    <h3 class="section-title">Quick Actions</h3>
+                </div>
+                <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                    <button class="btn btn-primary" id="createUserBtn">
+                        <i class="fas fa-user-plus"></i> Create Faculty
+                    </button>
+                    <button class="btn btn-primary" id="createClubBtn">
+                        <i class="fas fa-users-cog"></i> Create Club
+                    </button>
+                    <button class="btn btn-warning" id="sendNotificationBtn">
+                        <i class="fas fa-bullhorn"></i> Send Notification
+                    </button>
+                    <button class="btn btn-danger" id="generateReportBtn">
+                        <i class="fas fa-file-export"></i> Generate Report
+                    </button>
+                </div>
+            </div>
+
+            <!-- Recent Users -->
+            <div class="content-section">
+                <div class="section-header">
+                    <h3 class="section-title">Recent Users</h3>
+                    <a href="./user-management.html" class="btn btn-secondary">Manage All</a>
+                </div>
+                <div class="users-list" id="recentUsers">
+                    <div class="spinner"></div>
+                </div>
+            </div>
+
+            <!-- Recent Events -->
+            <div class="content-section">
+                <div class="section-header">
+                    <h3 class="section-title">Recent Events</h3>
+                    <a href="./event-management.html" class="btn btn-secondary">Manage All</a>
+                </div>
+                <div class="events-list" id="recentEvents">
+                    <div class="spinner"></div>
+                </div>
+            </div>
+
+            <!-- Activity Log -->
+            <div class="content-section">
+                <div class="section-header">
+                    <h3 class="section-title">Recent Activity</h3>
+                    <a href="./activity-log.html" class="btn btn-secondary">View All</a>
+                </div>
+                <div class="activity-log" id="activityLog">
+                    <div class="spinner"></div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Create User Modal -->
+    <div id="createUserModal" class="modal">
+        <div class="modal-content">
+            <h3>Create New Faculty</h3>
+            <form id="createUserForm">
+                <div class="form-group">
+                    <label for="newUsername">Username</label>
+                    <input type="text" id="newUsername" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="newName">Full Name</label>
+                    <input type="text" id="newName" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="newDepartment">Department</label>
+                    <input type="text" id="newDepartment" class="form-control" placeholder="e.g., Computer Science" required>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" id="cancelCreateUser">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Create Faculty</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Create Club Modal -->
+    <div id="createClubModal" class="modal">
+        <div class="modal-content">
+            <h3>Create New Club</h3>
+            <div class="error-message" id="createClubError"></div>
+            <form id="createClubForm">
+                <div class="form-group">
+                    <label for="clubName">Club Name</label>
+                    <input type="text" id="clubName" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="clubDescription">Description</label>
+                    <textarea id="clubDescription" class="form-control" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="clubCategory">Category</label>
+                    <select id="clubCategory" class="form-control" required>
+                        <option value="technical">Technical</option>
+                        <option value="cultural">Cultural</option>
+                        <option value="literary">Literary</option>
+                        <option value="arts">Arts</option>
+                        <option value="social-service">Social Service</option>
+                        <option value="sports">Sports</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="clubMission">Mission</label>
+                    <textarea id="clubMission" class="form-control" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="clubVision">Vision</label>
+                    <textarea id="clubVision" class="form-control" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="clubEstablishedDate">Established Date</label>
+                    <input type="date" id="clubEstablishedDate" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="facultyCoordinator">Faculty Coordinator</label>
+                    <input type="text" id="facultyCoordinator" class="form-control" placeholder="Enter faculty name" required>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" id="cancelCreateClub">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Create Club</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Send Notification Modal -->
+    <div id="sendNotificationModal" class="modal">
+        <div class="modal-content">
+            <h3>Send Notification</h3>
+            <form id="sendNotificationForm" class="notification-form">
+                <div class="form-group">
+                    <label for="notificationTitle">Title</label>
+                    <input type="text" id="notificationTitle" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="notificationMessage">Message</label>
+                    <textarea id="notificationMessage" class="form-control" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Recipients</label>
+                    <div class="notification-recipients">
+                        <div class="recipient-option">
+                            <input type="checkbox" id="allUsers" name="recipients" value="all" checked>
+                            <label for="allUsers">All Users</label>
+                        </div>
+                        <div class="recipient-option">
+                            <input type="checkbox" id="students" name="recipients" value="students">
+                            <label for="students">Students</label>
+                        </div>
+                        <div class="recipient-option">
+                            <input type="checkbox" id="clubLeaders" name="recipients" value="clubLeaders">
+                            <label for="clubLeaders">Club Leaders</label>
+                        </div>
+                        <div class="recipient-option">
+                            <input type="checkbox" id="faculty" name="recipients" value="faculty">
+                            <label for="faculty">Faculty</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" id="cancelSendNotification">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Send</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Generate Report Modal -->
+    <div id="generateReportModal" class="modal">
+        <div class="modal-content">
+            <h3>Generate Report</h3>
+            <form id="generateReportForm" class="report-form">
+                <div class="form-group">
+                    <label>Report Type</label>
+                    <div class="report-options">
+                        <div class="report-option" data-type="users">
+                            <i class="fas fa-users"></i>
+                            <div>Users Report</div>
+                        </div>
+                        <div class="report-option" data-type="clubs">
+                            <i class="fas fa-users-cog"></i>
+                            <div>Clubs Report</div>
+                        </div>
+                        <div class="report-option" data-type="events">
+                            <i class="fas fa-calendar-alt"></i>
+                            <div>Events Report</div>
+                        </div>
+                        <div class="report-option" data-type="activities">
+                            <i class="fas fa-chart-line"></i>
+                            <div>Activities Report</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="reportFormat">Format</label>
+                    <select id="reportFormat" class="form-control" required>
+                        <option value="pdf">PDF</option>
+                        <option value="excel">Excel</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="dateRange">Date Range</label>
+                    <select id="dateRange" class="form-control" required>
+                        <option value="all">All Time</option>
+                        <option value="today">Today</option>
+                        <option value="week">This Week</option>
+                        <option value="month">This Month</option>
+                        <option value="year">This Year</option>
+                        <option value="custom">Custom Range</option>
+                    </select>
+                </div>
+                <div id="customDateRange" style="display: none;">
+                    <div style="display: flex; gap: 1rem;">
+                        <div style="flex: 1;">
+                            <label for="startDate">Start Date</label>
+                            <input type="date" id="startDate" class="form-control">
+                        </div>
+                        <div style="flex: 1;">
+                            <label for="endDate">End Date</label>
+                            <input type="date" id="endDate" class="form-control">
+                        </div>
+                    </div>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" id="cancelGenerateReport">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Generate</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- User Detail Modal -->
+    <div id="userDetailModal" class="modal">
+        <div class="modal-content">
+            <h3>User Details</h3>
+            <div id="userDetailContent">
+                <!-- User details will be populated here -->
+            </div>
+            <div class="form-actions">
+                <button type="button" class="btn btn-secondary" id="closeUserDetail">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit User Modal -->
+    <div id="editUserModal" class="modal">
+        <div class="modal-content">
+            <h3>Edit User</h3>
+            <form id="editUserForm">
+                <input type="hidden" id="editUserId">
+                <div class="form-group">
+                    <label for="editUsername">Username</label>
+                    <input type="text" id="editUsername" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="editName">Full Name</label>
+                    <input type="text" id="editName" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="editRole">Role</label>
+                    <select id="editRole" class="form-control" required>
+                        <option value="student">Student</option>
+                        <option value="clubLeader">Club Leader</option>
+                        <option value="faculty">Faculty</option>
+                        <option value="admin">Admin</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="editDepartment">Department</label>
+                    <input type="text" id="editDepartment" class="form-control">
+                </div>
+                <div class="form-group">
+                    <label for="editClub">Club</label>
+                    <select id="editClub" class="form-control">
+                        <option value="">None</option>
+                    </select>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" id="cancelEditUser">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Event Detail Modal -->
+    <div id="eventDetailModal" class="modal">
+        <div class="modal-content">
+            <h3>Event Details</h3>
+            <div id="eventDetailContent">
+                <!-- Event details will be populated here -->
+            </div>
+            <div class="form-actions">
+                <button type="button" class="btn btn-secondary" id="closeEventDetail">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check if user is logged in
+            const token = localStorage.getItem('token');
+            const user = JSON.parse(localStorage.getItem('user') || '{}');
+            
+            if (!token) {
+                window.location.href = '/login';
+                return;
+            }
+            
+            // Check if user has admin role
+            if (user.role !== 'admin') {
+                window.location.href = '/login';
+                return;
+            }
+            
+            // Update user profile
+            const userAvatar = document.getElementById('userAvatar');
+            const userName = document.getElementById('userName');
+            const userRole = document.getElementById('userRole');
+            
+            // Set user initials for avatar
+            if (user.name) {
+                const initials = user.name.split(' ').map(n => n[0]).join('').toUpperCase();
+                userAvatar.textContent = initials;
+                userName.textContent = user.name;
+            }
+            
+            // Set user role
+            if (user.role) {
+                userRole.textContent = user.role === 'admin' ? 'System Administrator' : 
+                                         user.role === 'faculty' ? 'Faculty Coordinator' :
+                                         user.role === 'clubLeader' ? 'Club Leader' : 'Student';
+            }
+            
+            // Mobile menu toggle
+            const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+            const sidebar = document.getElementById('sidebar');
+            
+            mobileMenuToggle.addEventListener('click', function() {
+                sidebar.classList.toggle('active');
+            });
+            
+            // Close sidebar when clicking on a link
+            document.querySelectorAll('.sidebar-menu a').forEach(link => {
+                link.addEventListener('click', () => {
+                    sidebar.classList.remove('active');
+                });
+            });
+            
+            // Logout functionality
+            document.getElementById('logoutBtn').addEventListener('click', function() {
+                localStorage.removeItem('token');
+                localStorage.removeItem('user');
+                window.location.href = '/login';
+            });
+            
+            // Fetch dashboard data
+            async function fetchDashboardData() {
+                try {
+                    console.log('Fetching dashboard data...');
+                    
+                    // Fetch users data
+                    console.log('Fetching users...');
+                    const usersResponse = await fetch('/api/users', {
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        }
+                    });
+                    
+                    console.log('Users response status:', usersResponse.status);
+                    
+                    if (!usersResponse.ok) {
+                        const errorText = await usersResponse.text();
+                        console.error('Users fetch error:', errorText);
+                        throw new Error(`Failed to fetch users: ${usersResponse.status}`);
+                    }
+                    const usersData = await usersResponse.json();
+                    console.log('Users data:', usersData);
+                    
+                    // Fetch clubs data
+                    console.log('Fetching clubs...');
+                    const clubsResponse = await fetch('/api/clubs', {
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        }
+                    });
+                    
+                    console.log('Clubs response status:', clubsResponse.status);
+                    
+                    if (!clubsResponse.ok) {
+                        const errorText = await clubsResponse.text();
+                        console.error('Clubs fetch error:', errorText);
+                        throw new Error(`Failed to fetch clubs: ${clubsResponse.status}`);
+                    }
+                    const clubsData = await clubsResponse.json();
+                    console.log('Clubs data:', clubsData);
+                    
+                    // Fetch events data
+                    console.log('Fetching events...');
+                    let eventsData = [];
+                    try {
+                        const eventsResponse = await fetch('/api/events', {
+                            headers: {
+                                'Authorization': `Bearer ${token}`
+                            }
+                        });
+                        
+                        console.log('Events response status:', eventsResponse.status);
+                        
+                        if (eventsResponse.ok) {
+                            eventsData = await eventsResponse.json();
+                            console.log('Events data:', eventsData);
+                        } else {
+                            const errorText = await eventsResponse.text();
+                            console.error('Events fetch error:', errorText);
+                            // Use empty events array if API fails
+                            eventsData = [];
+                            console.log('Using empty events array');
+                        }
+                    } catch (eventsError) {
+                        console.error('Events fetch exception:', eventsError);
+                        // Use empty events array if API fails
+                        eventsData = [];
+                        console.log('Using empty events array due to exception');
+                    }
+                    
+                    // Update dashboard with fetched data
+                    updateDashboard(usersData, clubsData, eventsData);
+                } catch (error) {
+                    console.error('Error fetching dashboard data:', error);
+                    
+                    // Show more detailed error message
+                    const systemOverview = document.getElementById('systemOverview');
+                    const statsGrid = document.getElementById('statsGrid');
+                    const recentUsers = document.getElementById('recentUsers');
+                    const recentEvents = document.getElementById('recentEvents');
+                    const activityLog = document.getElementById('activityLog');
+                    
+                    const errorMessage = `
+                        <div style="padding: 20px; background-color: #f8d7da; color: #721c24; border-radius: 5px; margin-bottom: 15px;">
+                            <h4>Error Loading Data</h4>
+                            <p>${error.message}</p>
+                            <button onclick="fetchDashboardData()" style="margin-top: 10px; padding: 8px 16px; background: #003366; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                                Retry
+                            </button>
+                        </div>
+                    `;
+                    
+                    systemOverview.innerHTML = errorMessage;
+                    statsGrid.innerHTML = errorMessage;
+                    recentUsers.innerHTML = errorMessage;
+                    recentEvents.innerHTML = errorMessage;
+                    activityLog.innerHTML = errorMessage;
+                }
+            }
+            
+            // Update dashboard with fetched data
+            function updateDashboard(users, clubs, events) {
+                // Ensure data is valid
+                users = users || [];
+                clubs = clubs || [];
+                events = events || [];
+                
+                console.log('Updating dashboard with:', { users: users.length, clubs: clubs.length, events: events.length });
+                
+                // Calculate stats
+                const studentCount = users.filter(u => u.role === 'student').length;
+                const facultyCount = users.filter(u => u.role === 'faculty').length;
+                const clubLeaderCount = users.filter(u => u.role === 'clubLeader').length;
+                const adminCount = users.filter(u => u.role === 'admin').length;
+                
+                // Calculate events this month
+                const currentMonth = new Date().getMonth();
+                const currentYear = new Date().getFullYear();
+                const eventsThisMonth = events.filter(event => {
+                    try {
+                        const eventDate = new Date(event.date);
+                        return eventDate.getMonth() === currentMonth && eventDate.getFullYear() === currentYear;
+                    } catch (e) {
+                        console.error('Error parsing event date:', event.date, e);
+                        return false;
+                    }
+                }).length;
+                
+                // Update system overview
+                const systemOverview = document.getElementById('systemOverview');
+                if (systemOverview) {
+                    systemOverview.innerHTML = `
+                        <div class="overview-item">
+                            <div class="overview-icon">
+                                <i class="fas fa-users"></i>
+                            </div>
+                            <div class="overview-value">${users.length}</div>
+                            <div class="overview-label">Total Users</div>
+                        </div>
+                        <div class="overview-item">
+                            <div class="overview-icon">
+                                <i class="fas fa-users-cog"></i>
+                            </div>
+                            <div class="overview-value">${clubs.length}</div>
+                            <div class="overview-label">Active Clubs</div>
+                        </div>
+                        <div class="overview-item">
+                            <div class="overview-icon">
+                                <i class="fas fa-calendar-alt"></i>
+                            </div>
+                            <div class="overview-value">${eventsThisMonth}</div>
+                            <div class="overview-label">Events This Month</div>
+                        </div>
+                        <div class="overview-item">
+                            <div class="overview-icon">
+                                <i class="fas fa-server"></i>
+                            </div>
+                            <div class="overview-value">99.9%</div>
+                            <div class="overview-label">Uptime</div>
+                        </div>
+                    `;
+                }
+                
+                // Update stats cards
+                const statsGrid = document.getElementById('statsGrid');
+                if (statsGrid) {
+                    statsGrid.innerHTML = `
+                        <div class="stat-card">
+                            <i class="fas fa-user-graduate"></i>
+                            <h3>${studentCount}</h3>
+                            <p>Students</p>
+                        </div>
+                        <div class="stat-card">
+                            <i class="fas fa-chalkboard-teacher"></i>
+                            <h3>${facultyCount}</h3>
+                            <p>Faculty Coordinators</p>
+                        </div>
+                        <div class="stat-card">
+                            <i class="fas fa-user-tie"></i>
+                            <h3>${clubLeaderCount}</h3>
+                            <p>Club Leaders</p>
+                        </div>
+                        <div class="stat-card">
+                            <i class="fas fa-user-shield"></i>
+                            <h3>${adminCount}</h3>
+                            <p>Admins</p>
+                        </div>
+                    `;
+                }
+                
+                // Update recent users (show last 5 users)
+                const recentUsers = document.getElementById('recentUsers');
+                if (recentUsers) {
+                    const recentUsersData = users.slice(-5).reverse();
+                    if (recentUsersData.length > 0) {
+                        recentUsers.innerHTML = recentUsersData.map(user => `
+                            <div class="user-item">
+                                <div class="user-avatar">${user.name ? user.name.split(' ').map(n => n[0]).join('').toUpperCase() : 'U'}</div>
+                                <div class="user-info">
+                                    <div class="user-name">${user.name || 'Unknown'}</div>
+                                    <div class="user-details">${user.role === 'student' ? 'Student' : 
+                                                                user.role === 'faculty' ? 'Faculty Coordinator' :
+                                                                user.role === 'clubLeader' ? 'Club Leader' : 'Admin'} 
+                                                                ${user.department ? `• ${user.department}` : ''} 
+                                                                ${user.club && user.club.name ? `• ${user.club.name}` : ''} 
+                                                                • Joined ${user.createdAt ? new Date(user.createdAt).toLocaleDateString() : 'Unknown'}</div>
+                                </div>
+                                <div class="user-actions">
+                                    <button class="btn btn-primary view-user" data-id="${user._id}">View</button>
+                                    <button class="btn btn-secondary edit-user" data-id="${user._id}">Edit</button>
+                                </div>
+                            </div>
+                        `).join('');
+                        
+                        // Add event listeners for user actions
+                        document.querySelectorAll('.view-user').forEach(button => {
+                            button.addEventListener('click', function() {
+                                const userId = this.getAttribute('data-id');
+                                viewUser(userId);
+                            });
+                        });
+                        
+                        document.querySelectorAll('.edit-user').forEach(button => {
+                            button.addEventListener('click', function() {
+                                const userId = this.getAttribute('data-id');
+                                editUser(userId);
+                            });
+                        });
+                    } else {
+                        recentUsers.innerHTML = '<p>No users found.</p>';
+                    }
+                }
+                
+                // Update recent events (show last 5 events)
+                const recentEvents = document.getElementById('recentEvents');
+                if (recentEvents) {
+                    const recentEventsData = events.slice(-5).reverse();
+                    if (recentEventsData.length > 0) {
+                        recentEvents.innerHTML = recentEventsData.map(event => `
+                            <div class="event-item">
+                                <div class="event-info">
+                                    <div class="event-title">${event.title || 'Unknown Event'}</div>
+                                    <div class="event-details">
+                                        ${event.date ? new Date(event.date).toLocaleDateString() : 'Unknown Date'} 
+                                        at ${event.time || 'Unknown Time'} 
+                                        • ${event.location || 'Unknown Location'} 
+                                        • ${event.club && event.club.name ? event.club.name : 'Unknown Club'}
+                                    </div>
+                                    <div class="event-status">
+                                        <span class="status-badge ${event.status || 'unknown'}">${event.status || 'Unknown'}</span>
+                                    </div>
+                                </div>
+                                <div class="event-actions">
+                                    ${event.status === 'pending' ? `
+                                        <button class="btn btn-success approve-event" data-id="${event._id}">Approve</button>
+                                        <button class="btn btn-danger reject-event" data-id="${event._id}">Reject</button>
+                                    ` : ''}
+                                    <button class="btn btn-primary view-event" data-id="${event._id}">View</button>
+                                </div>
+                            </div>
+                        `).join('');
+                        
+                        // Add event listeners for event actions
+                        document.querySelectorAll('.approve-event').forEach(button => {
+                            button.addEventListener('click', function() {
+                                const eventId = this.getAttribute('data-id');
+                                approveEvent(eventId);
+                            });
+                        });
+                        
+                        document.querySelectorAll('.reject-event').forEach(button => {
+                            button.addEventListener('click', function() {
+                                const eventId = this.getAttribute('data-id');
+                                rejectEvent(eventId);
+                            });
+                        });
+                        
+                        document.querySelectorAll('.view-event').forEach(button => {
+                            button.addEventListener('click', function() {
+                                const eventId = this.getAttribute('data-id');
+                                viewEvent(eventId);
+                            });
+                        });
+                    } else {
+                        recentEvents.innerHTML = '<p>No events found.</p>';
+                    }
+                }
+                
+                // Update activity log (only show real activities)
+                const activityLog = document.getElementById('activityLog');
+                if (activityLog) {
+                    // Generate activity log from actual data
+                    const activities = [];
+                    
+                    // Add user creation activities
+                    users.slice(-5).reverse().forEach(user => {
+                        activities.push({
+                            icon: 'fa-user-plus',
+                            text: `New user registered: ${user.name || 'Unknown'} (${user.role || 'Unknown'})`,
+                            time: new Date(user.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                        });
+                    });
+                    
+                    // Add event creation activities
+                    events.slice(-5).reverse().forEach(event => {
+                        activities.push({
+                            icon: 'fa-calendar-plus',
+                            text: `New event created: ${event.title || 'Unknown Event'} by ${event.club && event.club.name ? event.club.name : 'Unknown Club'}`,
+                            time: new Date(event.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                        });
+                    });
+                    
+                    // Add event approval activities
+                    events.filter(e => e.status === 'approved').slice(-3).reverse().forEach(event => {
+                        activities.push({
+                            icon: 'fa-check-circle',
+                            text: `Event approved: ${event.title || 'Unknown Event'} by ${user.name || 'Admin'}`,
+                            time: new Date(event.updatedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                        });
+                    });
+                    
+                    // Add club creation activities
+                    clubs.slice(-3).reverse().forEach(club => {
+                        activities.push({
+                            icon: 'fa-users-cog',
+                            text: `New club created: ${club.name || 'Unknown Club'} by ${user.name || 'Admin'}`,
+                            time: new Date(club.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                        });
+                    });
+                    
+                    // Sort activities by time (most recent first)
+                    activities.sort((a, b) => {
+                        const timeA = new Date(`1970/01/01 ${a.time}`);
+                        const timeB = new Date(`1970/01/01 ${b.time}`);
+                        return timeB - timeA;
+                    });
+                    
+                    // Display only the 5 most recent activities
+                    if (activities.length > 0) {
+                        activityLog.innerHTML = activities.slice(0, 5).map(activity => `
+                            <div class="activity-item">
+                                <div class="activity-icon">
+                                    <i class="fas ${activity.icon}"></i>
+                                </div>
+                                <div class="activity-info">
+                                    <div class="activity-text">${activity.text}</div>
+                                    <div class="activity-time">${activity.time}</div>
+                                </div>
+                            </div>
+                        `).join('');
+                    } else {
+                        activityLog.innerHTML = '<p>No recent activity.</p>';
+                    }
+                }
+                
+                // Update notification count (only if there are pending events)
+                const notificationCount = document.getElementById('notificationCount');
+                if (notificationCount) {
+                    const pendingEvents = events.filter(e => e.status === 'pending').length;
+                    notificationCount.textContent = pendingEvents;
+                    notificationCount.style.display = pendingEvents > 0 ? 'flex' : 'none';
+                }
+            }
+            
+            // Approve event
+            async function approveEvent(eventId) {
+                try {
+                    const response = await fetch(`/api/events/${eventId}/approve`, {
+                        method: 'PUT',
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        }
+                    });
+                    
+                    if (response.ok) {
+                        alert('Event approved successfully!');
+                        fetchDashboardData();
+                    } else {
+                        const error = await response.json();
+                        alert(`Error: ${error.message}`);
+                    }
+                } catch (error) {
+                    console.error('Error approving event:', error);
+                    alert('Error approving event. Please try again.');
+                }
+            }
+            
+            // Reject event
+            async function rejectEvent(eventId) {
+                try {
+                    const response = await fetch(`/api/events/${eventId}/reject`, {
+                        method: 'PUT',
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        }
+                    });
+                    
+                    if (response.ok) {
+                        alert('Event rejected successfully!');
+                        fetchDashboardData();
+                    } else {
+                        const error = await response.json();
+                        alert(`Error: ${error.message}`);
+                    }
+                } catch (error) {
+                    console.error('Error rejecting event:', error);
+                    alert('Error rejecting event. Please try again.');
+                }
+            }
+            
+            // View user details
+            async function viewUser(userId) {
+                try {
+                    const response = await fetch(`/api/users/${userId}`, {
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        }
+                    });
+                    
+                    if (response.ok) {
+                        const user = await response.json();
+                        
+                        const userDetailContent = document.getElementById('userDetailContent');
+                        userDetailContent.innerHTML = `
+                            <div class="form-group">
+                                <label>Username</label>
+                                <p>${user.username || 'N/A'}</p>
+                            </div>
+                            <div class="form-group">
+                                <label>Full Name</label>
+                                <p>${user.name || 'N/A'}</p>
+                            </div>
+                            <div class="form-group">
+                                <label>Role</label>
+                                <p>${user.role === 'student' ? 'Student' : 
+                                    user.role === 'faculty' ? 'Faculty Coordinator' :
+                                    user.role === 'clubLeader' ? 'Club Leader' : 'Admin'}</p>
+                            </div>
+                            <div class="form-group">
+                                <label>Department</label>
+                                <p>${user.department || 'N/A'}</p>
+                            </div>
+                            <div class="form-group">
+                                <label>Club</label>
+                                <p>${user.club && user.club.name ? user.club.name : 'N/A'}</p>
+                            </div>
+                            <div class="form-group">
+                                <label>Joined Date</label>
+                                <p>${user.createdAt ? new Date(user.createdAt).toLocaleDateString() : 'N/A'}</p>
+                            </div>
+                        `;
+                        
+                        document.getElementById('userDetailModal').style.display = 'flex';
+                    } else {
+                        const error = await response.json();
+                        alert(`Error: ${error.message}`);
+                    }
+                } catch (error) {
+                    console.error('Error fetching user details:', error);
+                    alert('Error fetching user details. Please try again.');
+                }
+            }
+            
+            // Edit user
+            async function editUser(userId) {
+                try {
+                    // Fetch user data
+                    const userResponse = await fetch(`/api/users/${userId}`, {
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        }
+                    });
+                    
+                    if (!userResponse.ok) {
+                        const error = await userResponse.json();
+                        alert(`Error: ${error.message}`);
+                        return;
+                    }
+                    
+                    const user = await userResponse.json();
+                    
+                    // Populate the edit form
+                    document.getElementById('editUserId').value = user._id;
+                    document.getElementById('editUsername').value = user.username || '';
+                    document.getElementById('editName').value = user.name || '';
+                    document.getElementById('editRole').value = user.role || 'student';
+                    document.getElementById('editDepartment').value = user.department || '';
+                    
+                    // Fetch clubs for the club dropdown
+                    const clubsResponse = await fetch('/api/clubs', {
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        }
+                    });
+                    
+                    if (clubsResponse.ok) {
+                        const clubs = await clubsResponse.json();
+                        const clubSelect = document.getElementById('editClub');
+                        
+                        // Clear existing options except the first one
+                        clubSelect.innerHTML = '<option value="">None</option>';
+                        
+                        // Add clubs to dropdown
+                        clubs.forEach(club => {
+                            const option = document.createElement('option');
+                            option.value = club._id;
+                            option.textContent = club.name;
+                            
+                            // Select the user's current club
+                            if (user.club && club._id === user.club._id) {
+                                option.selected = true;
+                            }
+                            
+                            clubSelect.appendChild(option);
+                        });
+                    }
+                    
+                    // Show the modal
+                    document.getElementById('editUserModal').style.display = 'flex';
+                } catch (error) {
+                    console.error('Error fetching user for edit:', error);
+                    alert('Error fetching user for edit. Please try again.');
+                }
+            }
+            
+            // View event details
+            async function viewEvent(eventId) {
+                try {
+                    const response = await fetch(`/api/events/${eventId}`, {
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        }
+                    });
+                    
+                    if (response.ok) {
+                        const event = await response.json();
+                        
+                        const eventDetailContent = document.getElementById('eventDetailContent');
+                        eventDetailContent.innerHTML = `
+                            <div class="form-group">
+                                <label>Event Title</label>
+                                <p>${event.title || 'N/A'}</p>
+                            </div>
+                            <div class="form-group">
+                                <label>Description</label>
+                                <p>${event.description || 'N/A'}</p>
+                            </div>
+                            <div class="form-group">
+                                <label>Event Type</label>
+                                <p>${event.eventType || 'N/A'}</p>
+                            </div>
+                            <div class="form-group">
+                                <label>Date</label>
+                                <p>${event.date ? new Date(event.date).toLocaleDateString() : 'N/A'}</p>
+                            </div>
+                            <div class="form-group">
+                                <label>Time</label>
+                                <p>${event.time || 'N/A'}</p>
+                            </div>
+                            <div class="form-group">
+                                <label>Location</label>
+                                <p>${event.location || 'N/A'}</p>
+                            </div>
+                            <div class="form-group">
+                                <label>Club</label>
+                                <p>${event.club && event.club.name ? event.club.name : 'N/A'}</p>
+                            </div>
+                            <div class="form-group">
+                                <label>Status</label>
+                                <p><span class="status-badge ${event.status || 'unknown'}">${event.status || 'Unknown'}</span></p>
+                            </div>
+                            <div class="form-group">
+                                <label>Max Participants</label>
+                                <p>${event.maxParticipants || 'Unlimited'}</p>
+                            </div>
+                            <div class="form-group">
+                                <label>Created Date</label>
+                                <p>${event.createdAt ? new Date(event.createdAt).toLocaleDateString() : 'N/A'}</p>
+                            </div>
+                        `;
+                        
+                        document.getElementById('eventDetailModal').style.display = 'flex';
+                    } else {
+                        const error = await response.json();
+                        alert(`Error: ${error.message}`);
+                    }
+                } catch (error) {
+                    console.error('Error fetching event details:', error);
+                    alert('Error fetching event details. Please try again.');
+                }
+            }
+            
+            // Create User Modal
+            const createUserModal = document.getElementById('createUserModal');
+            const createUserBtn = document.getElementById('createUserBtn');
+            const cancelCreateUser = document.getElementById('cancelCreateUser');
+            const createUserForm = document.getElementById('createUserForm');
+            
+            createUserBtn.addEventListener('click', function() {
+                createUserModal.style.display = 'flex';
+            });
+            
+            cancelCreateUser.addEventListener('click', function() {
+                createUserModal.style.display = 'none';
+                createUserForm.reset();
+            });
+            
+            createUserForm.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                const username = document.getElementById('newUsername').value;
+                const name = document.getElementById('newName').value;
+                const department = document.getElementById('newDepartment').value;
+                
+                try {
+                    const response = await fetch('/api/users/faculty', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}`
+                        },
+                        body: JSON.stringify({ username, name, department })
+                    });
+                    
+                    if (response.ok) {
+                        alert('Faculty created successfully!');
+                        createUserModal.style.display = 'none';
+                        createUserForm.reset();
+                        fetchDashboardData(); // Refresh dashboard data
+                    } else {
+                        const error = await response.json();
+                        alert(`Error: ${error.message}`);
+                    }
+                } catch (error) {
+                    console.error('Error creating faculty:', error);
+                    alert('Error creating faculty. Please try again.');
+                }
+            });
+            
+            // Create Club Modal
+            const createClubModal = document.getElementById('createClubModal');
+            const createClubBtn = document.getElementById('createClubBtn');
+            const cancelCreateClub = document.getElementById('cancelCreateClub');
+            const createClubForm = document.getElementById('createClubForm');
+            const createClubError = document.getElementById('createClubError');
+            
+            createClubBtn.addEventListener('click', function() {
+                createClubModal.style.display = 'flex';
+                // Set default established date to today
+                document.getElementById('clubEstablishedDate').valueAsDate = new Date();
+            });
+            
+            cancelCreateClub.addEventListener('click', function() {
+                createClubModal.style.display = 'none';
+                createClubForm.reset();
+                createClubError.style.display = 'none';
+            });
+            
+            createClubForm.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                const name = document.getElementById('clubName').value;
+                const description = document.getElementById('clubDescription').value;
+                const category = document.getElementById('clubCategory').value;
+                const mission = document.getElementById('clubMission').value;
+                const vision = document.getElementById('clubVision').value;
+                const establishedDate = document.getElementById('clubEstablishedDate').value;
+                const facultyCoordinatorName = document.getElementById('facultyCoordinator').value;
+                
+                try {
+                    // First, find the faculty by name
+                    const facultyResponse = await fetch(`/api/users/findByName?name=${encodeURIComponent(facultyCoordinatorName)}&role=faculty`, {
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        }
+                    });
+                    
+                    let facultyCoordinatorId = null;
+                    
+                    if (facultyResponse.ok) {
+                        const faculty = await facultyResponse.json();
+                        facultyCoordinatorId = faculty._id;
+                    } else {
+                        // If faculty not found, create a new one
+                        const newFacultyResponse = await fetch('/api/users/faculty', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Authorization': `Bearer ${token}`
+                            },
+                            body: JSON.stringify({ 
+                                username: facultyCoordinatorName.toLowerCase().replace(/\s+/g, '.'), 
+                                name: facultyCoordinatorName,
+                                department: 'To be updated'
+                            })
+                        });
+                        
+                        if (newFacultyResponse.ok) {
+                            const newFaculty = await newFacultyResponse.json();
+                            facultyCoordinatorId = newFaculty._id;
+                        } else {
+                            const error = await newFacultyResponse.json();
+                            createClubError.textContent = `Error creating faculty: ${error.message}`;
+                            createClubError.style.display = 'block';
+                            return;
+                        }
+                    }
+                    
+                    // Now create the club with all required fields
+                    const clubResponse = await fetch('/api/clubs', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}`
+                        },
+                        body: JSON.stringify({ 
+                            name, 
+                            description, 
+                            category,
+                            mission,
+                            vision,
+                            establishedDate,
+                            facultyCoordinator: facultyCoordinatorId
+                        })
+                    });
+                    
+                    if (clubResponse.ok) {
+                        alert('Club created successfully!');
+                        createClubModal.style.display = 'none';
+                        createClubForm.reset();
+                        createClubError.style.display = 'none';
+                        fetchDashboardData(); // Refresh dashboard data
+                    } else {
+                        const error = await clubResponse.json();
+                        createClubError.textContent = `Error creating club: ${error.message}`;
+                        createClubError.style.display = 'block';
+                    }
+                } catch (error) {
+                    console.error('Error creating club:', error);
+                    createClubError.textContent = `Error creating club: ${error.message}`;
+                    createClubError.style.display = 'block';
+                }
+            });
+            
+            // Send Notification Modal
+            const sendNotificationModal = document.getElementById('sendNotificationModal');
+            const sendNotificationBtn = document.getElementById('sendNotificationBtn');
+            const cancelSendNotification = document.getElementById('cancelSendNotification');
+            const sendNotificationForm = document.getElementById('sendNotificationForm');
+            const allUsersCheckbox = document.getElementById('allUsers');
+            
+            sendNotificationBtn.addEventListener('click', function() {
+                sendNotificationModal.style.display = 'flex';
+            });
+            
+            cancelSendNotification.addEventListener('click', function() {
+                sendNotificationModal.style.display = 'none';
+                sendNotificationForm.reset();
+            });
+            
+            // Handle "All Users" checkbox
+            allUsersCheckbox.addEventListener('change', function() {
+                const otherCheckboxes = document.querySelectorAll('input[name="recipients"]:not(#allUsers)');
+                otherCheckboxes.forEach(checkbox => {
+                    checkbox.disabled = this.checked;
+                });
+            });
+            
+            sendNotificationForm.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                const title = document.getElementById('notificationTitle').value;
+                const message = document.getElementById('notificationMessage').value;
+                
+                // Get selected recipients
+                const recipientCheckboxes = document.querySelectorAll('input[name="recipients"]:checked');
+                const recipients = Array.from(recipientCheckboxes).map(cb => cb.value);
+                
+                try {
+                    const response = await fetch('/api/notifications', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}`
+                        },
+                        body: JSON.stringify({ title, message, recipients })
+                    });
+                    
+                    if (response.ok) {
+                        alert('Notification sent successfully!');
+                        sendNotificationModal.style.display = 'none';
+                        sendNotificationForm.reset();
+                    } else {
+                        const error = await response.json();
+                        alert(`Error: ${error.message}`);
+                    }
+                } catch (error) {
+                    console.error('Error sending notification:', error);
+                    alert('Error sending notification. Please try again.');
+                }
+            });
+            
+            // Generate Report Modal
+            const generateReportModal = document.getElementById('generateReportModal');
+            const generateReportBtn = document.getElementById('generateReportBtn');
+            const cancelGenerateReport = document.getElementById('cancelGenerateReport');
+            const generateReportForm = document.getElementById('generateReportForm');
+            const reportOptions = document.querySelectorAll('.report-option');
+            const dateRangeSelect = document.getElementById('dateRange');
+            const customDateRangeDiv = document.getElementById('customDateRange');
+            let selectedReportType = '';
+            
+            generateReportBtn.addEventListener('click', function() {
+                generateReportModal.style.display = 'flex';
+            });
+            
+            cancelGenerateReport.addEventListener('click', function() {
+                generateReportModal.style.display = 'none';
+                generateReportForm.reset();
+                reportOptions.forEach(option => option.classList.remove('selected'));
+                customDateRangeDiv.style.display = 'none';
+            });
+            
+            // Handle report type selection
+            reportOptions.forEach(option => {
+                option.addEventListener('click', function() {
+                    reportOptions.forEach(opt => opt.classList.remove('selected'));
+                    this.classList.add('selected');
+                    selectedReportType = this.getAttribute('data-type');
+                });
+            });
+            
+            // Handle date range selection
+            dateRangeSelect.addEventListener('change', function() {
+                if (this.value === 'custom') {
+                    customDateRangeDiv.style.display = 'block';
+                } else {
+                    customDateRangeDiv.style.display = 'none';
+                }
+            });
+            
+            generateReportForm.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                if (!selectedReportType) {
+                    alert('Please select a report type');
+                    return;
+                }
+                
+                const format = document.getElementById('reportFormat').value;
+                const dateRange = document.getElementById('dateRange').value;
+                
+                let startDate = '';
+                let endDate = '';
+                
+                if (dateRange === 'custom') {
+                    startDate = document.getElementById('startDate').value;
+                    endDate = document.getElementById('endDate').value;
+                    
+                    if (!startDate || !endDate) {
+                        alert('Please select both start and end dates');
+                        return;
+                    }
+                }
+                
+                try {
+                    const params = new URLSearchParams({
+                        format,
+                        dateRange
+                    });
+                    
+                    if (startDate && endDate) {
+                        params.append('startDate', startDate);
+                        params.append('endDate', endDate);
+                    }
+                    
+                    const response = await fetch(`/api/reports/${selectedReportType}?${params.toString()}`, {
+                        method: 'GET',
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        }
+                    });
+                    
+                    if (response.ok) {
+                        // Get the filename from the response headers
+                        const contentDisposition = response.headers.get('Content-Disposition');
+                        let filename = `${selectedReportType}_report.${format === 'pdf' ? 'pdf' : 'xlsx'}`;
+                        if (contentDisposition) {
+                            const filenameMatch = contentDisposition.match(/filename="(.+)"/);
+                            if (filenameMatch && filenameMatch.length === 2) {
+                                filename = filenameMatch[1];
+                            }
+                        }
+                        
+                        // Convert the response to a blob
+                        const blob = await response.blob();
+                        
+                        // Create a temporary URL to download the file
+                        const url = window.URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.style.display = 'none';
+                        a.href = url;
+                        a.download = filename;
+                        document.body.appendChild(a);
+                        a.click();
+                        window.URL.revokeObjectURL(url);
+                        
+                        alert('Report generated successfully!');
+                        generateReportModal.style.display = 'none';
+                        generateReportForm.reset();
+                        reportOptions.forEach(option => option.classList.remove('selected'));
+                        customDateRangeDiv.style.display = 'none';
+                    } else {
+                        const error = await response.json();
+                        alert(`Error: ${error.message}`);
+                    }
+                } catch (error) {
+                    console.error('Error generating report:', error);
+                    alert('Error generating report. Please try again.');
+                }
+            });
+            
+            // User Detail Modal
+            const userDetailModal = document.getElementById('userDetailModal');
+            const closeUserDetail = document.getElementById('closeUserDetail');
+            
+            closeUserDetail.addEventListener('click', function() {
+                userDetailModal.style.display = 'none';
+            });
+            
+            // Edit User Modal
+            const editUserModal = document.getElementById('editUserModal');
+            const cancelEditUser = document.getElementById('cancelEditUser');
+            const editUserForm = document.getElementById('editUserForm');
+            
+            cancelEditUser.addEventListener('click', function() {
+                editUserModal.style.display = 'none';
+                editUserForm.reset();
+            });
+            
+            editUserForm.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                const userId = document.getElementById('editUserId').value;
+                const username = document.getElementById('editUsername').value;
+                const name = document.getElementById('editName').value;
+                const role = document.getElementById('editRole').value;
+                const department = document.getElementById('editDepartment').value;
+                const clubId = document.getElementById('editClub').value;
+                
+                // Create update data object
+                const updateData = { username, name, role, department };
+                
+                // Only include club if one is selected
+                if (clubId) {
+                    updateData.club = clubId;
+                } else {
+                    updateData.club = null;
+                }
+                
+                try {
+                    const response = await fetch(`/api/users/${userId}`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}`
+                        },
+                        body: JSON.stringify(updateData)
+                    });
+                    
+                    if (response.ok) {
+                        alert('User updated successfully!');
+                        editUserModal.style.display = 'none';
+                        editUserForm.reset();
+                        fetchDashboardData(); // Refresh dashboard data
+                    } else {
+                        const error = await response.json();
+                        alert(`Error: ${error.message}`);
+                    }
+                } catch (error) {
+                    console.error('Error updating user:', error);
+                    alert('Error updating user. Please try again.');
+                }
+            });
+            
+            // Event Detail Modal
+            const eventDetailModal = document.getElementById('eventDetailModal');
+            const closeEventDetail = document.getElementById('closeEventDetail');
+            
+            closeEventDetail.addEventListener('click', function() {
+                eventDetailModal.style.display = 'none';
+            });
+            
+            // Initial data fetch
+            fetchDashboardData();
+            
+            // Simulate real-time notifications
+            const notificationIcon = document.querySelector('.notification-icon');
+            const notificationBadge = document.querySelector('.notificationBadge');
+            
+            // Simulate receiving a new notification (only if there are pending events)
+            setTimeout(() => {
+                const currentCount = parseInt(notificationBadge.textContent || 0);
+                if (currentCount > 0) {
+                    notificationBadge.textContent = currentCount + 1;
+                    
+                    // Add a pulse animation to the notification icon
+                    notificationIcon.style.animation = 'pulse 1s';
+                    setTimeout(() => {
+                        notificationIcon.style.animation = '';
+                    }, 1000);
+                }
+            }, 5000);
+        });
+        
+        // Add pulse animation keyframes
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes pulse {
+                0% { transform: scale(1); }
+                50% { transform: scale(1.2); }
+                100% { transform: scale(1); }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>

@@ -1,0 +1,1128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Role Management - KMIT Clubs Hub</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+    <style>
+        /* CSS Variables */
+        :root {
+            --primary: #003366;
+            --primary-dark: #002244;
+            --secondary: #f8fafc;
+            --accent: #ffc107;
+            --accent-light: #ffcd39;
+            --text: #212529;
+            --light-text: #6c757d;
+            --border-radius: 12px;
+            --box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+            --transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            --section-padding: 100px 0;
+            --container-padding: 0 20px;
+            --gradient-primary: linear-gradient(135deg, #003366 0%, #0055a4 100%);
+            --gradient-accent: linear-gradient(135deg, #ffc107 0%, #ffcd39 100%);
+        }
+
+        /* Global Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Lato', sans-serif;
+            line-height: 1.7;
+            color: var(--text);
+            background-color: #fff;
+            overflow-x: hidden;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: var(--container-padding);
+        }
+
+        /* Typography */
+        h1, h2, h3, h4 {
+            font-family: 'Poppins', sans-serif;
+            margin-bottom: 1.2rem;
+            font-weight: 600;
+            line-height: 1.2;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        h2 {
+            font-size: 2rem;
+            color: var(--primary);
+            margin-bottom: 1.5rem;
+            position: relative;
+        }
+
+        h3 {
+            font-size: 1.5rem;
+            margin-bottom: 0.8rem;
+            color: var(--primary);
+        }
+
+        p {
+            margin-bottom: 1.2rem;
+            color: var(--light-text);
+            font-weight: 300;
+        }
+
+        a {
+            text-decoration: none;
+            color: var(--primary);
+            transition: var(--transition);
+        }
+
+        a:hover {
+            color: var(--accent);
+        }
+
+        /* Dashboard Layout */
+        .dashboard {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 260px;
+            background: var(--gradient-primary);
+            color: white;
+            padding: 2rem 0;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            z-index: 1000;
+            transition: var(--transition);
+        }
+
+        .sidebar-header {
+            padding: 0 1.5rem 2rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 1rem;
+        }
+
+        .sidebar-header h2 {
+            color: white;
+            font-size: 1.5rem;
+            background: none;
+            -webkit-text-fill-color: initial;
+        }
+
+        .sidebar-menu {
+            list-style: none;
+        }
+
+        .sidebar-menu li {
+            margin-bottom: 0.5rem;
+        }
+
+        .sidebar-menu a {
+            display: flex;
+            align-items: center;
+            padding: 0.8rem 1.5rem;
+            color: rgba(255, 255, 255, 0.8);
+            transition: var(--transition);
+        }
+
+        .sidebar-menu a:hover,
+        .sidebar-menu a.active {
+            background-color: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+
+        .sidebar-menu i {
+            margin-right: 0.8rem;
+            font-size: 1.2rem;
+        }
+
+        .user-profile {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 1.5rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1rem;
+            font-weight: 600;
+        }
+
+        .user-info h4 {
+            color: white;
+            font-size: 1rem;
+            margin-bottom: 0.2rem;
+        }
+
+        .user-info p {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.85rem;
+            margin: 0;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            margin-left: 260px;
+            padding: 2rem;
+            background-color: #f8fafc;
+        }
+
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .dashboard-title h1 {
+            margin-bottom: 0.5rem;
+        }
+
+        .dashboard-actions {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .notification-icon {
+            position: relative;
+            font-size: 1.5rem;
+            color: var(--primary);
+            cursor: pointer;
+        }
+
+        .notification-badge {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background-color: var(--accent);
+            color: white;
+            font-size: 0.7rem;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Content Sections */
+        .content-section {
+            background-color: white;
+            border-radius: var(--border-radius);
+            padding: 1.5rem;
+            box-shadow: var(--box-shadow);
+            margin-bottom: 2rem;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .section-title {
+            font-size: 1.3rem;
+            color: var(--primary);
+            margin: 0;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            border-radius: 50px;
+            font-weight: 600;
+            text-align: center;
+            cursor: pointer;
+            transition: var(--transition);
+            border: none;
+            font-size: 0.9rem;
+        }
+
+        .btn-primary {
+            background: var(--gradient-primary);
+            color: white;
+            box-shadow: 0 4px 15px rgba(0, 51, 102, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 51, 102, 0.4);
+        }
+
+        .btn-secondary {
+            background-color: transparent;
+            color: var(--primary);
+            border: 2px solid var(--primary);
+        }
+
+        .btn-secondary:hover {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .btn-success {
+            background-color: #28a745;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background-color: #218838;
+            transform: translateY(-2px);
+        }
+
+        .btn-warning {
+            background-color: #ffc107;
+            color: var(--primary-dark);
+        }
+
+        .btn-warning:hover {
+            background-color: #e0a800;
+            transform: translateY(-2px);
+        }
+
+        .btn-danger {
+            background-color: #dc3545;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background-color: #c82333;
+            transform: translateY(-2px);
+        }
+
+        /* Roles Grid */
+        .roles-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .role-card {
+            background-color: var(--secondary);
+            border-radius: var(--border-radius);
+            padding: 1.5rem;
+            transition: var(--transition);
+            border-left: 4px solid var(--primary);
+        }
+
+        .role-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--box-shadow);
+        }
+
+        .role-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .role-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .role-icon {
+            font-size: 1.5rem;
+            color: var(--accent);
+        }
+
+        .role-description {
+            margin-bottom: 1rem;
+            color: var(--light-text);
+        }
+
+        .role-permissions {
+            margin-bottom: 1rem;
+        }
+
+        .permission-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .permission-item i {
+            color: var(--accent);
+            margin-right: 0.5rem;
+        }
+
+        .role-stats {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+        }
+
+        .role-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        /* Permission Matrix */
+        .permission-matrix {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+
+        .permission-matrix th,
+        .permission-matrix td {
+            padding: 12px 15px;
+            text-align: center;
+            border: 1px solid #e9ecef;
+        }
+
+        .permission-matrix th {
+            background-color: var(--secondary);
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .permission-matrix tr:nth-child(even) {
+            background-color: #f8fafc;
+        }
+
+        .permission-matrix .role-name {
+            text-align: left;
+            font-weight: 600;
+        }
+
+        .permission-icon {
+            font-size: 1.2rem;
+        }
+
+        .permission-icon.allowed {
+            color: #28a745;
+        }
+
+        .permission-icon.denied {
+            color: #dc3545;
+        }
+
+        /* Mobile Menu Toggle */
+        .mobile-menu-toggle {
+            display: none;
+            position: fixed;
+            top: 1rem;
+            left: 1rem;
+            z-index: 1001;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            box-shadow: var(--box-shadow);
+        }
+
+        /* Loading Spinner */
+        .spinner {
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            border-radius: 50%;
+            border-top: 4px solid var(--primary);
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 500px;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            margin-top: 5px;
+        }
+
+        .checkbox-group {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+        }
+
+        .checkbox-item input {
+            margin-right: 0.5rem;
+        }
+
+        /* Responsive Styles */
+        @media (max-width: 992px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            
+            .sidebar.active {
+                transform: translateX(0);
+            }
+            
+            .main-content {
+                margin-left: 0;
+            }
+            
+            .mobile-menu-toggle {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .dashboard-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+            
+            .roles-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .permission-matrix {
+                font-size: 0.9rem;
+            }
+            
+            .permission-matrix th,
+            .permission-matrix td {
+                padding: 8px 5px;
+            }
+        }
+
+        @media (max-width: 576px) {
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .main-content {
+                padding: 1rem;
+            }
+            
+            .permission-matrix {
+                display: block;
+                overflow-x: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard">
+        <!-- Sidebar -->
+        <nav class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <h2><i class="fas fa-university"></i> KMIT Clubs Hub</h2>
+            </div>
+            <ul class="sidebar-menu">
+                <li><a href="admin.html"><i class="fas fa-home"></i> Dashboard</a></li>
+                <li><a href="user-management.html"><i class="fas fa-users"></i> User Management</a></li>
+                <li><a href="role-management.html" class="active"><i class="fas fa-user-shield"></i> Role Management</a></li>
+                <li><a href="club-management.html"><i class="fas fa-users-cog"></i> Club Management</a></li>
+                <li><a href="event-management.html"><i class="fas fa-calendar-alt"></i> Event Management</a></li>
+                <li><a href="reports.html"><i class="fas fa-file-alt"></i> Reports</a></li>
+                <li><a href="analytics.html"><i class="fas fa-chart-line"></i> Analytics</a></li>
+                <li><a href="system-settings.html"><i class="fas fa-cog"></i> System Settings</a></li>
+            </ul>
+            <div class="user-profile">
+                <div class="user-avatar" id="userAvatar">SA</div>
+                <div class="user-info">
+                    <h4 id="userName">Loading...</h4>
+                    <p id="userRole">System Administrator</p>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <button class="mobile-menu-toggle" id="mobileMenuToggle">
+                <i class="fas fa-bars"></i>
+            </button>
+
+            <!-- Dashboard Header -->
+            <div class="dashboard-header">
+                <div class="dashboard-title">
+                    <h1>Role Management</h1>
+                    <p>Manage roles and permissions in the KMIT Clubs Hub platform.</p>
+                </div>
+                <div class="dashboard-actions">
+                    <div class="notification-icon">
+                        <i class="fas fa-bell"></i>
+                        <span class="notification-badge" id="notificationCount">0</span>
+                    </div>
+                    <button class="btn btn-secondary" id="logoutBtn">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </button>
+                </div>
+            </div>
+
+            <!-- Roles Overview -->
+            <div class="content-section">
+                <div class="section-header">
+                    <h3 class="section-title">Roles Overview</h3>
+                    <button class="btn btn-primary" id="createRoleBtn">
+                        <i class="fas fa-plus"></i> Create Role
+                    </button>
+                </div>
+                <div class="roles-grid" id="rolesGrid">
+                    <div class="spinner"></div>
+                </div>
+            </div>
+
+            <!-- Permission Matrix -->
+            <div class="content-section">
+                <div class="section-header">
+                    <h3 class="section-title">Permission Matrix</h3>
+                </div>
+                <div id="permissionMatrixContainer">
+                    <div class="spinner"></div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Create Role Modal -->
+    <div id="createRoleModal" class="modal">
+        <div class="modal-content">
+            <h3>Create New Role</h3>
+            <form id="createRoleForm">
+                <div style="margin-bottom: 1rem;">
+                    <label for="roleName">Role Name</label>
+                    <input type="text" id="roleName" class="form-control" required>
+                </div>
+                <div style="margin-bottom: 1rem;">
+                    <label for="roleDescription">Description</label>
+                    <textarea id="roleDescription" class="form-control" style="min-height: 100px;" required></textarea>
+                </div>
+                <div style="margin-bottom: 1rem;">
+                    <label>Permissions</label>
+                    <div class="checkbox-group" id="permissionsCheckboxes">
+                        <!-- Permissions will be populated dynamically -->
+                    </div>
+                </div>
+                <div style="display: flex; justify-content: flex-end; gap: 1rem;">
+                    <button type="button" class="btn btn-secondary" id="cancelCreateRole">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Create Role</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Edit Role Modal -->
+    <div id="editRoleModal" class="modal">
+        <div class="modal-content">
+            <h3>Edit Role</h3>
+            <form id="editRoleForm">
+                <input type="hidden" id="editRoleId">
+                <div style="margin-bottom: 1rem;">
+                    <label for="editRoleName">Role Name</label>
+                    <input type="text" id="editRoleName" class="form-control" required>
+                </div>
+                <div style="margin-bottom: 1rem;">
+                    <label for="editRoleDescription">Description</label>
+                    <textarea id="editRoleDescription" class="form-control" style="min-height: 100px;" required></textarea>
+                </div>
+                <div style="margin-bottom: 1rem;">
+                    <label>Permissions</label>
+                    <div class="checkbox-group" id="editPermissionsCheckboxes">
+                        <!-- Permissions will be populated dynamically -->
+                    </div>
+                </div>
+                <div style="display: flex; justify-content: flex-end; gap: 1rem;">
+                    <button type="button" class="btn btn-secondary" id="cancelEditRole">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Update Role</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check if user is logged in
+            const token = localStorage.getItem('token');
+            const user = JSON.parse(localStorage.getItem('user') || '{}');
+            
+            if (!token) {
+                window.location.href = '/login';
+                return;
+            }
+            
+            // Check if user has admin role
+            if (user.role !== 'admin') {
+                window.location.href = '/login';
+                return;
+            }
+            
+            // Update user profile
+            const userAvatar = document.getElementById('userAvatar');
+            const userName = document.getElementById('userName');
+            const userRole = document.getElementById('userRole');
+            
+            // Set user initials for avatar
+            if (user.name) {
+                const initials = user.name.split(' ').map(n => n[0]).join('').toUpperCase();
+                userAvatar.textContent = initials;
+                userName.textContent = user.name;
+            }
+            
+            // Set user role
+            if (user.role) {
+                userRole.textContent = user.role === 'admin' ? 'System Administrator' : 
+                                         user.role === 'faculty' ? 'Faculty Coordinator' :
+                                         user.role === 'clubLeader' ? 'Club Leader' : 'Student';
+            }
+            
+            // Mobile menu toggle
+            const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+            const sidebar = document.getElementById('sidebar');
+            
+            mobileMenuToggle.addEventListener('click', function() {
+                sidebar.classList.toggle('active');
+            });
+            
+            // Close sidebar when clicking on a link
+            document.querySelectorAll('.sidebar-menu a').forEach(link => {
+                link.addEventListener('click', () => {
+                    sidebar.classList.remove('active');
+                });
+            });
+            
+            // Logout functionality
+            document.getElementById('logoutBtn').addEventListener('click', function() {
+                localStorage.removeItem('token');
+                localStorage.removeItem('user');
+                window.location.href = '/login';
+            });
+            
+            // Fetch roles and permissions data
+            let allRoles = [];
+            let allPermissions = [];
+            
+            async function fetchRoles() {
+                try {
+                    const response = await fetch('/api/roles', {
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        }
+                    });
+                    
+                    if (!response.ok) {
+                        throw new Error(`Failed to fetch roles: ${response.status}`);
+                    }
+                    
+                    allRoles = await response.json();
+                    
+                    // Update roles grid
+                    renderRolesGrid();
+                    
+                    // Update permission matrix
+                    renderPermissionMatrix();
+                } catch (error) {
+                    console.error('Error fetching roles:', error);
+                    document.getElementById('rolesGrid').innerHTML = `<p style="color: red;">Error loading roles: ${error.message}. Please try again.</p>`;
+                    document.getElementById('permissionMatrixContainer').innerHTML = `<p style="color: red;">Error loading permission matrix: ${error.message}. Please try again.</p>`;
+                }
+            }
+            
+            async function fetchPermissions() {
+                try {
+                    const response = await fetch('/api/permissions', {
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        }
+                    });
+                    
+                    if (!response.ok) {
+                        throw new Error(`Failed to fetch permissions: ${response.status}`);
+                    }
+                    
+                    allPermissions = await response.json();
+                    
+                    // Update permissions checkboxes in modals
+                    renderPermissionsCheckboxes();
+                } catch (error) {
+                    console.error('Error fetching permissions:', error);
+                }
+            }
+            
+            // Render roles grid
+            function renderRolesGrid() {
+                const rolesGrid = document.getElementById('rolesGrid');
+                
+                if (allRoles.length === 0) {
+                    rolesGrid.innerHTML = '<p>No roles found.</p>';
+                    return;
+                }
+                
+                let rolesHTML = '';
+                
+                allRoles.forEach(role => {
+                    const userCount = role.userCount || 0;
+                    const permissionCount = role.permissions ? role.permissions.length : 0;
+                    
+                    rolesHTML += `
+                        <div class="role-card">
+                            <div class="role-header">
+                                <div class="role-title">${role.name}</div>
+                                <div class="role-icon">
+                                    <i class="fas ${getRoleIcon(role.name)}"></i>
+                                </div>
+                            </div>
+                            <div class="role-description">${role.description}</div>
+                            <div class="role-permissions">
+                                <div class="permission-item">
+                                    <i class="fas fa-check-circle"></i>
+                                    <span>${permissionCount} permissions</span>
+                                </div>
+                            </div>
+                            <div class="role-stats">
+                                <div><strong>${userCount}</strong> users</div>
+                                <div><strong>${permissionCount}</strong> permissions</div>
+                            </div>
+                            <div class="role-actions">
+                                <button class="btn btn-primary btn-sm edit-role" data-id="${role._id}">Edit</button>
+                                ${role.name !== 'Admin' ? `<button class="btn btn-danger btn-sm delete-role" data-id="${role._id}">Delete</button>` : ''}
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                rolesGrid.innerHTML = rolesHTML;
+                
+                // Add event listeners for action buttons
+                document.querySelectorAll('.edit-role').forEach(button => {
+                    button.addEventListener('click', function() {
+                        const roleId = this.getAttribute('data-id');
+                        editRole(roleId);
+                    });
+                });
+                
+                document.querySelectorAll('.delete-role').forEach(button => {
+                    button.addEventListener('click', function() {
+                        const roleId = this.getAttribute('data-id');
+                        deleteRole(roleId);
+                    });
+                });
+            }
+            
+            // Render permission matrix
+            function renderPermissionMatrix() {
+                const permissionMatrixContainer = document.getElementById('permissionMatrixContainer');
+                
+                if (allRoles.length === 0 || allPermissions.length === 0) {
+                    permissionMatrixContainer.innerHTML = '<p>No permission data available.</p>';
+                    return;
+                }
+                
+                let matrixHTML = `
+                    <table class="permission-matrix">
+                        <thead>
+                            <tr>
+                                <th>Role</th>
+                `;
+                
+                // Add permission headers
+                allPermissions.forEach(permission => {
+                    matrixHTML += `<th>${permission.name}</th>`;
+                });
+                
+                matrixHTML += `
+                            </tr>
+                        </thead>
+                        <tbody>
+                `;
+                
+                // Add role rows
+                allRoles.forEach(role => {
+                    matrixHTML += `<tr>`;
+                    matrixHTML += `<td class="role-name">${role.name}</td>`;
+                    
+                    // Add permission cells
+                    allPermissions.forEach(permission => {
+                        const hasPermission = role.permissions && role.permissions.includes(permission._id);
+                        matrixHTML += `
+                            <td>
+                                <i class="fas ${hasPermission ? 'fa-check-circle allowed' : 'fa-times-circle denied'} permission-icon"></i>
+                            </td>
+                        `;
+                    });
+                    
+                    matrixHTML += `</tr>`;
+                });
+                
+                matrixHTML += `
+                        </tbody>
+                    </table>
+                `;
+                
+                permissionMatrixContainer.innerHTML = matrixHTML;
+            }
+            
+            // Render permissions checkboxes
+            function renderPermissionsCheckboxes() {
+                const createCheckboxes = document.getElementById('permissionsCheckboxes');
+                const editCheckboxes = document.getElementById('editPermissionsCheckboxes');
+                
+                if (allPermissions.length === 0) {
+                    createCheckboxes.innerHTML = '<p>No permissions available.</p>';
+                    editCheckboxes.innerHTML = '<p>No permissions available.</p>';
+                    return;
+                }
+                
+                let checkboxesHTML = '';
+                
+                allPermissions.forEach(permission => {
+                    checkboxesHTML += `
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="perm-${permission._id}" value="${permission._id}">
+                            <label for="perm-${permission._id}">${permission.name}</label>
+                        </div>
+                    `;
+                });
+                
+                createCheckboxes.innerHTML = checkboxesHTML;
+                editCheckboxes.innerHTML = checkboxesHTML;
+            }
+            
+            // Get role icon based on role name
+            function getRoleIcon(roleName) {
+                switch(roleName.toLowerCase()) {
+                    case 'admin':
+                        return 'fa-user-shield';
+                    case 'faculty':
+                        return 'fa-chalkboard-teacher';
+                    case 'club leader':
+                        return 'fa-users-cog';
+                    case 'student':
+                        return 'fa-user-graduate';
+                    default:
+                        return 'fa-user';
+                }
+            }
+            
+            // Create Role Modal
+            const createRoleModal = document.getElementById('createRoleModal');
+            const createRoleBtn = document.getElementById('createRoleBtn');
+            const cancelCreateRole = document.getElementById('cancelCreateRole');
+            const createRoleForm = document.getElementById('createRoleForm');
+            
+            createRoleBtn.addEventListener('click', function() {
+                createRoleModal.style.display = 'flex';
+            });
+            
+            cancelCreateRole.addEventListener('click', function() {
+                createRoleModal.style.display = 'none';
+                createRoleForm.reset();
+            });
+            
+            createRoleForm.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                const name = document.getElementById('roleName').value;
+                const description = document.getElementById('roleDescription').value;
+                
+                // Get selected permissions
+                const selectedPermissions = [];
+                document.querySelectorAll('#permissionsCheckboxes input[type="checkbox"]:checked').forEach(checkbox => {
+                    selectedPermissions.push(checkbox.value);
+                });
+                
+                try {
+                    const response = await fetch('/api/roles', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}`
+                        },
+                        body: JSON.stringify({ name, description, permissions: selectedPermissions })
+                    });
+                    
+                    if (response.ok) {
+                        alert('Role created successfully!');
+                        createRoleModal.style.display = 'none';
+                        createRoleForm.reset();
+                        fetchRoles(); // Refresh roles list
+                    } else {
+                        const error = await response.json();
+                        alert(`Error: ${error.message}`);
+                    }
+                } catch (error) {
+                    console.error('Error creating role:', error);
+                    alert('Error creating role. Please try again.');
+                }
+            });
+            
+            // Edit Role Modal
+            const editRoleModal = document.getElementById('editRoleModal');
+            const cancelEditRole = document.getElementById('cancelEditRole');
+            const editRoleForm = document.getElementById('editRoleForm');
+            
+            cancelEditRole.addEventListener('click', function() {
+                editRoleModal.style.display = 'none';
+                editRoleForm.reset();
+            });
+            
+            editRoleForm.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                const roleId = document.getElementById('editRoleId').value;
+                const name = document.getElementById('editRoleName').value;
+                const description = document.getElementById('editRoleDescription').value;
+                
+                // Get selected permissions
+                const selectedPermissions = [];
+                document.querySelectorAll('#editPermissionsCheckboxes input[type="checkbox"]:checked').forEach(checkbox => {
+                    selectedPermissions.push(checkbox.value);
+                });
+                
+                try {
+                    const response = await fetch(`/api/roles/${roleId}`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}`
+                        },
+                        body: JSON.stringify({ name, description, permissions: selectedPermissions })
+                    });
+                    
+                    if (response.ok) {
+                        alert('Role updated successfully!');
+                        editRoleModal.style.display = 'none';
+                        editRoleForm.reset();
+                        fetchRoles(); // Refresh roles list
+                    } else {
+                        const error = await response.json();
+                        alert(`Error: ${error.message}`);
+                    }
+                } catch (error) {
+                    console.error('Error updating role:', error);
+                    alert('Error updating role. Please try again.');
+                }
+            });
+            
+            // Edit role function
+            async function editRole(roleId) {
+                try {
+                    const response = await fetch(`/api/roles/${roleId}`, {
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        }
+                    });
+                    
+                    if (!response.ok) {
+                        throw new Error(`Failed to fetch role: ${response.status}`);
+                    }
+                    
+                    const role = await response.json();
+                    
+                    // Populate form fields
+                    document.getElementById('editRoleId').value = role._id;
+                    document.getElementById('editRoleName').value = role.name;
+                    document.getElementById('editRoleDescription').value = role.description;
+                    
+                    // Check permissions
+                    document.querySelectorAll('#editPermissionsCheckboxes input[type="checkbox"]').forEach(checkbox => {
+                        checkbox.checked = role.permissions && role.permissions.includes(checkbox.value);
+                    });
+                    
+                    // Show modal
+                    editRoleModal.style.display = 'flex';
+                } catch (error) {
+                    console.error('Error fetching role for edit:', error);
+                    alert('Error fetching role details. Please try again.');
+                }
+            }
+            
+            // Delete role function
+            function deleteRole(roleId) {
+                if (confirm('Are you sure you want to delete this role? This action cannot be undone.')) {
+                    fetch(`/api/roles/${roleId}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        }
+                    })
+                    .then(response => {
+                        if (response.ok) {
+                            alert('Role deleted successfully!');
+                            fetchRoles(); // Refresh roles list
+                        } else {
+                            return response.json().then(error => {
+                                throw new Error(error.message);
+                            });
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error deleting role:', error);
+                        alert(`Error deleting role: ${error.message}`);
+                    });
+                }
+            }
+            
+            // Initial data fetch
+            fetchRoles();
+            fetchPermissions();
+        });
+    </script>
+</body>
+</html>

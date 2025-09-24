@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KMIT Clubs Hub - Discover, Connect, Engage</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+    <link href="./css/index.css" rel="stylesheet">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <h1><i class="fas fa-university"></i> KMIT Clubs Hub</h1>
+            </div>
+            <div class="nav-menu" id="navMenu">
+                <a href="#home" class="nav-link active">Home</a>
+                <a href="#about" class="nav-link">Features</a>
+                <a href="#clubs" class="nav-link">Clubs</a>
+                <a href="#events" class="nav-link">Events</a>
+                <a href="/login" class="nav-link login-btn">Login</a>
+            </div>
+            <div class="nav-toggle" id="navToggle">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </nav>
+
+    <main>
+        <section id="home" class="hero">
+            <div class="hero-container">
+                <div class="hero-content fade-in">
+                    <h1 class="hero-title">Welcome to KMIT Clubs Hub</h1>
+                    <p class="hero-subtitle">Discover amazing clubs, connect with like-minded students, and engage in exciting activities that shape your college experience.</p>
+                    <div class="hero-actions">
+                        <a href="/login" class="btn btn-primary">Get Started</a>
+                        <a href="clubs.html" class="btn btn-secondary">Explore Clubs</a>
+                    </div>
+                </div>
+                <div class="hero-image fade-in">
+                    <img src="https://images.pexels.com/photos/1595391/pexels-photo-1595391.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Students collaborating">
+                </div>
+            </div>
+        </section>
+        
+        <section class="features" id="about">
+            <div class="container">
+                <h2 class="section-title fade-in">Why Choose KMIT Clubs Hub?</h2>
+                <div class="features-grid">
+                    <div class="feature-card fade-in">
+                        <div class="feature-icon">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <h3>Join Communities</h3>
+                        <p>Connect with students who share your interests and passions across various domains.</p>
+                    </div>
+                    <div class="feature-card fade-in">
+                        <div class="feature-icon">
+                            <i class="fas fa-calendar-alt"></i>
+                        </div>
+                        <h3>Manage Events</h3>
+                        <p>Plan, organize, and participate in exciting events and activities throughout the year.</p>
+                    </div>
+                    <div class="feature-card fade-in">
+                        <div class="feature-icon">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <h3>Track Progress</h3>
+                        <p>Monitor your involvement, achievements, and leadership development journey.</p>
+                    </div>
+                    <div class="feature-card fade-in">
+                        <div class="feature-icon">
+                            <i class="fas fa-bell"></i>
+                        </div>
+                        <h3>Stay Updated</h3>
+                        <p>Receive real-time notifications about club activities, events, and important announcements.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <section id="clubs" class="popular-clubs">
+            <div class="container">
+                <h2 class="section-title fade-in">Popular Clubs</h2>
+                <div class="clubs-preview" id="clubsPreview">
+                    <div class="loading">Loading clubs</div>
+                </div>
+                <div class="text-center fade-in">
+                    <a href="./clubs.html" class="btn btn-outline">View All Clubs</a>
+                </div>
+            </div>
+        </section>
+        
+        <section id="events" class="upcoming-events">
+            <div class="container">
+                <h2 class="section-title fade-in">Upcoming Events</h2>
+                <div class="events-preview" id="eventsPreview">
+                    <div class="loading">Loading events</div>
+                </div>
+                <div class="text-center fade-in">
+                    <a href="./events.html" class="btn btn-outline">View All Events</a>
+                </div>
+            </div>
+        </section>
+    </main>
+    
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section fade-in">
+                    <h3>KMIT Clubs Hub</h3>
+                    <p>Empowering student communities and fostering leadership development through collaborative club management.</p>
+                </div>
+                <div class="footer-section fade-in">
+                    <h4>Quick Links</h4>
+                    <ul>
+                        <li><a href="#home">Home</a></li>
+                        <li><a href="#clubs">Clubs</a></li>
+                        <li><a href="#events">Events</a></li>
+                        <li><a href="/login">Login</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section fade-in">
+                    <h4>Contact</h4>
+                    <p><i class="fas fa-envelope"></i> clubs@kmit.edu.in</p>
+                    <p><i class="fas fa-phone"></i> +91 40-12345678</p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 KMIT. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/main.js"></script>
+</body>
+</html>

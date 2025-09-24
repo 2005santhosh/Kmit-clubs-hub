@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>All Clubs - KMIT Clubs Hub</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/clubs.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <h1><i class="fas fa-university"></i> KMIT Clubs Hub</h1>
+            </div>
+            <div class="nav-menu" id="navMenu">
+                <a href="index.html" class="nav-link">Home</a>
+                <a href="clubs.html" class="nav-link active">Clubs</a>
+                <!-- <a href="/events" class="nav-link">Events</a>
+                <a href="#about" class="nav-link">About</a> -->
+                <a href="/login" class="nav-link login-btn">Login</a>
+            </div>
+            <div class="nav-toggle" id="navToggle">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </nav>
+    
+    <main class="clubs-page">
+        <div class="container">
+            <div class="page-header fade-in">
+                <h1 class="page-title">All Clubs</h1>
+                <p class="page-description">Explore all the clubs at KMIT and find your community</p>
+            </div>
+            
+            <div class="clubs-filter fade-in">
+                <div class="search-container">
+                    <i class="fas fa-search search-icon"></i>
+                    <input type="text" id="clubSearch" class="search-input" placeholder="Search clubs...">
+                </div>
+                <div class="filter-dropdown">
+                    <select id="categoryFilter" class="filter-select">
+                        <option value="all">All Categories</option>
+                        <option value="technical">Technical</option>
+                        <option value="cultural">Cultural</option>
+                        <option value="sports">Sports</option>
+                        <option value="social">Social Service</option>
+                        <option value="arts">Arts</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="clubs-grid" id="clubsGrid">
+                <div class="loading">Loading clubs</div>
+            </div>
+        </div>
+    </main>
+    
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section fade-in">
+                    <h3>KMIT Clubs Hub</h3>
+                    <p>Empowering student communities and fostering leadership development through collaborative club management.</p>
+                </div>
+                <div class="footer-section fade-in">
+                    <h4>Quick Links</h4>
+                    <ul>
+                        <li><a href="index.html">Home</a></li>
+                        <li><a href="clubs.html">Clubs</a></li>
+                        <li><a href="/events">Events</a></li>
+                        <li><a href="/login">Login</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section fade-in">
+                    <h4>Contact</h4>
+                    <p><i class="fas fa-envelope"></i> clubs@kmit.edu.in</p>
+                    <p><i class="fas fa-phone"></i> +91 40-12345678</p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 KMIT. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="./js/clubs.js"></script>
+</body>
+</html>

@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - KMIT Clubs Hub</title>
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/dashboard.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="dashboard-layout">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h2><i class="fas fa-university"></i> KMIT Hub</h2>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="#overview" class="nav-item active" data-section="overview">
+                    <i class="fas fa-tachometer-alt"></i> Overview
+                </a>
+                <a href="#my-clubs" class="nav-item" data-section="my-clubs">
+                    <i class="fas fa-users"></i> My Clubs
+                </a>
+                <a href="#events" class="nav-item" data-section="events">
+                    <i class="fas fa-calendar"></i> Events
+                </a>
+                <a href="#notifications" class="nav-item" data-section="notifications">
+                    <i class="fas fa-bell"></i> Notifications
+                    <span class="notification-badge" id="notificationBadge">0</span>
+                </a>
+                <a href="#profile" class="nav-item" data-section="profile">
+                    <i class="fas fa-user"></i> Profile
+                </a>
+            </nav>
+            <div class="sidebar-footer">
+                <button class="btn btn-outline" id="logoutBtn">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="dashboard-header">
+                <h1 id="sectionTitle">Dashboard Overview</h1>
+                <div class="user-info">
+                    <span id="userName">Loading...</span>
+                    <img id="userAvatar" src="https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?auto=compress&cs=tinysrgb&w=100&h=100&fit=crop" alt="User Avatar" class="avatar">
+                </div>
+            </header>
+
+            <!-- Overview Section -->
+            <section id="overview" class="dashboard-section active">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3 id="myClubsCount">0</h3>
+                            <p>My Clubs</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-calendar-check"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3 id="upcomingEventsCount">0</h3>
+                            <p>Upcoming Events</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-trophy"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3 id="participationCount">0</h3>
+                            <p>Events Attended</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="dashboard-grid">
+                    <div class="dashboard-card">
+                        <h3>Recent Activity</h3>
+                        <div id="recentActivity" class="activity-feed">
+                            <div class="loading">Loading recent activity...</div>
+                        </div>
+                    </div>
+                    <div class="dashboard-card">
+                        <h3>Quick Actions</h3>
+                        <div class="quick-actions">
+                            <a href="/clubs" class="action-btn">
+                                <i class="fas fa-search"></i>
+                                <span>Discover Clubs</span>
+                            </a>
+                            <a href="/events" class="action-btn">
+                                <i class="fas fa-calendar-plus"></i>
+                                <span>View Events</span>
+                            </a>
+                            <button class="action-btn" id="createEventBtn">
+                                <i class="fas fa-plus"></i>
+                                <span>Create Event</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- My Clubs Section -->
+            <section id="my-clubs" class="dashboard-section">
+                <div class="section-header">
+                    <h2>My Clubs</h2>
+                    <a href="/clubs" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> Join New Club
+                    </a>
+                </div>
+                <div id="myClubsList" class="clubs-grid">
+                    <div class="loading">Loading your clubs...</div>
+                </div>
+            </section>
+
+            <!-- Events Section -->
+            <section id="events" class="dashboard-section">
+                <div class="section-header">
+                    <h2>My Events</h2>
+                    <button class="btn btn-primary" id="createEventBtnHeader">
+                        <i class="fas fa-plus"></i> Create Event
+                    </button>
+                </div>
+                <div class="events-tabs">
+                    <button class="tab-btn active" data-event-tab="registered">Registered Events</button>
+                    <button class="tab-btn" data-event-tab="organized">Organized Events</button>
+                </div>
+                <div id="eventsList" class="events-grid">
+                    <div class="loading">Loading events...</div>
+                </div>
+            </section>
+
+            <!-- Notifications Section -->
+            <section id="notifications" class="dashboard-section">
+                <div class="section-header">
+                    <h2>Notifications</h2>
+                    <button class="btn btn-outline" id="markAllReadBtn">Mark All Read</button>
+                </div>
+                <div id="notificationsList" class="notifications-list">
+                    <div class="loading">Loading notifications...</div>
+                </div>
+            </section>
+
+            <!-- Profile Section -->
+            <section id="profile" class="dashboard-section">
+                <div class="profile-header">
+                    <h2>Profile Settings</h2>
+                </div>
+                <div class="profile-content">
+                    <div class="profile-card">
+                        <div class="profile-avatar">
+                            <img id="profileAvatar" src="https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&fit=crop" alt="Profile Picture">
+                            <button class="avatar-upload-btn">
+                                <i class="fas fa-camera"></i>
+                            </button>
+                        </div>
+                        <div class="profile-info">
+                            <h3 id="profileName">Loading...</h3>
+                            <p id="profileRole">Loading...</p>
+                            <p id="profileDepartment">Loading...</p>
+                        </div>
+                    </div>
+                    <form id="profileForm" class="profile-form">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="profileFullName">Full Name</label>
+                                <input type="text" id="profileFullName" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="profileEmail">Email</label>
+                                <input type="email" id="profileEmail" required readonly>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="profileDepartmentSelect">Department</label>
+                                <select id="profileDepartmentSelect" required>
+                                    <option value="CSE">Computer Science & Engineering</option>
+                                    <option value="ECE">Electronics & Communication</option>
+                                    <option value="EEE">Electrical & Electronics</option>
+                                    <option value="MECH">Mechanical Engineering</option>
+                                    <option value="CIVIL">Civil Engineering</option>
+                                    <option value="IT">Information Technology</option>
+                                </select>
+                            </div>
+                            <div class="form-group" id="yearGroup">
+                                <label for="profileYear">Year</label>
+                                <select id="profileYear">
+                                    <option value="1">1st Year</option>
+                                    <option value="2">2nd Year</option>
+                                    <option value="3">3rd Year</option>
+                                    <option value="4">4th Year</option>
+                                </select>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> Save Changes
+                        </button>
+                    </form>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Create Event Modal -->
+    <div id="createEventModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Create New Event</h3>
+                <span class="close">&times;</span>
+            </div>
+            <form id="createEventForm">
+                <div class="form-group">
+                    <label for="eventTitle">Event Title</label>
+                    <input type="text" id="eventTitle" required>
+                </div>
+                <div class="form-group">
+                    <label for="eventDescription">Description</label>
+                    <textarea id="eventDescription" rows="3" required></textarea>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="eventClub">Club</label>
+                        <select id="eventClub" required>
+                            <option value="">Select Club</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="eventType">Event Type</label>
+                        <select id="eventType" required>
+                            <option value="">Select Type</option>
+                            <option value="workshop">Workshop</option>
+                            <option value="seminar">Seminar</option>
+                            <option value="competition">Competition</option>
+                            <option value="cultural">Cultural</option>
+                            <option value="sports">Sports</option>
+                            <option value="meeting">Meeting</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="eventDate">Date</label>
+                        <input type="date" id="eventDate" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="eventVenue">Venue</label>
+                        <input type="text" id="eventVenue" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="startTime">Start Time</label>
+                        <input type="time" id="startTime" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="endTime">End Time</label>
+                        <input type="time" id="endTime" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="maxParticipants">Max Participants (0 = unlimited)</label>
+                        <input type="number" id="maxParticipants" min="0" value="0">
+                    </div>
+                    <div class="form-group">
+                        <label for="eventBudget">Budget Required</label>
+                        <input type="number" id="eventBudget" min="0" value="0">
+                    </div>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-outline" onclick="closeModal('createEventModal')">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Create Event</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="js/dashboard.js"></script>
+</body>
+</html>

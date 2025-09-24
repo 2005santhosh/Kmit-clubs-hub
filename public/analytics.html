@@ -1,0 +1,970 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analytics - KMIT Clubs Hub</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        /* CSS Variables */
+        :root {
+            --primary: #003366;
+            --primary-dark: #002244;
+            --secondary: #f8fafc;
+            --accent: #ffc107;
+            --accent-light: #ffcd39;
+            --text: #212529;
+            --light-text: #6c757d;
+            --border-radius: 12px;
+            --box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+            --transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            --section-padding: 100px 0;
+            --container-padding: 0 20px;
+            --gradient-primary: linear-gradient(135deg, #003366 0%, #0055a4 100%);
+            --gradient-accent: linear-gradient(135deg, #ffc107 0%, #ffcd39 100%);
+        }
+
+        /* Global Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Lato', sans-serif;
+            line-height: 1.7;
+            color: var(--text);
+            background-color: #fff;
+            overflow-x: hidden;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: var(--container-padding);
+        }
+
+        /* Typography */
+        h1, h2, h3, h4 {
+            font-family: 'Poppins', sans-serif;
+            margin-bottom: 1.2rem;
+            font-weight: 600;
+            line-height: 1.2;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        h2 {
+            font-size: 2rem;
+            color: var(--primary);
+            margin-bottom: 1.5rem;
+            position: relative;
+        }
+
+        h3 {
+            font-size: 1.5rem;
+            margin-bottom: 0.8rem;
+            color: var(--primary);
+        }
+
+        p {
+            margin-bottom: 1.2rem;
+            color: var(--light-text);
+            font-weight: 300;
+        }
+
+        a {
+            text-decoration: none;
+            color: var(--primary);
+            transition: var(--transition);
+        }
+
+        a:hover {
+            color: var(--accent);
+        }
+
+        /* Dashboard Layout */
+        .dashboard {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 260px;
+            background: var(--gradient-primary);
+            color: white;
+            padding: 2rem 0;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            z-index: 1000;
+            transition: var(--transition);
+        }
+
+        .sidebar-header {
+            padding: 0 1.5rem 2rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 1rem;
+        }
+
+        .sidebar-header h2 {
+            color: white;
+            font-size: 1.5rem;
+            background: none;
+            -webkit-text-fill-color: initial;
+        }
+
+        .sidebar-menu {
+            list-style: none;
+        }
+
+        .sidebar-menu li {
+            margin-bottom: 0.5rem;
+        }
+
+        .sidebar-menu a {
+            display: flex;
+            align-items: center;
+            padding: 0.8rem 1.5rem;
+            color: rgba(255, 255, 255, 0.8);
+            transition: var(--transition);
+        }
+
+        .sidebar-menu a:hover,
+        .sidebar-menu a.active {
+            background-color: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+
+        .sidebar-menu i {
+            margin-right: 0.8rem;
+            font-size: 1.2rem;
+        }
+
+        .user-profile {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 1.5rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1rem;
+            font-weight: 600;
+        }
+
+        .user-info h4 {
+            color: white;
+            font-size: 1rem;
+            margin-bottom: 0.2rem;
+        }
+
+        .user-info p {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.85rem;
+            margin: 0;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            margin-left: 260px;
+            padding: 2rem;
+            background-color: #f8fafc;
+        }
+
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .dashboard-title h1 {
+            margin-bottom: 0.5rem;
+        }
+
+        .dashboard-actions {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .notification-icon {
+            position: relative;
+            font-size: 1.5rem;
+            color: var(--primary);
+            cursor: pointer;
+        }
+
+        .notification-badge {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background-color: var(--accent);
+            color: white;
+            font-size: 0.7rem;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Content Sections */
+        .content-section {
+            background-color: white;
+            border-radius: var(--border-radius);
+            padding: 1.5rem;
+            box-shadow: var(--box-shadow);
+            margin-bottom: 2rem;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .section-title {
+            font-size: 1.3rem;
+            color: var(--primary);
+            margin: 0;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            border-radius: 50px;
+            font-weight: 600;
+            text-align: center;
+            cursor: pointer;
+            transition: var(--transition);
+            border: none;
+            font-size: 0.9rem;
+        }
+
+        .btn-primary {
+            background: var(--gradient-primary);
+            color: white;
+            box-shadow: 0 4px 15px rgba(0, 51, 102, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 51, 102, 0.4);
+        }
+
+        .btn-secondary {
+            background-color: transparent;
+            color: var(--primary);
+            border: 2px solid var(--primary);
+        }
+
+        .btn-secondary:hover {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        /* Stats Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background-color: white;
+            border-radius: var(--border-radius);
+            padding: 1.5rem;
+            box-shadow: var(--box-shadow);
+            transition: var(--transition);
+            border-left: 4px solid var(--primary);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+        }
+
+        .stat-card h3 {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            color: var(--primary);
+        }
+
+        .stat-card p {
+            margin: 0;
+            color: var(--light-text);
+        }
+
+        .stat-card i {
+            float: right;
+            font-size: 2rem;
+            color: var(--accent);
+            opacity: 0.7;
+        }
+
+        /* Charts */
+        .chart-container {
+            position: relative;
+            height: 300px;
+            margin-bottom: 1rem;
+        }
+
+        .chart-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        /* Analytics Filters */
+        .analytics-filters {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .filter-group {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .filter-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .filter-control {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+        }
+
+        /* Mobile Menu Toggle */
+        .mobile-menu-toggle {
+            display: none;
+            position: fixed;
+            top: 1rem;
+            left: 1rem;
+            z-index: 1001;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            box-shadow: var(--box-shadow);
+        }
+
+        /* Loading Spinner */
+        .spinner {
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            border-radius: 50%;
+            border-top: 4px solid var(--primary);
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Responsive Styles */
+        @media (max-width: 992px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            
+            .sidebar.active {
+                transform: translateX(0);
+            }
+            
+            .main-content {
+                margin-left: 0;
+            }
+            
+            .mobile-menu-toggle {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .dashboard-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+            
+            .analytics-filters {
+                flex-direction: column;
+            }
+            
+            .chart-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 576px) {
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .main-content {
+                padding: 1rem;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard">
+        <!-- Sidebar -->
+        <nav class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <h2><i class="fas fa-university"></i> KMIT Clubs Hub</h2>
+            </div>
+            <ul class="sidebar-menu">
+                <li><a href="admin.html"><i class="fas fa-home"></i> Dashboard</a></li>
+                <li><a href="user-management.html"><i class="fas fa-users"></i> User Management</a></li>
+                <li><a href="role-management.html"><i class="fas fa-user-shield"></i> Role Management</a></li>
+                <li><a href="club-management.html"><i class="fas fa-users-cog"></i> Club Management</a></li>
+                <li><a href="event-management.html"><i class="fas fa-calendar-alt"></i> Event Management</a></li>
+                <li><a href="reports.html"><i class="fas fa-file-alt"></i> Reports</a></li>
+                <li><a href="analytics.html" class="active"><i class="fas fa-chart-line"></i> Analytics</a></li>
+                <li><a href="system-settings.html"><i class="fas fa-cog"></i> System Settings</a></li>
+            </ul>
+            <div class="user-profile">
+                <div class="user-avatar" id="userAvatar">SA</div>
+                <div class="user-info">
+                    <h4 id="userName">Loading...</h4>
+                    <p id="userRole">System Administrator</p>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <button class="mobile-menu-toggle" id="mobileMenuToggle">
+                <i class="fas fa-bars"></i>
+            </button>
+
+            <!-- Dashboard Header -->
+            <div class="dashboard-header">
+                <div class="dashboard-title">
+                    <h1>Analytics</h1>
+                    <p>View analytics and insights for the KMIT Clubs Hub platform.</p>
+                </div>
+                <div class="dashboard-actions">
+                    <div class="notification-icon">
+                        <i class="fas fa-bell"></i>
+                        <span class="notification-badge" id="notificationCount">0</span>
+                    </div>
+                    <button class="btn btn-secondary" id="logoutBtn">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </button>
+                </div>
+            </div>
+
+            <!-- Analytics Filters -->
+            <div class="content-section">
+                <div class="section-header">
+                    <h3 class="section-title">Filter Analytics</h3>
+                </div>
+                <div class="analytics-filters">
+                    <div class="filter-group">
+                        <label for="filterDateFrom">Date From</label>
+                        <input type="date" id="filterDateFrom" class="filter-control">
+                    </div>
+                    <div class="filter-group">
+                        <label for="filterDateTo">Date To</label>
+                        <input type="date" id="filterDateTo" class="filter-control">
+                    </div>
+                    <div class="filter-group">
+                        <label for="filterClub">Filter by Club</label>
+                        <select id="filterClub" class="filter-control">
+                            <option value="">All Clubs</option>
+                        </select>
+                    </div>
+                </div>
+                <div style="display: flex; gap: 1rem;">
+                    <button class="btn btn-primary" id="applyFilters">Apply Filters</button>
+                    <button class="btn btn-secondary" id="resetFilters">Reset Filters</button>
+                </div>
+            </div>
+
+            <!-- Overview Stats -->
+            <div class="stats-grid" id="statsGrid">
+                <div class="spinner"></div>
+            </div>
+
+            <!-- Charts Section -->
+            <div class="content-section">
+                <div class="section-header">
+                    <h3 class="section-title">User Analytics</h3>
+                </div>
+                <div class="chart-grid">
+                    <div>
+                        <h4>User Growth</h4>
+                        <div class="chart-container">
+                            <canvas id="userGrowthChart"></canvas>
+                        </div>
+                    </div>
+                    <div>
+                        <h4>User Distribution</h4>
+                        <div class="chart-container">
+                            <canvas id="userDistributionChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="content-section">
+                <div class="section-header">
+                    <h3 class="section-title">Club Analytics</h3>
+                </div>
+                <div class="chart-grid">
+                    <div>
+                        <h4>Club Memberships</h4>
+                        <div class="chart-container">
+                            <canvas id="clubMembershipsChart"></canvas>
+                        </div>
+                    </div>
+                    <div>
+                        <h4>Club Activities</h4>
+                        <div class="chart-container">
+                            <canvas id="clubActivitiesChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="content-section">
+                <div class="section-header">
+                    <h3 class="section-title">Event Analytics</h3>
+                </div>
+                <div class="chart-grid">
+                    <div>
+                        <h4>Events Over Time</h4>
+                        <div class="chart-container">
+                            <canvas id="eventsOverTimeChart"></canvas>
+                        </div>
+                    </div>
+                    <div>
+                        <h4>Event Attendance</h4>
+                        <div class="chart-container">
+                            <canvas id="eventAttendanceChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check if user is logged in
+            const token = localStorage.getItem('token');
+            const user = JSON.parse(localStorage.getItem('user') || '{}');
+            
+            if (!token) {
+                window.location.href = '/login';
+                return;
+            }
+            
+            // Check if user has admin role
+            if (user.role !== 'admin') {
+                window.location.href = '/login';
+                return;
+            }
+            
+            // Update user profile
+            const userAvatar = document.getElementById('userAvatar');
+            const userName = document.getElementById('userName');
+            const userRole = document.getElementById('userRole');
+            
+            // Set user initials for avatar
+            if (user.name) {
+                const initials = user.name.split(' ').map(n => n[0]).join('').toUpperCase();
+                userAvatar.textContent = initials;
+                userName.textContent = user.name;
+            }
+            
+            // Set user role
+            if (user.role) {
+                userRole.textContent = user.role === 'admin' ? 'System Administrator' : 
+                                         user.role === 'faculty' ? 'Faculty Coordinator' :
+                                         user.role === 'clubLeader' ? 'Club Leader' : 'Student';
+            }
+            
+            // Mobile menu toggle
+            const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+            const sidebar = document.getElementById('sidebar');
+            
+            mobileMenuToggle.addEventListener('click', function() {
+                sidebar.classList.toggle('active');
+            });
+            
+            // Close sidebar when clicking on a link
+            document.querySelectorAll('.sidebar-menu a').forEach(link => {
+                link.addEventListener('click', () => {
+                    sidebar.classList.remove('active');
+                });
+            });
+            
+            // Logout functionality
+            document.getElementById('logoutBtn').addEventListener('click', function() {
+                localStorage.removeItem('token');
+                localStorage.removeItem('user');
+                window.location.href = '/login';
+            });
+            
+            // Chart variables
+            let userGrowthChart, userDistributionChart, clubMembershipsChart, clubActivitiesChart, eventsOverTimeChart, eventAttendanceChart;
+            let allClubs = [];
+            
+            // Fetch analytics data
+            async function fetchAnalyticsData() {
+                try {
+                    // Set default date range (last 30 days)
+                    const today = new Date();
+                    const thirtyDaysAgo = new Date(today);
+                    thirtyDaysAgo.setDate(today.getDate() - 30);
+                    
+                    document.getElementById('filterDateFrom').value = thirtyDaysAgo.toISOString().split('T')[0];
+                    document.getElementById('filterDateTo').value = today.toISOString().split('T')[0];
+                    
+                    // Fetch clubs data
+                    const clubsResponse = await fetch('/api/clubs', {
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        }
+                    });
+                    
+                    if (!clubsResponse.ok) {
+                        throw new Error(`Failed to fetch clubs: ${clubsResponse.status}`);
+                    }
+                    
+                    allClubs = await clubsResponse.json();
+                    
+                    // Update club filter dropdown
+                    const clubFilter = document.getElementById('filterClub');
+                    clubFilter.innerHTML = '<option value="">All Clubs</option>';
+                    allClubs.forEach(club => {
+                        const option = document.createElement('option');
+                        option.value = club._id;
+                        option.textContent = club.name;
+                        clubFilter.appendChild(option);
+                    });
+                    
+                    // Fetch analytics data
+                    const dateFrom = document.getElementById('filterDateFrom').value;
+                    const dateTo = document.getElementById('filterDateTo').value;
+                    const clubId = document.getElementById('filterClub').value;
+                    
+                    const response = await fetch(`/api/analytics?dateFrom=${dateFrom}&dateTo=${dateTo}&clubId=${clubId}`, {
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        }
+                    });
+                    
+                    if (!response.ok) {
+                        throw new Error(`Failed to fetch analytics: ${response.status}`);
+                    }
+                    
+                    const analyticsData = await response.json();
+                    
+                    // Update stats cards
+                    updateStatsCards(analyticsData.stats);
+                    
+                    // Update charts
+                    updateCharts(analyticsData);
+                } catch (error) {
+                    console.error('Error fetching analytics data:', error);
+                    document.getElementById('statsGrid').innerHTML = `<p style="color: red;">Error loading analytics: ${error.message}. Please try again.</p>`;
+                }
+            }
+            
+            // Update stats cards
+            function updateStatsCards(stats) {
+                const statsGrid = document.getElementById('statsGrid');
+                
+                statsGrid.innerHTML = `
+                    <div class="stat-card">
+                        <i class="fas fa-users"></i>
+                        <h3>${stats.totalUsers || 0}</h3>
+                        <p>Total Users</p>
+                    </div>
+                    <div class="stat-card">
+                        <i class="fas fa-users-cog"></i>
+                        <h3>${stats.totalClubs || 0}</h3>
+                        <p>Total Clubs</p>
+                    </div>
+                    <div class="stat-card">
+                        <i class="fas fa-calendar-alt"></i>
+                        <h3>${stats.totalEvents || 0}</h3>
+                        <p>Total Events</p>
+                    </div>
+                    <div class="stat-card">
+                        <i class="fas fa-chart-line"></i>
+                        <h3>${stats.avgAttendance || 0}%</h3>
+                        <p>Avg. Attendance</p>
+                    </div>
+                `;
+            }
+            
+            // Update charts
+            function updateCharts(data) {
+                // Destroy existing charts
+                if (userGrowthChart) userGrowthChart.destroy();
+                if (userDistributionChart) userDistributionChart.destroy();
+                if (clubMembershipsChart) clubMembershipsChart.destroy();
+                if (clubActivitiesChart) clubActivitiesChart.destroy();
+                if (eventsOverTimeChart) eventsOverTimeChart.destroy();
+                if (eventAttendanceChart) eventAttendanceChart.destroy();
+                
+                // User Growth Chart
+                const userGrowthCtx = document.getElementById('userGrowthChart').getContext('2d');
+                userGrowthChart = new Chart(userGrowthCtx, {
+                    type: 'line',
+                    data: {
+                        labels: data.userGrowth.labels,
+                        datasets: [{
+                            label: 'New Users',
+                            data: data.userGrowth.data,
+                            backgroundColor: 'rgba(0, 51, 102, 0.2)',
+                            borderColor: '#003366',
+                            borderWidth: 2,
+                            tension: 0.4,
+                            fill: true
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: false
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true
+                            }
+                        }
+                    }
+                });
+                
+                // User Distribution Chart
+                const userDistributionCtx = document.getElementById('userDistributionChart').getContext('2d');
+                userDistributionChart = new Chart(userDistributionCtx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: data.userDistribution.labels,
+                        datasets: [{
+                            data: data.userDistribution.data,
+                            backgroundColor: [
+                                '#003366',
+                                '#ffc107',
+                                '#28a745',
+                                '#dc3545'
+                            ]
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'bottom'
+                            }
+                        }
+                    }
+                });
+                
+                // Club Memberships Chart
+                const clubMembershipsCtx = document.getElementById('clubMembershipsChart').getContext('2d');
+                clubMembershipsChart = new Chart(clubMembershipsCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: data.clubMemberships.labels,
+                        datasets: [{
+                            label: 'Members',
+                            data: data.clubMemberships.data,
+                            backgroundColor: '#003366'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: false
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true
+                            }
+                        }
+                    }
+                });
+                
+                // Club Activities Chart
+                const clubActivitiesCtx = document.getElementById('clubActivitiesChart').getContext('2d');
+                clubActivitiesChart = new Chart(clubActivitiesCtx, {
+                    type: 'radar',
+                    data: {
+                        labels: data.clubActivities.labels,
+                        datasets: [{
+                            label: 'Activities',
+                            data: data.clubActivities.data,
+                            backgroundColor: 'rgba(0, 51, 102, 0.2)',
+                            borderColor: '#003366',
+                            borderWidth: 2,
+                            pointBackgroundColor: '#003366'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: false
+                            }
+                        },
+                        scales: {
+                            r: {
+                                beginAtZero: true
+                            }
+                        }
+                    }
+                });
+                
+                // Events Over Time Chart
+                const eventsOverTimeCtx = document.getElementById('eventsOverTimeChart').getContext('2d');
+                eventsOverTimeChart = new Chart(eventsOverTimeCtx, {
+                    type: 'line',
+                    data: {
+                        labels: data.eventsOverTime.labels,
+                        datasets: [{
+                            label: 'Events',
+                            data: data.eventsOverTime.data,
+                            backgroundColor: 'rgba(255, 193, 7, 0.2)',
+                            borderColor: '#ffc107',
+                            borderWidth: 2,
+                            tension: 0.4,
+                            fill: true
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: false
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true
+                            }
+                        }
+                    }
+                });
+                
+                // Event Attendance Chart
+                const eventAttendanceCtx = document.getElementById('eventAttendanceChart').getContext('2d');
+                eventAttendanceChart = new Chart(eventAttendanceCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: data.eventAttendance.labels,
+                        datasets: [{
+                            label: 'Attendance %',
+                            data: data.eventAttendance.data,
+                            backgroundColor: data.eventAttendance.data.map(value => 
+                                value >= 80 ? '#28a745' : value >= 60 ? '#ffc107' : '#dc3545'
+                            )
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: false
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                max: 100
+                            }
+                        }
+                    }
+                });
+            }
+            
+            // Apply filters
+            document.getElementById('applyFilters').addEventListener('click', function() {
+                fetchAnalyticsData();
+            });
+            
+            // Reset filters
+            document.getElementById('resetFilters').addEventListener('click', function() {
+                // Set default date range (last 30 days)
+                const today = new Date();
+                const thirtyDaysAgo = new Date(today);
+                thirtyDaysAgo.setDate(today.getDate() - 30);
+                
+                document.getElementById('filterDateFrom').value = thirtyDaysAgo.toISOString().split('T')[0];
+                document.getElementById('filterDateTo').value = today.toISOString().split('T')[0];
+                document.getElementById('filterClub').value = '';
+                
+                fetchAnalyticsData();
+            });
+            
+            // Initial data fetch
+            fetchAnalyticsData();
+        });
+    </script>
+</body>
+</html>
