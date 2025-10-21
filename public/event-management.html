@@ -318,6 +318,11 @@
             transform: translateY(-2px);
         }
 
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 0.8rem;
+        }
+
         /* Events Table */
         .events-table {
             width: 100%;
@@ -382,6 +387,19 @@
         .event-actions {
             display: flex;
             gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .budget-info {
+            font-size: 0.85rem;
+        }
+
+        .budget-requested {
+            color: var(--primary);
+        }
+
+        .budget-approved {
+            color: #28a745;
         }
 
         /* Event Filters */
@@ -496,7 +514,9 @@
             padding: 2rem;
             border-radius: 12px;
             width: 90%;
-            max-width: 500px;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
         }
 
         .form-control {
@@ -505,6 +525,49 @@
             border: 1px solid #ddd;
             border-radius: 6px;
             margin-top: 5px;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .detail-group {
+            margin-bottom: 1.5rem;
+            padding: 1rem;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid var(--primary);
+        }
+
+        .detail-group h4 {
+            color: var(--primary);
+            margin-bottom: 0.8rem;
+            font-size: 1.1rem;
+        }
+
+        .detail-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+            padding: 0.3rem 0;
+        }
+
+        .detail-label {
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .detail-value {
+            color: var(--light-text);
+            text-align: right;
+            flex: 1;
         }
 
         /* Responsive Styles */
@@ -550,6 +613,16 @@
             
             .event-actions {
                 flex-direction: column;
+            }
+
+            .detail-item {
+                flex-direction: column;
+                text-align: left;
+            }
+
+            .detail-value {
+                text-align: left;
+                margin-top: 0.2rem;
             }
         }
 
@@ -660,9 +733,6 @@
             <div class="content-section">
                 <div class="section-header">
                     <h3 class="section-title">All Events</h3>
-                    <button class="btn btn-primary" id="createEventBtn">
-                        <i class="fas fa-plus"></i> Create Event
-                    </button>
                 </div>
                 <div id="eventsTableContainer">
                     <div class="spinner"></div>
@@ -674,92 +744,16 @@
         </main>
     </div>
 
-    <!-- Create Event Modal -->
-    <div id="createEventModal" class="modal">
+    <!-- View Event Modal -->
+    <div id="viewEventModal" class="modal">
         <div class="modal-content">
-            <h3>Create New Event</h3>
-            <form id="createEventForm">
-                <div style="margin-bottom: 1rem;">
-                    <label for="eventTitle">Event Title</label>
-                    <input type="text" id="eventTitle" class="form-control" required>
-                </div>
-                <div style="margin-bottom: 1rem;">
-                    <label for="eventDescription">Description</label>
-                    <textarea id="eventDescription" class="form-control" style="min-height: 100px;" required></textarea>
-                </div>
-                <div style="margin-bottom: 1rem;">
-                    <label for="eventDate">Date</label>
-                    <input type="date" id="eventDate" class="form-control" required>
-                </div>
-                <div style="margin-bottom: 1rem;">
-                    <label for="eventTime">Time</label>
-                    <input type="time" id="eventTime" class="form-control" required>
-                </div>
-                <div style="margin-bottom: 1rem;">
-                    <label for="eventLocation">Location</label>
-                    <input type="text" id="eventLocation" class="form-control" required>
-                </div>
-                <div style="margin-bottom: 1rem;">
-                    <label for="eventClub">Club</label>
-                    <select id="eventClub" class="form-control" required>
-                        <option value="">Select a club</option>
-                    </select>
-                </div>
-                <div style="display: flex; justify-content: flex-end; gap: 1rem;">
-                    <button type="button" class="btn btn-secondary" id="cancelCreateEvent">Cancel</button>
-                    <button type="submit" class="btn btn-primary">Create Event</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- Edit Event Modal -->
-    <div id="editEventModal" class="modal">
-        <div class="modal-content">
-            <h3>Edit Event</h3>
-            <form id="editEventForm">
-                <input type="hidden" id="editEventId">
-                <div style="margin-bottom: 1rem;">
-                    <label for="editEventTitle">Event Title</label>
-                    <input type="text" id="editEventTitle" class="form-control" required>
-                </div>
-                <div style="margin-bottom: 1rem;">
-                    <label for="editEventDescription">Description</label>
-                    <textarea id="editEventDescription" class="form-control" style="min-height: 100px;" required></textarea>
-                </div>
-                <div style="margin-bottom: 1rem;">
-                    <label for="editEventDate">Date</label>
-                    <input type="date" id="editEventDate" class="form-control" required>
-                </div>
-                <div style="margin-bottom: 1rem;">
-                    <label for="editEventTime">Time</label>
-                    <input type="time" id="editEventTime" class="form-control" required>
-                </div>
-                <div style="margin-bottom: 1rem;">
-                    <label for="editEventLocation">Location</label>
-                    <input type="text" id="editEventLocation" class="form-control" required>
-                </div>
-                <div style="margin-bottom: 1rem;">
-                    <label for="editEventClub">Club</label>
-                    <select id="editEventClub" class="form-control" required>
-                        <option value="">Select a club</option>
-                    </select>
-                </div>
-                <div style="margin-bottom: 1rem;">
-                    <label for="editEventStatus">Status</label>
-                    <select id="editEventStatus" class="form-control">
-                        <option value="pending">Pending</option>
-                        <option value="approved">Approved</option>
-                        <option value="rejected">Rejected</option>
-                        <option value="completed">Completed</option>
-                        <option value="cancelled">Cancelled</option>
-                    </select>
-                </div>
-                <div style="display: flex; justify-content: flex-end; gap: 1rem;">
-                    <button type="button" class="btn btn-secondary" id="cancelEditEvent">Cancel</button>
-                    <button type="submit" class="btn btn-primary">Update Event</button>
-                </div>
-            </form>
+            <h3>Event Details</h3>
+            <div id="viewEventContent">
+                <!-- Event details will be populated here -->
+            </div>
+            <div style="display: flex; justify-content: flex-end; gap: 1rem; margin-top: 1.5rem;">
+                <button type="button" class="btn btn-secondary" id="closeViewEvent">Close</button>
+            </div>
         </div>
     </div>
 
@@ -821,6 +815,11 @@
                 window.location.href = '/login';
             });
             
+            // Format budget as rupees
+            function formatBudget(amount) {
+                return `₹${parseFloat(amount).toFixed(2)}`;
+            }
+            
             // Pagination variables
             let currentPage = 1;
             const eventsPerPage = 10;
@@ -857,7 +856,8 @@
                     notificationCount.style.display = pendingEvents > 0 ? 'flex' : 'none';
                 } catch (error) {
                     console.error('Error fetching events:', error);
-                    document.getElementById('eventsTableContainer').innerHTML = `<p style="color: red;">Error loading events: ${error.message}. Please try again.</p>`;
+                    document.getElementById('eventsTableContainer').innerHTML = 
+                        `<p style="color: red;">Error loading events: ${error.message}. Please try again.</p>`;
                 }
             }
             
@@ -884,26 +884,6 @@
                         option.value = club._id;
                         option.textContent = club.name;
                         clubFilter.appendChild(option);
-                    });
-                    
-                    // Update club dropdown in create event modal
-                    const eventClubSelect = document.getElementById('eventClub');
-                    eventClubSelect.innerHTML = '<option value="">Select a club</option>';
-                    allClubs.forEach(club => {
-                        const option = document.createElement('option');
-                        option.value = club._id;
-                        option.textContent = club.name;
-                        eventClubSelect.appendChild(option);
-                    });
-                    
-                    // Update club dropdown in edit event modal
-                    const editEventClubSelect = document.getElementById('editEventClub');
-                    editEventClubSelect.innerHTML = '<option value="">Select a club</option>';
-                    allClubs.forEach(club => {
-                        const option = document.createElement('option');
-                        option.value = club._id;
-                        option.textContent = club.name;
-                        editEventClubSelect.appendChild(option);
                     });
                 } catch (error) {
                     console.error('Error fetching clubs:', error);
@@ -933,6 +913,7 @@
                                 <th>Date & Time</th>
                                 <th>Location</th>
                                 <th>Club</th>
+                                <th>Budget (₹)</th>
                                 <th>Status</th>
                                 <th>Actions</th>
                             </tr>
@@ -942,8 +923,10 @@
                 
                 paginatedEvents.forEach(event => {
                     const eventDate = event.date ? new Date(event.date).toLocaleDateString() : 'Unknown';
-                    const eventTime = event.time || 'Unknown';
-                    const clubName = event.club && event.club.name ? event.club.name : 'Unknown';
+                    const eventTime = event.startTime || 'Unknown';
+                    const clubName = event.clubId && event.clubId.name ? event.clubId.name : 'Unknown';
+                    const budgetRequested = event.budget && event.budget.requested ? event.budget.requested : 0;
+                    const budgetApproved = event.budget && event.budget.approved ? event.budget.approved : 0;
                     
                     tableHTML += `
                         <tr>
@@ -952,8 +935,14 @@
                                 <div style="font-size: 0.85rem; color: var(--light-text);">${event.description ? event.description.substring(0, 50) + '...' : 'No description'}</div>
                             </td>
                             <td>${eventDate} at ${eventTime}</td>
-                            <td>${event.location || 'Unknown'}</td>
+                            <td>${event.venue || 'Unknown'}</td>
                             <td>${clubName}</td>
+                            <td>
+                                <div class="budget-info">
+                                    <div class="budget-requested">Requested: ${formatBudget(budgetRequested)}</div>
+                                    ${budgetApproved > 0 ? `<div class="budget-approved">Approved: ${formatBudget(budgetApproved)}</div>` : ''}
+                                </div>
+                            </td>
                             <td>
                                 <div class="event-status">
                                     <span class="status-badge ${event.status || 'unknown'}">${event.status || 'Unknown'}</span>
@@ -962,7 +951,6 @@
                             <td>
                                 <div class="event-actions">
                                     <button class="btn btn-primary btn-sm view-event" data-id="${event._id}">View</button>
-                                    <button class="btn btn-secondary btn-sm edit-event" data-id="${event._id}">Edit</button>
                                     ${event.status === 'pending' ? `
                                         <button class="btn btn-success btn-sm approve-event" data-id="${event._id}">Approve</button>
                                         <button class="btn btn-danger btn-sm reject-event" data-id="${event._id}">Reject</button>
@@ -985,13 +973,6 @@
                 eventsTableContainer.innerHTML = tableHTML;
                 
                 // Add event listeners for action buttons
-                document.querySelectorAll('.edit-event').forEach(button => {
-                    button.addEventListener('click', function() {
-                        const eventId = this.getAttribute('data-id');
-                        editEvent(eventId);
-                    });
-                });
-                
                 document.querySelectorAll('.approve-event').forEach(button => {
                     button.addEventListener('click', function() {
                         const eventId = this.getAttribute('data-id');
@@ -1017,6 +998,14 @@
                     button.addEventListener('click', function() {
                         const eventId = this.getAttribute('data-id');
                         cancelEvent(eventId);
+                    });
+                });
+
+                // View event
+                document.querySelectorAll('.view-event').forEach(button => {
+                    button.addEventListener('click', function() {
+                        const eventId = this.getAttribute('data-id');
+                        viewEvent(eventId);
                     });
                 });
             }
@@ -1099,7 +1088,7 @@
                     
                     // Club filter
                     const matchesClub = !clubFilter || 
-                        (event.club && event.club._id === clubFilter);
+                        (event.clubId && event.clubId._id === clubFilter);
                     
                     // Status filter
                     const matchesStatus = !statusFilter || event.status === statusFilter;
@@ -1136,105 +1125,16 @@
                 renderPagination();
             });
             
-            // Create Event Modal
-            const createEventModal = document.getElementById('createEventModal');
-            const createEventBtn = document.getElementById('createEventBtn');
-            const cancelCreateEvent = document.getElementById('cancelCreateEvent');
-            const createEventForm = document.getElementById('createEventForm');
+            // View Event Modal
+            const viewEventModal = document.getElementById('viewEventModal');
+            const closeViewEvent = document.getElementById('closeViewEvent');
             
-            createEventBtn.addEventListener('click', function() {
-                createEventModal.style.display = 'flex';
+            closeViewEvent.addEventListener('click', function() {
+                viewEventModal.style.display = 'none';
             });
             
-            cancelCreateEvent.addEventListener('click', function() {
-                createEventModal.style.display = 'none';
-                createEventForm.reset();
-            });
-            
-            createEventForm.addEventListener('submit', async function(e) {
-                e.preventDefault();
-                
-                const title = document.getElementById('eventTitle').value;
-                const description = document.getElementById('eventDescription').value;
-                const date = document.getElementById('eventDate').value;
-                const time = document.getElementById('eventTime').value;
-                const location = document.getElementById('eventLocation').value;
-                const clubId = document.getElementById('eventClub').value;
-                
-                try {
-                    const response = await fetch('/api/events', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Authorization': `Bearer ${token}`
-                        },
-                        body: JSON.stringify({ title, description, date, time, location, clubId })
-                    });
-                    
-                    if (response.ok) {
-                        alert('Event created successfully!');
-                        createEventModal.style.display = 'none';
-                        createEventForm.reset();
-                        fetchEvents(); // Refresh events list
-                    } else {
-                        const error = await response.json();
-                        alert(`Error: ${error.message}`);
-                    }
-                } catch (error) {
-                    console.error('Error creating event:', error);
-                    alert('Error creating event. Please try again.');
-                }
-            });
-            
-            // Edit Event Modal
-            const editEventModal = document.getElementById('editEventModal');
-            const cancelEditEvent = document.getElementById('cancelEditEvent');
-            const editEventForm = document.getElementById('editEventForm');
-            
-            cancelEditEvent.addEventListener('click', function() {
-                editEventModal.style.display = 'none';
-                editEventForm.reset();
-            });
-            
-            editEventForm.addEventListener('submit', async function(e) {
-                e.preventDefault();
-                
-                const eventId = document.getElementById('editEventId').value;
-                const title = document.getElementById('editEventTitle').value;
-                const description = document.getElementById('editEventDescription').value;
-                const date = document.getElementById('editEventDate').value;
-                const time = document.getElementById('editEventTime').value;
-                const location = document.getElementById('editEventLocation').value;
-                const clubId = document.getElementById('editEventClub').value;
-                const status = document.getElementById('editEventStatus').value;
-                
-                try {
-                    const response = await fetch(`/api/events/${eventId}`, {
-                        method: 'PUT',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Authorization': `Bearer ${token}`
-                        },
-                        body: JSON.stringify({ title, description, date, time, location, clubId, status })
-                    });
-                    
-                    if (response.ok) {
-                        alert('Event updated successfully!');
-                        editEventModal.style.display = 'none';
-                        editEventForm.reset();
-                        fetchEvents(); // Refresh events list
-                    } else {
-                        const error = await response.json();
-                        alert(`Error: ${error.message}`);
-                    }
-                } catch (error) {
-                    console.error('Error updating event:', error);
-                    alert('Error updating event. Please try again.');
-                }
-            });
-            
-            // Edit event function
-            async function editEvent(eventId) {
+            // View event function
+            async function viewEvent(eventId) {
                 try {
                     const response = await fetch(`/api/events/${eventId}`, {
                         headers: {
@@ -1248,25 +1148,86 @@
                     
                     const event = await response.json();
                     
-                    // Populate form fields
-                    document.getElementById('editEventId').value = event._id;
-                    document.getElementById('editEventTitle').value = event.title;
-                    document.getElementById('editEventDescription').value = event.description;
-                    document.getElementById('editEventDate').value = event.date ? new Date(event.date).toISOString().split('T')[0] : '';
-                    document.getElementById('editEventTime').value = event.time;
-                    document.getElementById('editEventLocation').value = event.location;
-                    document.getElementById('editEventStatus').value = event.status || 'pending';
+                    // Populate modal content
+                    const viewContent = document.getElementById('viewEventContent');
+                    const eventDate = event.date ? new Date(event.date).toLocaleDateString() : 'Unknown';
+                    const clubName = event.clubId && event.clubId.name ? event.clubId.name : 'Unknown';
+                    const budgetRequested = event.budget && event.budget.requested ? formatBudget(event.budget.requested) : '₹0.00';
+                    const budgetApproved = event.budget && event.budget.approved > 0 ? formatBudget(event.budget.approved) : 'Not Approved';
                     
-                    if (event.club && event.club._id) {
-                        document.getElementById('editEventClub').value = event.club._id;
-                    } else {
-                        document.getElementById('editEventClub').value = '';
-                    }
+                    viewContent.innerHTML = `
+                        <div class="detail-group">
+                            <h4>Basic Information</h4>
+                            <div class="detail-item">
+                                <span class="detail-label">Title:</span>
+                                <span class="detail-value">${event.title || 'N/A'}</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Description:</span>
+                                <span class="detail-value">${event.description || 'No description'}</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Event Type:</span>
+                                <span class="detail-value">${event.eventType ? event.eventType.charAt(0).toUpperCase() + event.eventType.slice(1) : 'N/A'}</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Club:</span>
+                                <span class="detail-value">${clubName}</span>
+                            </div>
+                        </div>
+                        <div class="detail-group">
+                            <h4>Scheduling</h4>
+                            <div class="detail-item">
+                                <span class="detail-label">Date:</span>
+                                <span class="detail-value">${eventDate}</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Start Time:</span>
+                                <span class="detail-value">${event.startTime || 'N/A'}</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">End Time:</span>
+                                <span class="detail-value">${event.endTime || 'N/A'}</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Location:</span>
+                                <span class="detail-value">${event.venue || 'N/A'}</span>
+                            </div>
+                        </div>
+                        <div class="detail-group">
+                            <h4>Capacity & Budget</h4>
+                            <div class="detail-item">
+                                <span class="detail-label">Max Participants:</span>
+                                <span class="detail-value">${event.maxParticipants || 0} (0 = Unlimited)</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Budget Requested:</span>
+                                <span class="detail-value">${budgetRequested}</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Budget Approved:</span>
+                                <span class="detail-value">${budgetApproved}</span>
+                            </div>
+                        </div>
+                        <div class="detail-group">
+                            <h4>Status</h4>
+                            <div class="detail-item">
+                                <span class="detail-label">Current Status:</span>
+                                <span class="detail-value"><span class="status-badge ${event.status || 'unknown'}">${event.status || 'Unknown'}</span></span>
+                            </div>
+                            ${event.approvalNotes ? `
+                                <div class="detail-item">
+                                    <span class="detail-label">Notes:</span>
+                                    <span class="detail-value">${event.approvalNotes}</span>
+                                </div>
+                            ` : ''}
+                        </div>
+                    `;
                     
                     // Show modal
-                    editEventModal.style.display = 'flex';
+                    viewEventModal.style.display = 'flex';
                 } catch (error) {
-                    console.error('Error fetching event for edit:', error);
+                    console.error('Error fetching event for view:', error);
                     alert('Error fetching event details. Please try again.');
                 }
             }
@@ -1275,10 +1236,15 @@
             async function approveEvent(eventId) {
                 try {
                     const response = await fetch(`/api/events/${eventId}/approve`, {
-                        method: 'PUT',
+                        method: 'PATCH',
                         headers: {
+                            'Content-Type': 'application/json',
                             'Authorization': `Bearer ${token}`
-                        }
+                        },
+                        body: JSON.stringify({ 
+                            approvalNotes: 'Approved by admin',
+                            approvedBudget: 0 // You can add a form to input this value
+                        })
                     });
                     
                     if (response.ok) {
@@ -1298,10 +1264,14 @@
             async function rejectEvent(eventId) {
                 try {
                     const response = await fetch(`/api/events/${eventId}/reject`, {
-                        method: 'PUT',
+                        method: 'PATCH',
                         headers: {
+                            'Content-Type': 'application/json',
                             'Authorization': `Bearer ${token}`
-                        }
+                        },
+                        body: JSON.stringify({ 
+                            rejectionReason: 'Rejected by admin'
+                        })
                     });
                     
                     if (response.ok) {
@@ -1321,7 +1291,7 @@
             async function completeEvent(eventId) {
                 try {
                     const response = await fetch(`/api/events/${eventId}/complete`, {
-                        method: 'PUT',
+                        method: 'PATCH',
                         headers: {
                             'Authorization': `Bearer ${token}`
                         }
@@ -1345,10 +1315,14 @@
                 if (confirm('Are you sure you want to cancel this event?')) {
                     try {
                         const response = await fetch(`/api/events/${eventId}/cancel`, {
-                            method: 'PUT',
+                            method: 'PATCH',
                             headers: {
+                                'Content-Type': 'application/json',
                                 'Authorization': `Bearer ${token}`
-                            }
+                            },
+                            body: JSON.stringify({ 
+                                cancellationReason: 'Cancelled by admin'
+                            })
                         });
                         
                         if (response.ok) {

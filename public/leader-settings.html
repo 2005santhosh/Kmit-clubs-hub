@@ -1,0 +1,1477 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settings - KMIT Clubs Hub</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+    <style>
+        /* CSS Variables - Same as dashboard */
+        :root {
+            --primary: #003366;
+            --primary-dark: #002244;
+            --secondary: #f8fafc;
+            --accent: #ffc107;
+            --accent-light: #ffcd39;
+            --text: #212529;
+            --light-text: #6c757d;
+            --border-radius: 12px;
+            --box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+            --transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            --gradient-primary: linear-gradient(135deg, #003366 0%, #0055a4 100%);
+            --gradient-accent: linear-gradient(135deg, #ffc107 0%, #ffcd39 100%);
+        }
+
+        /* Global Styles - Same as dashboard */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Lato', sans-serif;
+            line-height: 1.7;
+            color: var(--text);
+            background-color: #fff;
+            overflow-x: hidden;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Typography - Same as dashboard */
+        h1, h2, h3, h4 {
+            font-family: 'Poppins', sans-serif;
+            margin-bottom: 1.2rem;
+            font-weight: 600;
+            line-height: 1.2;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        h2 {
+            font-size: 2rem;
+            color: var(--primary);
+            margin-bottom: 1.5rem;
+        }
+
+        h3 {
+            font-size: 1.5rem;
+            margin-bottom: 0.8rem;
+            color: var(--primary);
+        }
+
+        p {
+            margin-bottom: 1.2rem;
+            color: var(--light-text);
+            font-weight: 300;
+        }
+
+        a {
+            text-decoration: none;
+            color: var(--primary);
+            transition: var(--transition);
+        }
+
+        a:hover {
+            color: var(--accent);
+        }
+
+        /* Dashboard Layout - Same as dashboard */
+        .dashboard {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar - Same as dashboard */
+        .sidebar {
+            width: 260px;
+            background: var(--gradient-primary);
+            color: white;
+            padding: 2rem 0;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            z-index: 1000;
+            transition: var(--transition);
+        }
+
+        .sidebar-header {
+            padding: 0 1.5rem 2rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 1rem;
+        }
+
+        .sidebar-header h2 {
+            color: white;
+            font-size: 1.5rem;
+            background: none;
+            -webkit-text-fill-color: initial;
+        }
+
+        .sidebar-menu {
+            list-style: none;
+        }
+
+        .sidebar-menu li {
+            margin-bottom: 0.5rem;
+        }
+
+        .sidebar-menu a {
+            display: flex;
+            align-items: center;
+            padding: 0.8rem 1.5rem;
+            color: rgba(255, 255, 255, 0.8);
+            transition: var(--transition);
+        }
+
+        .sidebar-menu a:hover,
+        .sidebar-menu a.active {
+            background-color: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+
+        .sidebar-menu i {
+            margin-right: 0.8rem;
+            font-size: 1.2rem;
+        }
+
+        .user-profile {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 1.5rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1rem;
+            font-weight: 600;
+        }
+
+        .user-info h4 {
+            color: white;
+            font-size: 1rem;
+            margin-bottom: 0.2rem;
+        }
+
+        .user-info p {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.85rem;
+            margin: 0;
+        }
+
+        /* Main Content - Same as dashboard */
+        .main-content {
+            flex: 1;
+            margin-left: 260px;
+            padding: 2rem;
+            background-color: #f8fafc;
+        }
+
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .dashboard-title h1 {
+            margin-bottom: 0.5rem;
+        }
+
+        .dashboard-actions {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .notification-icon {
+            position: relative;
+            font-size: 1.5rem;
+            color: var(--primary);
+            cursor: pointer;
+        }
+
+        .notification-badge {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background-color: var(--accent);
+            color: white;
+            font-size: 0.7rem;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Buttons - Same as dashboard */
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            border-radius: 50px;
+            font-weight: 600;
+            text-align: center;
+            cursor: pointer;
+            transition: var(--transition);
+            border: none;
+            font-size: 0.9rem;
+        }
+
+        .btn-primary {
+            background: var(--gradient-primary);
+            color: white;
+            box-shadow: 0 4px 15px rgba(0, 51, 102, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 51, 102, 0.4);
+        }
+
+        .btn-secondary {
+            background-color: transparent;
+            color: var(--primary);
+            border: 2px solid var(--primary);
+        }
+
+        .btn-secondary:hover {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .btn-success {
+            background-color: #28a745;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background-color: #218838;
+            transform: translateY(-2px);
+        }
+
+        .btn-warning {
+            background-color: #ffc107;
+            color: var(--primary-dark);
+        }
+
+        .btn-warning:hover {
+            background-color: #e0a800;
+            transform: translateY(-2px);
+        }
+
+        .btn-danger {
+            background-color: #dc3545;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background-color: #c82333;
+            transform: translateY(-2px);
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            color: var(--primary);
+            border: 2px solid var(--primary);
+            padding: 8px 16px;
+            font-size: 0.85rem;
+        }
+
+        .btn-outline:hover {
+            background: var(--gradient-primary);
+            color: white;
+            border-color: transparent;
+        }
+
+        /* Content Sections - Same as dashboard */
+        .content-section {
+            background-color: white;
+            border-radius: var(--border-radius);
+            padding: 1.5rem;
+            box-shadow: var(--box-shadow);
+            margin-bottom: 2rem;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .section-title {
+            font-size: 1.3rem;
+            color: var(--primary);
+            margin: 0;
+        }
+
+        /* Mobile Menu Toggle - Same as dashboard */
+        .mobile-menu-toggle {
+            display: none;
+            position: fixed;
+            top: 1rem;
+            left: 1rem;
+            z-index: 1001;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            box-shadow: var(--box-shadow);
+        }
+
+        /* Loading Spinner - Same as dashboard */
+        .spinner {
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            border-radius: 50%;
+            border-top: 4px solid var(--primary);
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Error Message - Same as dashboard */
+        .error-message {
+            background-color: #f8d7da;
+            color: #721c24;
+            padding: 10px 15px;
+            border-radius: 5px;
+            margin: 10px 0;
+            text-align: center;
+        }
+
+        /* Settings Specific Styles */
+        .settings-tabs {
+            display: flex;
+            border-bottom: 1px solid #e9ecef;
+            margin-bottom: 1.5rem;
+            overflow-x: auto;
+        }
+
+        .settings-tab {
+            padding: 0.8rem 1.5rem;
+            background: none;
+            border: none;
+            border-bottom: 3px solid transparent;
+            cursor: pointer;
+            font-weight: 600;
+            color: var(--light-text);
+            transition: var(--transition);
+            white-space: nowrap;
+        }
+
+        .settings-tab.active {
+            color: var(--primary);
+            border-bottom-color: var(--primary);
+        }
+
+        .settings-tab:hover {
+            color: var(--primary);
+        }
+
+        .settings-content {
+            display: none;
+        }
+
+        .settings-content.active {
+            display: block;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 10px 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            outline: none;
+            transition: var(--transition);
+        }
+
+        .form-control:focus {
+            border-color: var(--primary);
+        }
+
+        .form-text {
+            font-size: 0.85rem;
+            color: var(--light-text);
+            margin-top: 0.3rem;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .form-row .form-group {
+            flex: 1;
+        }
+
+        .settings-card {
+            background-color: var(--secondary);
+            border-radius: var(--border-radius);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .settings-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .settings-card-title {
+            font-size: 1.1rem;
+            color: var(--primary);
+            margin: 0;
+        }
+
+        .settings-card-body {
+            margin-bottom: 1rem;
+        }
+
+        .settings-card-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
+        }
+
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 24px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: var(--transition);
+            border-radius: 24px;
+        }
+
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: var(--transition);
+            border-radius: 50%;
+        }
+
+        input:checked + .toggle-slider {
+            background-color: var(--primary);
+        }
+
+        input:checked + .toggle-slider:before {
+            transform: translateX(26px);
+        }
+
+        .notification-setting {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 0;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .notification-setting:last-child {
+            border-bottom: none;
+        }
+
+        .notification-info {
+            flex: 1;
+        }
+
+        .notification-title {
+            font-weight: 600;
+            margin-bottom: 0.3rem;
+        }
+
+        .notification-description {
+            font-size: 0.9rem;
+            color: var(--light-text);
+        }
+
+        .user-avatar-large {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background-color: var(--accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1rem;
+            font-weight: 600;
+            font-size: 2rem;
+            color: white;
+        }
+
+        /* Image Upload Styles - Updated for Thumbnail Size */
+        .image-upload-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .club-banner-preview {
+            width: 100%;
+            max-width: 300px; /* Thumbnail width */
+            height: 120px; /* Thumbnail height */
+            background-color: #f8f9fa;
+            border: 2px dashed #dee2e6;
+            border-radius: var(--border-radius);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1rem;
+            background-size: cover;
+            background-position: center;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .club-banner-preview.has-image {
+            border-style: solid;
+            border-color: var(--primary);
+        }
+
+        .club-banner-placeholder {
+            text-align: center;
+            color: var(--light-text);
+            padding: 1rem;
+        }
+
+        .club-banner-placeholder i {
+            font-size: 1.8rem; /* Smaller icon for thumbnail */
+            margin-bottom: 0.5rem;
+            color: #dee2e6;
+        }
+
+        .club-banner-placeholder p {
+            font-size: 0.8rem; /* Smaller text for thumbnail */
+            margin: 0;
+        }
+
+        .image-upload-btn {
+            position: relative;
+            overflow: hidden;
+            display: inline-block;
+        }
+
+        .image-upload-btn input[type=file] {
+            position: absolute;
+            left: 0;
+            top: 0;
+            opacity: 0;
+            cursor: pointer;
+            width: 100%;
+            height: 100%;
+        }
+
+        .image-upload-actions {
+            display: flex;
+            gap: 0.8rem;
+            margin-top: 1rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        /* Password Input Styles */
+        .password-input-group {
+            position: relative;
+        }
+
+        .password-toggle {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: var(--light-text);
+            cursor: pointer;
+            font-size: 1rem;
+            padding: 5px;
+        }
+
+        .password-toggle:hover {
+            color: var(--primary);
+        }
+
+        /* Link Preview Styles */
+        .link-preview {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+            padding: 0.5rem;
+            background-color: #f8f9fa;
+            border-radius: 6px;
+            font-size: 0.85rem;
+        }
+
+        .link-preview i {
+            color: var(--primary);
+        }
+
+        .link-preview a {
+            color: var(--primary);
+            text-decoration: none;
+            word-break: break-all;
+        }
+
+        .link-preview a:hover {
+            text-decoration: underline;
+        }
+
+        /* Responsive Styles - Same as dashboard */
+        @media (max-width: 992px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            
+            .sidebar.active {
+                transform: translateX(0);
+            }
+            
+            .main-content {
+                margin-left: 0;
+            }
+            
+            .mobile-menu-toggle {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .dashboard-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+            
+            .form-row {
+                flex-direction: column;
+            }
+            
+            .settings-card-footer {
+                flex-direction: column;
+            }
+            
+            .club-banner-preview {
+                max-width: 100%;
+                height: 100px; /* Smaller on mobile */
+            }
+            
+            .image-upload-actions {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .image-upload-actions .btn {
+                width: 100%;
+                max-width: 200px;
+            }
+        }
+
+        @media (max-width: 576px) {
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .main-content {
+                padding: 1rem;
+            }
+            
+            .settings-tabs {
+                padding-bottom: 0.5rem;
+            }
+            
+            .settings-tab {
+                padding: 0.6rem 1rem;
+                font-size: 0.9rem;
+            }
+            
+            .club-banner-preview {
+                height: 80px; /* Smallest on very small screens */
+            }
+            
+            .club-banner-placeholder i {
+                font-size: 1.5rem;
+            }
+            
+            .club-banner-placeholder p {
+                font-size: 0.75rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard">
+        <!-- Sidebar -->
+        <nav class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <h2><i class="fas fa-university"></i> KMIT Clubs Hub</h2>
+            </div>
+            <ul class="sidebar-menu">
+                <li><a href="/club_leader_dashboard"><i class="fas fa-home"></i> Dashboard</a></li>
+                <li><a href="/leader-user-management"><i class="fas fa-users"></i> Manage Members</a></li>
+                <li><a href="/leader-events"><i class="fas fa-calendar-alt"></i> Events</a></li>
+                <li><a href="/leader-reports"><i class="fas fa-file-alt"></i> Reports</a></li>
+                <li><a href="/leader-analytics"><i class="fas fa-chart-line"></i> Analytics</a></li>
+                <li><a href="/leader-settings" class="active"><i class="fas fa-cog"></i> Settings</a></li>
+            </ul>
+            <div class="user-profile">
+                <div class="user-avatar" id="userAvatar">RK</div>
+                <div class="user-info">
+                    <h4 id="userName">Rahul Kumar</h4>
+                    <p id="userRole">Club Leader - Recurse</p>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <button class="mobile-menu-toggle" id="mobileMenuToggle">
+                <i class="fas fa-bars"></i>
+            </button>
+
+            <!-- Dashboard Header -->
+            <div class="dashboard-header">
+                <div class="dashboard-title">
+                    <h1>Settings</h1>
+                    <p>Manage your account and club settings</p>
+                </div>
+                <div class="dashboard-actions">
+                    <div class="notification-icon">
+                        <i class="fas fa-bell"></i>
+                        <span class="notification-badge" id="notificationBadge">2</span>
+                    </div>
+                    <button class="btn btn-secondary" onclick="logout()">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </button>
+                </div>
+            </div>
+
+            <!-- Loading Spinner -->
+            <div id="loadingSpinner" class="spinner" style="display: none;"></div>
+
+            <!-- Error Message -->
+            <div id="errorMessage" class="error-message" style="display: none;"></div>
+
+            <!-- Settings Tabs -->
+            <div class="content-section">
+                <div class="settings-tabs">
+                    <button class="settings-tab active" onclick="switchTab('profile')">Profile</button>
+                    <button class="settings-tab" onclick="switchTab('club')">Club Settings</button>
+                    <button class="settings-tab" onclick="switchTab('security')">Security</button>
+                </div>
+
+                <!-- Profile Settings -->
+                <div class="settings-content active" id="profile-settings">
+                    <div class="settings-card">
+                        <div class="settings-card-header">
+                            <h3 class="settings-card-title">Profile Information</h3>
+                        </div>
+                        <div class="settings-card-body">
+                            <div class="user-avatar-large" id="profileAvatar">RK</div>
+                            <form id="profileForm">
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="firstName">First Name</label>
+                                        <input type="text" id="firstName" class="form-control" value="Rahul" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="lastName">Last Name</label>
+                                        <input type="text" id="lastName" class="form-control" value="Kumar" required>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="bio">Bio</label>
+                                    <textarea id="bio" class="form-control" rows="3">Club leader with a passion for technology and innovation.</textarea>
+                                </div>
+                            </form>
+                        </div>
+                        <div class="settings-card-footer">
+                            <button class="btn btn-secondary">Cancel</button>
+                            <button class="btn btn-primary" onclick="saveProfile()">Save Changes</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Club Settings -->
+                <div class="settings-content" id="club-settings">
+                    <div class="settings-card">
+                        <div class="settings-card-header">
+                            <h3 class="settings-card-title">Club Information</h3>
+                        </div>
+                        <div class="settings-card-body">
+                            <form id="clubForm">
+                                <div class="form-group">
+                                    <label for="clubName">Club Name</label>
+                                    <input type="text" id="clubName" class="form-control" value="Recurse" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="clubDescription">Description</label>
+                                    <textarea id="clubDescription" class="form-control" rows="3">A technology club focused on programming, algorithms, and competitive coding.</textarea>
+                                </div>
+                                <div class="form-group">
+                                    <label for="clubCategory">Category</label>
+                                    <select id="clubCategory" class="form-control">
+                                        <option value="technology" selected>Technology</option>
+                                        <option value="arts">Arts</option>
+                                        <option value="sports">Sports</option>
+                                        <option value="academic">Academic</option>
+                                        <option value="cultural">Cultural</option>
+                                    </select>
+                                </div>
+                                
+                                <!-- Register Link Field -->
+                                <div class="form-group">
+                                    <label for="registerLink">Registration Link</label>
+                                    <input type="url" id="registerLink" class="form-control" placeholder="https://example.com/register">
+                                    <div class="form-text">Add a link where students can register for your club activities</div>
+                                    <div class="link-preview" id="registerLinkPreview" style="display: none;">
+                                        <i class="fas fa-external-link-alt"></i>
+                                        <a href="#" id="registerLinkDisplay" target="_blank"></a>
+                                    </div>
+                                </div>
+                                
+                                <!-- Club Banner Image Upload - Thumbnail Size -->
+                                <div class="form-group">
+                                    <label>Club Banner Image (Thumbnail)</label>
+                                    <div class="image-upload-container">
+                                        <div class="club-banner-preview" id="clubBannerPreview">
+                                            <div class="club-banner-placeholder">
+                                                <i class="fas fa-image"></i>
+                                                <p>Upload thumbnail image</p>
+                                            </div>
+                                        </div>
+                                        <div class="image-upload-actions">
+                                            <div class="image-upload-btn btn btn-primary">
+                                                <i class="fas fa-upload"></i> Upload Thumbnail
+                                                <input type="file" id="clubBannerUpload" accept="image/*" onchange="previewBannerImage(event)">
+                                            </div>
+                                            <button type="button" class="btn btn-secondary" id="removeBannerBtn" onclick="removeBannerImage()" style="display: none;">
+                                                <i class="fas fa-trash"></i> Remove
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="form-text">
+                                        Upload a thumbnail image (recommended size: 300x120px). This will be displayed as a small preview.
+                                    </div>
+                                </div>
+                                <!-- Hidden input for banner removal flag -->
+                                <input type="hidden" id="removeBannerFlag" name="removeBanner" value="false">
+                            </form>
+                        </div>
+                        <div class="settings-card-footer">
+                            <button class="btn btn-secondary">Cancel</button>
+                            <button class="btn btn-primary" onclick="saveClubSettings()">Save Changes</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Security Settings -->
+                <div class="settings-content" id="security-settings">
+                    <div class="settings-card">
+                        <div class="settings-card-header">
+                            <h3 class="settings-card-title">Change Password</h3>
+                        </div>
+                        <div class="settings-card-body">
+                            <form id="passwordForm">
+                                <div class="form-group">
+                                    <label for="currentPassword">Current Password</label>
+                                    <div class="password-input-group">
+                                        <input type="password" id="currentPassword" class="form-control" required>
+                                        <button type="button" class="password-toggle" onclick="togglePasswordVisibility('currentPassword')">
+                                            <i class="fas fa-eye" id="currentPassword-icon"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="newPassword">New Password</label>
+                                    <div class="password-input-group">
+                                        <input type="password" id="newPassword" class="form-control" required>
+                                        <button type="button" class="password-toggle" onclick="togglePasswordVisibility('newPassword')">
+                                            <i class="fas fa-eye" id="newPassword-icon"></i>
+                                        </button>
+                                    </div>
+                                    <div class="form-text">Use at least 8 characters with a mix of letters, numbers & symbols</div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="confirmPassword">Confirm New Password</label>
+                                    <div class="password-input-group">
+                                        <input type="password" id="confirmPassword" class="form-control" required>
+                                        <button type="button" class="password-toggle" onclick="togglePasswordVisibility('confirmPassword')">
+                                            <i class="fas fa-eye" id="confirmPassword-icon"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                        <div class="settings-card-footer">
+                            <button class="btn btn-secondary">Cancel</button>
+                            <button class="btn btn-primary" onclick="changePassword()">Update Password</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script>
+        // API base URL
+        const API_URL = '/api';
+        let userId = '';
+        let clubId = '';
+        let bannerImageData = null;
+
+        // Check if user is logged in
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check for token in localStorage
+            const token = localStorage.getItem('token');
+            if (!token) {
+                window.location.href = '/login';
+                return;
+            }
+            
+            // Set up axios default headers
+            axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+            
+            // Initialize page
+            initializePage();
+            
+            // Set up mobile menu toggle
+            setupMobileMenu();
+            
+            // Set up register link preview
+            setupRegisterLinkPreview();
+        });
+
+        // Initialize page with data fetching
+        async function initializePage() {
+            try {
+                showLoading(true);
+                hideError();
+                
+                // Fetch user data
+                const userData = await fetchUserData();
+                updateUserInterface(userData);
+                userId = userData._id;
+                clubId = userData.club._id;
+                
+                // Populate form fields
+                populateProfileForm(userData);
+                populateClubForm(userData.club);
+                
+            } catch (error) {
+                console.error('Error initializing page:', error);
+                showError('Failed to load settings. Please try again later.');
+                
+                // If unauthorized, redirect to login
+                if (error.response && error.response.status === 401) {
+                    localStorage.removeItem('token');
+                    window.location.href = '/login';
+                }
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        // Show/hide loading spinner
+        function showLoading(show) {
+            const spinner = document.getElementById('loadingSpinner');
+            if (spinner) {
+                spinner.style.display = show ? 'block' : 'none';
+            }
+        }
+
+        // Show/hide error message
+        function showError(message) {
+            const errorElement = document.getElementById('errorMessage');
+            if (errorElement) {
+                errorElement.textContent = message;
+                errorElement.style.display = 'block';
+            }
+        }
+
+        function hideError() {
+            const errorElement = document.getElementById('errorMessage');
+            if (errorElement) {
+                errorElement.style.display = 'none';
+            }
+        }
+
+        // Fetch user data
+        async function fetchUserData() {
+            const response = await axios.get(`${API_URL}/auth/me`);
+            console.log('Fetched user data:', response.data); // Debug log
+            return response.data;
+        }
+
+        // Update user interface with user data
+        function updateUserInterface(userData) {
+            // Update user profile in sidebar
+            const userAvatar = document.getElementById('userAvatar');
+            const userName = document.getElementById('userName');
+            const userRole = document.getElementById('userRole');
+            
+            if (userAvatar) {
+                userAvatar.textContent = userData.name.split(' ').map(n => n[0]).join('');
+            }
+            
+            if (userName) {
+                userName.textContent = userData.name;
+            }
+            
+            if (userRole) {
+                userRole.textContent = `Club Leader - ${userData.club ? userData.club.name : 'No Club'}`;
+            }
+        }
+
+        // Populate profile form with user data
+        function populateProfileForm(userData) {
+            const names = userData.name.split(' ');
+            const firstName = names[0] || '';
+            const lastName = names.slice(1).join('') || '';
+            
+            document.getElementById('firstName').value = firstName;
+            document.getElementById('lastName').value = lastName;
+            
+            // Make sure we're properly setting the bio field
+            const bioField = document.getElementById('bio');
+            if (bioField) {
+                bioField.value = userData.bio || '';
+                console.log('Bio field populated with:', userData.bio); // Debug log
+            }
+            
+            // Update profile avatar
+            const profileAvatar = document.getElementById('profileAvatar');
+            if (profileAvatar) {
+                profileAvatar.textContent = userData.name.split(' ').map(n => n[0]).join('');
+            }
+        }
+
+        // Populate club form with club data
+        function populateClubForm(clubData) {
+            if (!clubData) return;
+            
+            document.getElementById('clubName').value = clubData.name || '';
+            document.getElementById('clubDescription').value = clubData.description || '';
+            document.getElementById('clubCategory').value = clubData.type || 'technology';
+            
+            // Populate register link
+            const registerLinkField = document.getElementById('registerLink');
+            if (registerLinkField) {
+                registerLinkField.value = clubData.registerLink || '';
+                console.log('Register link field populated with:', clubData.registerLink); // Debug log
+            }
+            
+            // Load banner thumbnail if exists
+            if (clubData.bannerImage) {
+                const bannerPreview = document.getElementById('clubBannerPreview');
+                bannerPreview.style.backgroundImage = `url(${clubData.bannerImage})`;
+                bannerPreview.classList.add('has-image');
+                
+                const placeholder = bannerPreview.querySelector('.club-banner-placeholder');
+                if (placeholder) {
+                    placeholder.style.display = 'none';
+                }
+                
+                const removeBtn = document.getElementById('removeBannerBtn');
+                if (removeBtn) {
+                    removeBtn.style.display = 'inline-block';
+                }
+            }
+        }
+
+        // Switch between settings tabs
+        function switchTab(tabName) {
+            // Update tab buttons
+            const tabs = document.querySelectorAll('.settings-tab');
+            tabs.forEach(tab => {
+                tab.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            // Update tab content
+            const contents = document.querySelectorAll('.settings-content');
+            contents.forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            const activeContent = document.getElementById(`${tabName}-settings`);
+            if (activeContent) {
+                activeContent.classList.add('active');
+            }
+        }
+
+        // Setup register link preview
+        function setupRegisterLinkPreview() {
+            const registerLinkInput = document.getElementById('registerLink');
+            const registerLinkPreview = document.getElementById('registerLinkPreview');
+            const registerLinkDisplay = document.getElementById('registerLinkDisplay');
+            
+            if (registerLinkInput && registerLinkPreview && registerLinkDisplay) {
+                registerLinkInput.addEventListener('input', function() {
+                    const link = this.value.trim();
+                    if (link) {
+                        registerLinkPreview.style.display = 'flex';
+                        registerLinkDisplay.href = link;
+                        registerLinkDisplay.textContent = link;
+                    } else {
+                        registerLinkPreview.style.display = 'none';
+                    }
+                });
+            }
+        }
+
+        // Preview banner image before upload - Updated for thumbnail
+        function previewBannerImage(event) {
+            const file = event.target.files[0];
+            if (file) {
+                // Check file size (limit to 2MB for thumbnail)
+                if (file.size > 2 * 1024 * 1024) {
+                    showError('Thumbnail image size must be less than 2MB');
+                    return;
+                }
+                
+                // Check file type
+                if (!file.type.match('image.*')) {
+                    showError('Please select an image file');
+                    return;
+                }
+                
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const bannerPreview = document.getElementById('clubBannerPreview');
+                    bannerPreview.style.backgroundImage = `url(${e.target.result})`;
+                    bannerPreview.classList.add('has-image');
+                    
+                    const placeholder = bannerPreview.querySelector('.club-banner-placeholder');
+                    if (placeholder) {
+                        placeholder.style.display = 'none';
+                    }
+                    
+                    const removeBtn = document.getElementById('removeBannerBtn');
+                    if (removeBtn) {
+                        removeBtn.style.display = 'inline-block';
+                    }
+                    
+                    // Store image data for upload
+                    bannerImageData = file;
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        // Remove banner image - Updated for thumbnail
+        function removeBannerImage() {
+            const bannerPreview = document.getElementById('clubBannerPreview');
+            bannerPreview.style.backgroundImage = '';
+            bannerPreview.classList.remove('has-image');
+            
+            const placeholder = bannerPreview.querySelector('.club-banner-placeholder');
+            if (placeholder) {
+                placeholder.style.display = 'block';
+            }
+            
+            const removeBtn = document.getElementById('removeBannerBtn');
+            if (removeBtn) {
+                removeBtn.style.display = 'none';
+            }
+            
+            // Clear file input
+            const fileInput = document.getElementById('clubBannerUpload');
+            if (fileInput) {
+                fileInput.value = '';
+            }
+            
+            // Set flag to remove banner image
+            bannerImageData = null;
+            document.getElementById('removeBannerFlag').value = 'true';
+        }
+
+        // Toggle password visibility
+        function togglePasswordVisibility(fieldId) {
+            const passwordField = document.getElementById(fieldId);
+            const icon = document.getElementById(`${fieldId}-icon`);
+            
+            if (passwordField.type === 'password') {
+                passwordField.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                passwordField.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        }
+
+        // Save profile settings
+        async function saveProfile() {
+            try {
+                showLoading(true);
+                hideError();
+                
+                const firstName = document.getElementById('firstName').value;
+                const lastName = document.getElementById('lastName').value;
+                const bio = document.getElementById('bio').value;
+                
+                console.log('Saving profile data:', { name: `${firstName} ${lastName}`, bio }); // Debug log
+                
+                const profileData = {
+                    name: `${firstName} ${lastName}`,
+                    bio: bio
+                };
+                
+                const response = await axios.put(`${API_URL}/users/${userId}`, profileData);
+                console.log('Save response:', response.data); // Debug log
+                
+                // Use the response data which is the updated user
+                const updatedUserData = response.data;
+                
+                // Update user interface with fresh data
+                updateUserInterface(updatedUserData);
+                
+                // Update the name fields
+                const updatedNames = updatedUserData.name.split(' ');
+                document.getElementById('firstName').value = updatedNames[0] || '';
+                document.getElementById('lastName').value = updatedNames.slice(1).join('') || '';
+                
+                // Explicitly update the bio field
+                const bioField = document.getElementById('bio');
+                if (bioField) {
+                    bioField.value = updatedUserData.bio || '';
+                    console.log('Bio field updated to:', bioField.value); // Debug log
+                }
+                
+                // Update profile avatar
+                const profileAvatar = document.getElementById('profileAvatar');
+                if (profileAvatar) {
+                    profileAvatar.textContent = updatedUserData.name.split(' ').map(n => n[0]).join('');
+                }
+                
+                // Show success message
+                alert('Profile updated successfully!');
+                
+            } catch (error) {
+                console.error('Error updating profile:', error);
+                showError('Failed to update profile. Please try again.');
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        // Save club settings
+        async function saveClubSettings() {
+            try {
+                showLoading(true);
+                hideError();
+                
+                // Create form data for file upload
+                const formData = new FormData();
+                
+                // Add club data as individual form fields
+                formData.append('name', document.getElementById('clubName').value);
+                formData.append('description', document.getElementById('clubDescription').value);
+                formData.append('category', document.getElementById('clubCategory').value);
+                
+                // Add register link
+                const registerLink = document.getElementById('registerLink').value;
+                if (registerLink) {
+                    formData.append('registerLink', registerLink);
+                }
+                
+                // Add banner image if selected
+                if (bannerImageData) {
+                    formData.append('bannerImage', bannerImageData);
+                }
+                
+                // Add banner removal flag if needed
+                if (document.getElementById('removeBannerFlag').value === 'true') {
+                    formData.append('removeBanner', 'true');
+                }
+                
+                await axios.put(`${API_URL}/clubs/${clubId}/settings`, formData, {
+                    headers: {
+                        'Content-Type': 'multipart/form-data'
+                    }
+                });
+                
+                // Fetch updated user data from server
+                const updatedUserData = await fetchUserData();
+                
+                // Update user interface with fresh data
+                updateUserInterface(updatedUserData);
+                
+                // Repopulate club form with updated data
+                populateClubForm(updatedUserData.club);
+                
+                // Clear banner image data
+                bannerImageData = null;
+                
+                // Reset remove banner flag
+                document.getElementById('removeBannerFlag').value = 'false';
+                
+                // Show success message
+                alert('Club settings updated successfully!');
+                
+            } catch (error) {
+                console.error('Error updating club settings:', error);
+                // Log more detailed error information
+                if (error.response) {
+                    console.error('Error response data:', error.response.data);
+                    console.error('Error response status:', error.response.status);
+                }
+                showError('Failed to update club settings. Please try again.');
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        // Change password
+        async function changePassword() {
+            const currentPassword = document.getElementById('currentPassword').value;
+            const newPassword = document.getElementById('newPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            
+            if (newPassword !== confirmPassword) {
+                showError('New passwords do not match');
+                return;
+            }
+            
+            if (newPassword.length < 8) {
+                showError('Password must be at least 8 characters long');
+                return;
+            }
+            
+            try {
+                showLoading(true);
+                hideError();
+                
+                const passwordData = {
+                    currentPassword: currentPassword,
+                    newPassword: newPassword
+                };
+                
+                await axios.put(`${API_URL}/users/${userId}/password`, passwordData);
+                
+                // Clear form
+                document.getElementById('passwordForm').reset();
+                
+                // Reset password visibility toggles
+                document.querySelectorAll('.password-toggle i').forEach(icon => {
+                    icon.classList.remove('fa-eye-slash');
+                    icon.classList.add('fa-eye');
+                });
+                
+                // Show success message
+                alert('Password changed successfully!');
+                
+            } catch (error) {
+                console.error('Error changing password:', error);
+                if (error.response && error.response.status === 400) {
+                    showError(error.response.data.message || 'Current password is incorrect');
+                } else {
+                    showError('Failed to change password. Please try again.');
+                }
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        // Setup mobile menu toggle
+        function setupMobileMenu() {
+            const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+            const sidebar = document.getElementById('sidebar');
+            
+            if (mobileMenuToggle && sidebar) {
+                mobileMenuToggle.addEventListener('click', function() {
+                    sidebar.classList.toggle('active');
+                });
+                
+                // Close sidebar when clicking on a link
+                document.querySelectorAll('.sidebar-menu a').forEach(link => {
+                    link.addEventListener('click', () => {
+                        sidebar.classList.remove('active');
+                    });
+                });
+            }
+        }
+
+        // Logout function
+        function logout() {
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            window.location.href = '/login';
+        }
+    </script>
+</body>
+</html>

@@ -6,6 +6,8 @@
     <title>Student Dashboard - KMIT Clubs Hub</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
     <style>
         /* CSS Variables */
         :root {
@@ -208,6 +210,13 @@
         .dashboard-actions {
             display: flex;
             gap: 1rem;
+            align-items: center;
+        }
+
+        /* Notification Container */
+        .notification-container {
+            position: relative;
+            display: inline-block;
         }
 
         .notification-icon {
@@ -230,6 +239,124 @@
             display: flex;
             align-items: center;
             justify-content: center;
+        }
+
+        .notification-badge.hidden {
+            display: none;
+        }
+
+        /* Notification Dropdown */
+        .notification-dropdown {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            width: 350px;
+            max-height: 400px;
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            overflow: hidden;
+            z-index: 1001;
+            display: none;
+            margin-top: 10px;
+            opacity: 0;
+            transform: translateY(-10px);
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+
+        .notification-dropdown.active {
+            display: block;
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .notification-dropdown::before {
+            content: '';
+            position: absolute;
+            top: -8px;
+            right: 20px;
+            width: 0;
+            height: 0;
+            border-left: 8px solid transparent;
+            border-right: 8px solid transparent;
+            border-bottom: 8px solid white;
+        }
+
+        .notification-header {
+            padding: 1rem;
+            border-bottom: 1px solid #e9ecef;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .notification-header h4 {
+            margin: 0;
+            color: var(--primary);
+            font-size: 1rem;
+        }
+
+        .mark-all-read {
+            color: var(--primary);
+            cursor: pointer;
+            font-size: 0.9rem;
+            text-decoration: underline;
+        }
+
+        .mark-all-read:hover {
+            color: var(--accent);
+        }
+
+        .notification-list {
+            list-style: none;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .notification-item {
+            padding: 1rem;
+            border-bottom: 1px solid #e9ecef;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .notification-item:hover {
+            background-color: #f8f9fa;
+        }
+
+        .notification-item.unread {
+            background-color: #fff3cd;
+            font-weight: 600;
+        }
+
+        .notification-title {
+            font-weight: 600;
+            margin-bottom: 0.3rem;
+            color: var(--primary);
+        }
+
+        .notification-message {
+            color: var(--light-text);
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .notification-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.8rem;
+            color: var(--light-text);
+        }
+
+        .notification-loading {
+            padding: 20px;
+            text-align: center;
+            color: var(--light-text);
+        }
+
+        .notification-loading.hidden {
+            display: none;
         }
 
         /* Stats Cards */
@@ -450,6 +577,15 @@
             margin-left: 1rem;
         }
 
+        .event-registered {
+            background-color: rgba(40, 167, 69, 0.1);
+            color: #28a745;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
         /* Rewards */
         .rewards-grid {
             display: grid;
@@ -486,6 +622,56 @@
             font-size: 0.9rem;
         }
 
+        /* Loading Spinner */
+        .spinner {
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            border-radius: 50%;
+            border-top: 4px solid var(--primary);
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Error Message */
+        .error-message {
+            background-color: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            text-align: center;
+            display: none;
+        }
+
+        /* Success Message */
+        .success-message {
+            background-color: #d4edda;
+            color: #155724;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 2rem;
+            color: var(--light-text);
+        }
+
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            color: #dee2e6;
+        }
+
         /* Mobile Menu Toggle */
         .mobile-menu-toggle {
             display: none;
@@ -502,6 +688,12 @@
             font-size: 1.2rem;
             cursor: pointer;
             box-shadow: var(--box-shadow);
+        }
+
+        /* Load More Button */
+        .load-more-container {
+            text-align: center;
+            margin-top: 1.5rem;
         }
 
         /* Responsive Styles */
@@ -526,6 +718,11 @@
             
             .stats-grid {
                 grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            }
+
+            .notification-dropdown {
+                width: 300px;
+                right: -50px;
             }
         }
 
@@ -568,6 +765,13 @@
                 margin-left: 0;
                 margin-top: 0.5rem;
             }
+
+            .notification-dropdown {
+                width: 100%;
+                right: 0;
+                left: 0;
+                max-width: none;
+            }
         }
     </style>
 </head>
@@ -579,18 +783,18 @@
                 <h2><i class="fas fa-university"></i> KMIT Clubs Hub</h2>
             </div>
             <ul class="sidebar-menu">
-                <li><a href="#" class="active"><i class="fas fa-home"></i> Dashboard</a></li>
-                <li><a href="#"><i class="fas fa-users"></i> My Clubs</a></li>
-                <li><a href="#"><i class="fas fa-calendar-alt"></i> Events</a></li>
-                <li><a href="#"><i class="fas fa-trophy"></i> Rewards</a></li>
-                <li><a href="#"><i class="fas fa-chart-line"></i> Analytics</a></li>
-                <li><a href="#"><i class="fas fa-cog"></i> Settings</a></li>
+                <li><a href="/student_dashboard" class="active"><i class="fas fa-home"></i> Dashboard</a></li>
+                <li><a href="/student_clubs"><i class="fas fa-users"></i> My Clubs</a></li>
+                <li><a href="/student_events"><i class="fas fa-calendar-alt"></i> Events</a></li>
+                <li><a href="/student_rewards"><i class="fas fa-trophy"></i> Rewards</a></li>
+                <li><a href="/student_analytics"><i class="fas fa-chart-line"></i> Analytics</a></li>
+                <li><a href="/student_settings"><i class="fas fa-cog"></i> Settings</a></li>
             </ul>
             <div class="user-profile">
-                <div class="user-avatar">SK</div>
+                <div class="user-avatar" id="userAvatar">SK</div>
                 <div class="user-info">
-                    <h4>Sai Kumar</h4>
-                    <p>KMIT401</p>
+                    <h4 id="userName">Sai Kumar</h4>
+                    <p id="userRollNumber">KMIT401</p>
                 </div>
             </div>
         </nav>
@@ -605,40 +809,56 @@
             <div class="dashboard-header">
                 <div class="dashboard-title">
                     <h1>Student Dashboard</h1>
-                    <p>Welcome back, Sai! Here's your activity overview.</p>
+                    <p id="welcomeMessage">Welcome back, Sai! Here's your activity overview.</p>
                 </div>
                 <div class="dashboard-actions">
-                    <div class="notification-icon">
-                        <i class="fas fa-bell"></i>
-                        <span class="notification-badge">3</span>
+                    <div class="notification-container">
+                        <div class="notification-icon" id="notificationIcon">
+                            <i class="fas fa-bell"></i>
+                            <span class="notification-badge hidden" id="notificationBadge">0</span>
+                        </div>
+                        <div class="notification-dropdown" id="notificationDropdown">
+                            <div class="notification-header">
+                                <h4>Notifications</h4>
+                                <span class="mark-all-read" id="markAllRead">Mark all read</span>
+                            </div>
+                            <div class="notification-loading hidden" id="notificationLoading">
+                                <div class="spinner"></div>
+                                <p>Loading notifications...</p>
+                            </div>
+                            <ul class="notification-list" id="notificationList">
+                                <!-- Notifications will be loaded here -->
+                            </ul>
+                        </div>
                     </div>
-                    <button class="btn btn-secondary">
+                    <button class="btn btn-secondary" onclick="logout()">
                         <i class="fas fa-sign-out-alt"></i> Logout
                     </button>
                 </div>
             </div>
 
+            <!-- Error Message -->
+            <div id="errorMessage" class="error-message"></div>
+
+            <!-- Loading Spinner -->
+            <div id="loadingSpinner" class="spinner" style="display: none;"></div>
+
             <!-- Stats Cards -->
             <div class="stats-grid">
                 <div class="stat-card">
                     <i class="fas fa-users"></i>
-                    <h3>3</h3>
+                    <h3 id="clubsJoinedCount">0</h3>
                     <p>Clubs Joined</p>
                 </div>
                 <div class="stat-card">
                     <i class="fas fa-calendar-check"></i>
-                    <h3>7</h3>
-                    <p>Events Attended</p>
+                    <h3 id="eventsRegisteredCount">0</h3>
+                    <p>Events Registered</p>
                 </div>
                 <div class="stat-card">
                     <i class="fas fa-trophy"></i>
-                    <h3>150</h3>
+                    <h3 id="rewardPointsCount">0</h3>
                     <p>Reward Points</p>
-                </div>
-                <div class="stat-card">
-                    <i class="fas fa-star"></i>
-                    <h3>4.2</h3>
-                    <p>Average Rating</p>
                 </div>
             </div>
 
@@ -646,45 +866,17 @@
             <div class="content-section">
                 <div class="section-header">
                     <h3 class="section-title">Recommended Clubs</h3>
-                    <a href="#" class="btn btn-secondary">View All</a>
+                    <button class="btn btn-secondary" id="loadMoreClubsBtn">Load More</button>
                 </div>
-                <div class="clubs-grid">
-                    <div class="club-card">
-                        <div class="club-image">
-                            <img src="https://images.pexels.com/photos/5386754/pexels-photo-5386754.jpeg?auto=compress&cs=tinysrgb&w=500" alt="Recurse Club">
-                        </div>
-                        <div class="club-info">
-                            <h4 class="club-name">Recurse (Technical Club)</h4>
-                            <p class="club-description">Dive into the world of technology, coding, and innovation through workshops and projects.</p>
-                            <div class="club-members">
-                                <i class="fas fa-users"></i> 130+ Members
-                            </div>
-                        </div>
+                <div class="clubs-grid" id="recommendedClubsGrid">
+                    <!-- Clubs will be dynamically loaded here -->
+                    <div class="empty-state" id="clubsEmptyState" style="display: none;">
+                        <i class="fas fa-users"></i>
+                        <p>No clubs found</p>
                     </div>
-                    <div class="club-card">
-                        <div class="club-image">
-                            <img src="https://images.pexels.com/photos/2647626/pexels-photo-2647626.jpeg?auto=compress&cs=tinysrgb&w=500" alt="Mudra Club">
-                        </div>
-                        <div class="club-info">
-                            <h4 class="club-name">Mudra (Dance Club)</h4>
-                            <p class="club-description">Express yourself through various dance forms and participate in energetic performances.</p>
-                            <div class="club-members">
-                                <i class="fas fa-users"></i> 125+ Members
-                            </div>
-                        </div>
-                    </div>
-                    <div class="club-card">
-                        <div class="club-image">
-                            <img src="https://images.pexels.com/photos/6646904/pexels-photo-6646904.jpeg?auto=compress&cs=tinysrgb&w=500" alt="NSS Club">
-                        </div>
-                        <div class="club-info">
-                            <h4 class="club-name">NSS (Social Service Club)</h4>
-                            <p class="club-description">Engage in community service and social welfare activities to make a positive impact.</p>
-                            <div class="club-members">
-                                <i class="fas fa-users"></i> 150+ Members
-                            </div>
-                        </div>
-                    </div>
+                </div>
+                <div class="load-more-container" id="loadMoreContainer" style="display: none;">
+                    <button class="btn btn-secondary" id="loadMoreBtn">Load More Clubs</button>
                 </div>
             </div>
 
@@ -692,47 +884,13 @@
             <div class="content-section">
                 <div class="section-header">
                     <h3 class="section-title">Upcoming Events</h3>
-                    <a href="#" class="btn btn-secondary">View All</a>
+                    <a href="/student_events" class="btn btn-secondary">View All</a>
                 </div>
-                <div class="events-list">
-                    <div class="event-item">
-                        <div class="event-date">
-                            <div class="event-day">15</div>
-                            <div class="event-month">Mar</div>
-                        </div>
-                        <div class="event-info">
-                            <div class="event-name">Hackathon 2024</div>
-                            <div class="event-club">Recurse (Technical Club)</div>
-                        </div>
-                        <div class="event-action">
-                            <button class="btn btn-primary">Register</button>
-                        </div>
-                    </div>
-                    <div class="event-item">
-                        <div class="event-date">
-                            <div class="event-day">25</div>
-                            <div class="event-month">Mar</div>
-                        </div>
-                        <div class="event-info">
-                            <div class="event-name">Annual Dance Show</div>
-                            <div class="event-club">Mudra (Dance Club)</div>
-                        </div>
-                        <div class="event-action">
-                            <button class="btn btn-primary">Register</button>
-                        </div>
-                    </div>
-                    <div class="event-item">
-                        <div class="event-date">
-                            <div class="event-day">05</div>
-                            <div class="event-month">Apr</div>
-                        </div>
-                        <div class="event-info">
-                            <div class="event-name">Blood Donation Camp</div>
-                            <div class="event-club">NSS (Social Service Club)</div>
-                        </div>
-                        <div class="event-action">
-                            <button class="btn btn-primary">Register</button>
-                        </div>
+                <div class="events-list" id="upcomingEventsList">
+                    <!-- Events will be dynamically loaded here -->
+                    <div class="empty-state" id="eventsEmptyState" style="display: none;">
+                        <i class="fas fa-calendar-alt"></i>
+                        <p>No upcoming events</p>
                     </div>
                 </div>
             </div>
@@ -741,36 +899,13 @@
             <div class="content-section">
                 <div class="section-header">
                     <h3 class="section-title">Your Rewards</h3>
-                    <a href="#" class="btn btn-secondary">View All</a>
+                    <a href="/student_rewards" class="btn btn-secondary">View All</a>
                 </div>
-                <div class="rewards-grid">
-                    <div class="reward-item">
-                        <div class="reward-icon">
-                            <i class="fas fa-medal"></i>
-                        </div>
-                        <div class="reward-name">Club Champion</div>
-                        <div class="reward-points">50 points</div>
-                    </div>
-                    <div class="reward-item">
-                        <div class="reward-icon">
-                            <i class="fas fa-calendar-check"></i>
-                        </div>
-                        <div class="reward-name">Event Enthusiast</div>
-                        <div class="reward-points">30 points</div>
-                    </div>
-                    <div class="reward-item">
-                        <div class="reward-icon">
-                            <i class="fas fa-users"></i>
-                        </div>
-                        <div class="reward-name">Team Player</div>
-                        <div class="reward-points">40 points</div>
-                    </div>
-                    <div class="reward-item">
-                        <div class="reward-icon">
-                            <i class="fas fa-star"></i>
-                        </div>
-                        <div class="reward-name">Rising Star</div>
-                        <div class="reward-points">30 points</div>
+                <div class="rewards-grid" id="rewardsGrid">
+                    <!-- Rewards will be dynamically loaded here -->
+                    <div class="empty-state" id="rewardsEmptyState" style="display: none;">
+                        <i class="fas fa-trophy"></i>
+                        <p>No rewards earned yet</p>
                     </div>
                 </div>
             </div>
@@ -778,49 +913,866 @@
     </div>
 
     <script>
-        // Mobile menu toggle
+        // API base URL
+        const API_URL = '/api';
+        
+        // Global variables for pagination
+        let clubsPage = 1;
+        let clubsLimit = 6;
+        let hasMoreClubs = true;
+        let registeredEvents = []; // Store registered events
+        let notifications = []; // Store notifications
+        let unreadCount = 0; // Store unread count
+        let currentUserData = null; // Store user data globally
+        let socket; // Socket.IO connection
+        
+        // Check if user is logged in
         document.addEventListener('DOMContentLoaded', function() {
+            // Check for token in localStorage
+            const token = localStorage.getItem('token');
+            if (!token) {
+                window.location.href = '/login';
+                return;
+            }
+            
+            // Set up axios default headers
+            axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+            
+            // Initialize page
+            initializePage();
+            
+            // Set up mobile menu toggle
+            setupMobileMenu();
+            
+            // Set up load more clubs button
+            setupLoadMoreClubs();
+            
+            // Set up notifications
+            setupNotifications();
+            
+            // Initialize Socket.IO
+            initializeSocket();
+        });
+
+        // Initialize page with data fetching
+        async function initializePage() {
+            try {
+                showLoading(true);
+                hideError();
+                
+                // Fetch user data
+                currentUserData = await fetchUserData();
+                updateUserInterface(currentUserData);
+                
+                // Fetch dashboard statistics
+                const statsData = await fetchDashboardStats(currentUserData);
+                updateStatsCards(statsData);
+                
+                // Fetch recommended clubs
+                const clubsData = await fetchRecommendedClubs(clubsPage, clubsLimit);
+                updateClubsGrid(clubsData);
+                
+                // Fetch upcoming events
+                const eventsData = await fetchUpcomingEvents();
+                updateEventsList(eventsData);
+                
+                // Fetch user rewards
+                const rewardsData = await fetchUserRewards();
+                updateRewardsGrid(rewardsData);
+                
+                // Fetch unread notification count
+                await fetchUnreadNotificationCount();
+                
+            } catch (error) {
+                console.error('Error initializing page:', error);
+                showError('Failed to load dashboard data. Please try again later.');
+                
+                // If unauthorized, redirect to login
+                if (error.response && error.response.status === 401) {
+                    localStorage.removeItem('token');
+                    window.location.href = '/login';
+                }
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        // Show/hide loading spinner
+        function showLoading(show) {
+            const spinner = document.getElementById('loadingSpinner');
+            if (spinner) {
+                spinner.style.display = show ? 'block' : 'none';
+            }
+        }
+
+        // Show/hide error message
+        function showError(message) {
+            const errorElement = document.getElementById('errorMessage');
+            if (errorElement) {
+                errorElement.textContent = message;
+                errorElement.style.display = 'block';
+            }
+        }
+
+        function hideError() {
+            const errorElement = document.getElementById('errorMessage');
+            if (errorElement) {
+                errorElement.style.display = 'none';
+            }
+        }
+
+        // Show success message
+        function showSuccessMessage(message) {
+            // Create a temporary success message element
+            const successDiv = document.createElement('div');
+            successDiv.className = 'success-message';
+            successDiv.textContent = message;
+            
+            // Insert it after the loading spinner
+            const loadingSpinner = document.getElementById('loadingSpinner');
+            loadingSpinner.parentNode.insertBefore(successDiv, loadingSpinner.nextSibling);
+            
+            // Remove it after 3 seconds
+            setTimeout(() => {
+                successDiv.remove();
+            }, 3000);
+        }
+
+        // Fetch user data
+        async function fetchUserData() {
+            try {
+                const response = await axios.get(`${API_URL}/auth/me`);
+                
+                // Also fetch the user's registered events
+                try {
+                    const registeredEventsResponse = await axios.get(`${API_URL}/users/registered-events`);
+                    registeredEvents = registeredEventsResponse.data || [];
+                    response.data.registeredEvents = registeredEvents;
+                } catch (error) {
+                    console.error('Error fetching registered events:', error);
+                    registeredEvents = [];
+                    response.data.registeredEvents = [];
+                }
+                
+                // Ensure points field is present
+                if (response.data.points === undefined || response.data.points === null) {
+                    response.data.points = 0;
+                }
+                
+                // Ensure clubs array is properly structured
+                if (response.data.clubs === undefined || response.data.clubs === null) {
+                    response.data.clubs = [];
+                }
+                
+                console.log('Processed user data:', response.data); // For debugging
+                
+                return response.data;
+            } catch (error) {
+                console.error('Error fetching user data:', error);
+                throw error;
+            }
+        }
+
+        // Update user interface with user data
+        function updateUserInterface(userData) {
+            // Update user profile in sidebar
+            const userAvatar = document.getElementById('userAvatar');
+            const userName = document.getElementById('userName');
+            const userRollNumber = document.getElementById('userRollNumber');
+            
+            if (userAvatar) {
+                userAvatar.textContent = userData.name.split(' ').map(n => n[0]).join('');
+            }
+            
+            if (userName) {
+                userName.textContent = userData.name;
+            }
+            
+            if (userRollNumber) {
+                userRollNumber.textContent = userData.username; // Using username as roll number
+            }
+            
+            // Update welcome message
+            const welcomeMessage = document.getElementById('welcomeMessage');
+            if (welcomeMessage) {
+                welcomeMessage.textContent = `Welcome back, ${userData.name}! Here's your activity overview.`;
+            }
+        }
+
+        // Fetch dashboard statistics
+        async function fetchDashboardStats(userData) {
+            try {
+                console.log('User data received:', userData); // For debugging
+                
+                // Get user's clubs count - check both new clubs array and legacy club field
+                let clubsCount = 0;
+                
+                // First check the new clubs array structure
+                if (userData.clubs && Array.isArray(userData.clubs) && userData.clubs.length > 0) {
+                    clubsCount = userData.clubs.length;
+                    console.log('Clubs count from clubs array:', clubsCount);
+                } 
+                // Then check for legacy single club
+                else if (userData.club) {
+                    clubsCount = 1;
+                    console.log('Clubs count from legacy club field:', clubsCount);
+                }
+                
+                // Get events registered - from user's registered events
+                const eventsRegistered = registeredEvents.length;
+                console.log('Registered events count:', eventsRegistered);
+                
+                // Get reward points from user data
+                const rewardPoints = userData.points || 0;
+                console.log('Reward points:', rewardPoints);
+                
+                return {
+                    clubsJoined: clubsCount,
+                    eventsRegistered: eventsRegistered,
+                    rewardPoints: rewardPoints
+                };
+            } catch (error) {
+                console.error('Error fetching dashboard stats:', error);
+                return {
+                    clubsJoined: 0,
+                    eventsRegistered: 0,
+                    rewardPoints: 0
+                };
+            }
+        }
+
+        // Update stats cards
+        function updateStatsCards(statsData) {
+            console.log('Stats data received:', statsData); // For debugging
+            
+            const clubsJoinedCount = document.getElementById('clubsJoinedCount');
+            const eventsRegisteredCount = document.getElementById('eventsRegisteredCount');
+            const rewardPointsCount = document.getElementById('rewardPointsCount');
+            
+            if (clubsJoinedCount) {
+                clubsJoinedCount.textContent = statsData.clubsJoined;
+                console.log('Updated clubs count to:', statsData.clubsJoined);
+            } else {
+                console.error('clubsJoinedCount element not found');
+            }
+            
+            if (eventsRegisteredCount) {
+                eventsRegisteredCount.textContent = statsData.eventsRegistered;
+                console.log('Updated events registered count to:', statsData.eventsRegistered);
+            } else {
+                console.error('eventsRegisteredCount element not found');
+            }
+            
+            if (rewardPointsCount) {
+                rewardPointsCount.textContent = statsData.rewardPoints;
+                console.log('Updated reward points to:', statsData.rewardPoints);
+            } else {
+                console.error('rewardPointsCount element not found');
+            }
+        }
+
+        // Fetch recommended clubs
+        async function fetchRecommendedClubs(page, limit) {
+            try {
+                // In a real implementation, you would have an endpoint for recommended clubs with pagination
+                const response = await axios.get(`${API_URL}/clubs?page=${page}&limit=${limit}`);
+                return response.data;
+            } catch (error) {
+                console.error('Error fetching clubs:', error);
+                return [];
+            }
+        }
+
+        // Update clubs grid
+        function updateClubsGrid(clubsData, append = false) {
+            const clubsGrid = document.getElementById('recommendedClubsGrid');
+            const clubsEmptyState = document.getElementById('clubsEmptyState');
+            const loadMoreContainer = document.getElementById('loadMoreContainer');
+            
+            if (!clubsData || clubsData.length === 0) {
+                if (clubsEmptyState && !append) {
+                    clubsEmptyState.style.display = 'block';
+                }
+                if (loadMoreContainer) {
+                    loadMoreContainer.style.display = 'none';
+                }
+                hasMoreClubs = false;
+                return;
+            }
+            
+            if (clubsEmptyState) {
+                clubsEmptyState.style.display = 'none';
+            }
+            
+            // Clear existing clubs only if not appending
+            if (!append) {
+                clubsGrid.innerHTML = '';
+            }
+            
+            // Add clubs to the grid
+            clubsData.forEach(club => {
+                const clubCard = document.createElement('div');
+                clubCard.className = 'club-card';
+                clubCard.onclick = () => viewClubDetails(club._id);
+                
+                // Create club image element
+                const clubImage = document.createElement('div');
+                clubImage.className = 'club-image';
+                
+                const img = document.createElement('img');
+                img.src = club.bannerImage || 'https://images.pexels.com/photos/5386754/pexels-photo-5386754.jpeg?auto=compress&cs=tinysrgb&w=500';
+                img.alt = club.name;
+                
+                clubImage.appendChild(img);
+                
+                // Create club info element
+                const clubInfo = document.createElement('div');
+                clubInfo.className = 'club-info';
+                
+                const clubName = document.createElement('h4');
+                clubName.className = 'club-name';
+                clubName.textContent = club.name;
+                
+                const clubDescription = document.createElement('p');
+                clubDescription.className = 'club-description';
+                clubDescription.textContent = club.description || 'No description available';
+                
+                const clubMembers = document.createElement('div');
+                clubMembers.className = 'club-members';
+                
+                const membersIcon = document.createElement('i');
+                membersIcon.className = 'fas fa-users';
+                
+                const membersText = document.createTextNode(` ${club.members ? club.members.length : 0}+ Members`);
+                
+                clubMembers.appendChild(membersIcon);
+                clubMembers.appendChild(membersText);
+                
+                clubInfo.appendChild(clubName);
+                clubInfo.appendChild(clubDescription);
+                clubInfo.appendChild(clubMembers);
+                
+                clubCard.appendChild(clubImage);
+                clubCard.appendChild(clubInfo);
+                
+                clubsGrid.appendChild(clubCard);
+            });
+            
+            // Show/hide load more button based on whether there are more clubs
+            if (loadMoreContainer) {
+                if (clubsData.length < clubsLimit) {
+                    loadMoreContainer.style.display = 'none';
+                    hasMoreClubs = false;
+                } else {
+                    loadMoreContainer.style.display = 'block';
+                    hasMoreClubs = true;
+                }
+            }
+        }
+
+        // Setup load more clubs button
+        function setupLoadMoreClubs() {
+            const loadMoreBtn = document.getElementById('loadMoreBtn');
+            if (loadMoreBtn) {
+                loadMoreBtn.addEventListener('click', async function() {
+                    if (!hasMoreClubs) return;
+                    
+                    try {
+                        showLoading(true);
+                        clubsPage++;
+                        const clubsData = await fetchRecommendedClubs(clubsPage, clubsLimit);
+                        updateClubsGrid(clubsData, true);
+                    } catch (error) {
+                        console.error('Error loading more clubs:', error);
+                        showError('Failed to load more clubs. Please try again later.');
+                    } finally {
+                        showLoading(false);
+                    }
+                });
+            }
+        }
+
+        // Fetch upcoming events
+        async function fetchUpcomingEvents() {
+            try {
+                // In a real implementation, you would have an endpoint for upcoming events
+                // For now, we'll fetch all events and filter
+                const response = await axios.get(`${API_URL}/events`);
+                const allEvents = response.data;
+                
+                // Filter for upcoming events (events with future dates)
+                const now = new Date();
+                const upcomingEvents = allEvents.filter(event => {
+                    const eventDate = new Date(event.date);
+                    return eventDate > now;
+                }).slice(0, 3); // Get only the next 3 events
+                
+                return upcomingEvents;
+            } catch (error) {
+                console.error('Error fetching events:', error);
+                return [];
+            }
+        }
+
+        // Update events list
+        function updateEventsList(eventsData) {
+            const eventsList = document.getElementById('upcomingEventsList');
+            const eventsEmptyState = document.getElementById('eventsEmptyState');
+            
+            if (!eventsData || eventsData.length === 0) {
+                if (eventsEmptyState) {
+                    eventsEmptyState.style.display = 'block';
+                }
+                return;
+            }
+            
+            if (eventsEmptyState) {
+                eventsEmptyState.style.display = 'none';
+            }
+            
+            // Clear existing events
+            eventsList.innerHTML = '';
+            
+            // Add events to the list
+            eventsData.forEach(event => {
+                const eventItem = document.createElement('div');
+                eventItem.className = 'event-item';
+                
+                // Create event date element
+                const eventDate = document.createElement('div');
+                eventDate.className = 'event-date';
+                
+                const date = new Date(event.date);
+                const day = date.getDate();
+                const month = date.toLocaleString('default', { month: 'short' });
+                
+                const eventDay = document.createElement('div');
+                eventDay.className = 'event-day';
+                eventDay.textContent = day;
+                
+                const eventMonth = document.createElement('div');
+                eventMonth.className = 'event-month';
+                eventMonth.textContent = month;
+                
+                eventDate.appendChild(eventDay);
+                eventDate.appendChild(eventMonth);
+                
+                // Create event info element
+                const eventInfo = document.createElement('div');
+                eventInfo.className = 'event-info';
+                
+                const eventName = document.createElement('div');
+                eventName.className = 'event-name';
+                eventName.textContent = event.title;
+                
+                const eventClub = document.createElement('div');
+                eventClub.className = 'event-club';
+                
+                // Fetch club name if available
+                if (event.clubId && event.clubId.name) {
+                    eventClub.textContent = event.clubId.name;
+                } else {
+                    eventClub.textContent = 'No club specified';
+                }
+                
+                eventInfo.appendChild(eventName);
+                eventInfo.appendChild(eventClub);
+                
+                // Create event action element
+                const eventAction = document.createElement('div');
+                eventAction.className = 'event-action';
+                
+                // Check if user is already registered for this event
+                const isRegistered = registeredEvents.some(regEvent => regEvent._id === event._id);
+                
+                if (isRegistered) {
+                    const registeredBadge = document.createElement('span');
+                    registeredBadge.className = 'event-registered';
+                    registeredBadge.textContent = 'Registered';
+                    eventAction.appendChild(registeredBadge);
+                } else {
+                    const registerButton = document.createElement('button');
+                    registerButton.className = 'btn btn-primary';
+                    registerButton.textContent = 'Register';
+                    registerButton.onclick = () => registerForEvent(event._id);
+                    eventAction.appendChild(registerButton);
+                }
+                
+                eventItem.appendChild(eventDate);
+                eventItem.appendChild(eventInfo);
+                eventItem.appendChild(eventAction);
+                
+                eventsList.appendChild(eventItem);
+            });
+        }
+
+        // Fetch user rewards
+        async function fetchUserRewards() {
+            try {
+                // Fetch user's rewards
+                const response = await axios.get(`${API_URL}/users/rewards`);
+                return response.data;
+            } catch (error) {
+                console.error('Error fetching rewards:', error);
+                return [];
+            }
+        }
+
+        // Update rewards grid
+        function updateRewardsGrid(rewardsData) {
+            const rewardsGrid = document.getElementById('rewardsGrid');
+            const rewardsEmptyState = document.getElementById('rewardsEmptyState');
+            
+            if (!rewardsData || rewardsData.length === 0) {
+                if (rewardsEmptyState) {
+                    rewardsEmptyState.style.display = 'block';
+                }
+                return;
+            }
+            
+            if (rewardsEmptyState) {
+                rewardsEmptyState.style.display = 'none';
+            }
+            
+            // Clear existing rewards
+            rewardsGrid.innerHTML = '';
+            
+            // Add rewards to the grid
+            rewardsData.forEach(reward => {
+                const rewardItem = document.createElement('div');
+                rewardItem.className = 'reward-item';
+                
+                const rewardIcon = document.createElement('div');
+                rewardIcon.className = 'reward-icon';
+                
+                const icon = document.createElement('i');
+                icon.className = reward.icon || 'fas fa-trophy';
+                
+                const rewardName = document.createElement('div');
+                rewardName.className = 'reward-name';
+                rewardName.textContent = reward.name;
+                
+                const rewardPoints = document.createElement('div');
+                rewardPoints.className = 'reward-points';
+                rewardPoints.textContent = `${reward.points} points`;
+                
+                rewardIcon.appendChild(icon);
+                
+                rewardItem.appendChild(rewardIcon);
+                rewardItem.appendChild(rewardName);
+                rewardItem.appendChild(rewardPoints);
+                
+                rewardsGrid.appendChild(rewardItem);
+            });
+        }
+
+        // View club details
+        function viewClubDetails(clubId) {
+            window.location.href = `/student_clubs`;
+        }
+
+        // Register for event
+        async function registerForEvent(eventId) {
+            try {
+                showLoading(true);
+                
+                // Make API call to register for event
+                const response = await axios.post(`${API_URL}/events/${eventId}/register`);
+                
+                // Show success message
+                showSuccessMessage('Successfully registered for the event!');
+                
+                // Add the event to registered events array
+                const event = response.data.event;
+                registeredEvents.push(event);
+                
+                // Update the events registered count in the stats
+                const eventsRegisteredCount = document.getElementById('eventsRegisteredCount');
+                if (eventsRegisteredCount) {
+                    eventsRegisteredCount.textContent = registeredEvents.length;
+                }
+                
+                // Update reward points (add 10 points for registering for an event)
+                const rewardPointsCount = document.getElementById('rewardPointsCount');
+                if (rewardPointsCount) {
+                    const currentPoints = parseInt(rewardPointsCount.textContent) || 0;
+                    rewardPointsCount.textContent = currentPoints + 10;
+                }
+                
+                // Refresh the events list to show the updated registration status
+                const eventsData = await fetchUpcomingEvents();
+                updateEventsList(eventsData);
+                
+            } catch (error) {
+                console.error('Error registering for event:', error);
+                showError('Failed to register for event. Please try again later.');
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        // Setup mobile menu toggle
+        function setupMobileMenu() {
             const mobileMenuToggle = document.getElementById('mobileMenuToggle');
             const sidebar = document.getElementById('sidebar');
             
-            mobileMenuToggle.addEventListener('click', function() {
-                sidebar.classList.toggle('active');
-            });
-            
-            // Close sidebar when clicking on a link
-            document.querySelectorAll('.sidebar-menu a').forEach(link => {
-                link.addEventListener('click', () => {
-                    sidebar.classList.remove('active');
+            if (mobileMenuToggle && sidebar) {
+                mobileMenuToggle.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    sidebar.classList.toggle('active');
+                    
+                    // Close notification dropdown when opening mobile menu
+                    const notificationDropdown = document.getElementById('notificationDropdown');
+                    if (notificationDropdown) {
+                        notificationDropdown.classList.remove('active');
+                    }
                 });
+                
+                // Close sidebar when clicking on a link
+                document.querySelectorAll('.sidebar-menu a').forEach(link => {
+                    link.addEventListener('click', () => {
+                        sidebar.classList.remove('active');
+                    });
+                });
+            }
+        }
+
+        // Initialize Socket.IO connection
+        function initializeSocket() {
+            // Connect to the Socket.IO server
+            socket = io();
+            
+            socket.on('connect', () => {
+                console.log('Connected to Socket.IO server');
+                
+                // Join the user's room to receive notifications
+                if (currentUserData && currentUserData._id) {
+                    socket.emit('join', currentUserData._id);
+                }
             });
             
-            // Simulate real-time notifications
-            const notificationIcon = document.querySelector('.notification-icon');
-            const notificationBadge = document.querySelector('.notification-badge');
-            
-            // Simulate receiving a new notification
-            setTimeout(() => {
-                const currentCount = parseInt(notificationBadge.textContent);
-                notificationBadge.textContent = currentCount + 1;
+            socket.on('new-notification', (data) => {
+                // Update the notification badge
+                unreadCount++;
+                updateNotificationBadge(unreadCount);
                 
-                // Add a pulse animation to the notification icon
-                notificationIcon.style.animation = 'pulse 1s';
-                setTimeout(() => {
-                    notificationIcon.style.animation = '';
-                }, 1000);
-            }, 5000);
-        });
-        
-        // Add pulse animation keyframes
-        const style = document.createElement('style');
-        style.textContent = `
-            @keyframes pulse {
-                0% { transform: scale(1); }
-                50% { transform: scale(1.2); }
-                100% { transform: scale(1); }
+                // If the notification dropdown is open, add the new notification to the list
+                const notificationDropdown = document.getElementById('notificationDropdown');
+                if (notificationDropdown.classList.contains('active')) {
+                    // Prepend the new notification to the list
+                    const notificationList = document.getElementById('notificationList');
+                    const li = document.createElement('li');
+                    li.className = 'notification-item unread';
+                    li.onclick = () => markAsRead(data.notification._id);
+                    
+                    li.innerHTML = `
+                        <div class="notification-title">${data.notification.title}</div>
+                        <div class="notification-message">${data.notification.message}</div>
+                        <div class="notification-meta">
+                            <span>From: ${data.notification.sender}</span>
+                            <span>${formatTime(data.notification.createdAt)} - ${formatDate(data.notification.createdAt)}</span>
+                        </div>
+                    `;
+                    
+                    // Insert at the beginning of the list
+                    if (notificationList.firstChild) {
+                        notificationList.insertBefore(li, notificationList.firstChild);
+                    } else {
+                        notificationList.appendChild(li);
+                    }
+                }
+            });
+            
+            socket.on('disconnect', () => {
+                console.log('Disconnected from Socket.IO server');
+            });
+        }
+
+        // Setup notifications
+        function setupNotifications() {
+            const notificationIcon = document.getElementById('notificationIcon');
+            const notificationDropdown = document.getElementById('notificationDropdown');
+            const markAllRead = document.getElementById('markAllRead');
+            const notificationList = document.getElementById('notificationList');
+
+            if (notificationIcon) {
+                notificationIcon.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    if (notificationDropdown.classList.contains('active')) {
+                        notificationDropdown.classList.remove('active');
+                    } else {
+                        fetchNotifications();
+                        notificationDropdown.classList.add('active');
+                        
+                        // Adjust position for mobile if needed
+                        if (window.innerWidth < 576) {
+                            notificationDropdown.style.width = '100%';
+                            notificationDropdown.style.left = '0';
+                            notificationDropdown.style.right = '0';
+                        }
+                    }
+                });
             }
-        `;
-        document.head.appendChild(style);
+
+            // Close dropdown when clicking outside
+            document.addEventListener('click', function() {
+                if (notificationDropdown) {
+                    notificationDropdown.classList.remove('active');
+                }
+            });
+
+            if (markAllRead) {
+                markAllRead.addEventListener('click', markAllAsRead);
+            }
+        }
+
+        // Fetch unread notification count
+        async function fetchUnreadNotificationCount() {
+            try {
+                const response = await axios.get(`${API_URL}/notifications/unread-count`);
+                unreadCount = response.data.count;
+                updateNotificationBadge(unreadCount);
+            } catch (error) {
+                console.error('Error fetching unread count:', error);
+                unreadCount = 0;
+                updateNotificationBadge(0);
+            }
+        }
+
+        // Update notification badge
+        function updateNotificationBadge(count) {
+            const badge = document.getElementById('notificationBadge');
+            if (badge) {
+                if (count > 0) {
+                    badge.textContent = count;
+                    badge.classList.remove('hidden');
+                } else {
+                    badge.classList.add('hidden');
+                }
+            }
+        }
+
+        // Fetch notifications
+        async function fetchNotifications() {
+            try {
+                // Show loading spinner
+                const loading = document.getElementById('notificationLoading');
+                if (loading) {
+                    loading.classList.remove('hidden');
+                }
+                
+                const response = await axios.get(`${API_URL}/notifications`);
+                notifications = response.data;
+                updateNotificationList(notifications);
+            } catch (error) {
+                console.error('Error fetching notifications:', error);
+                showError('Failed to load notifications.');
+            } finally {
+                // Hide loading spinner
+                const loading = document.getElementById('notificationLoading');
+                if (loading) {
+                    loading.classList.add('hidden');
+                }
+            }
+        }
+
+        // Update notification list
+        function updateNotificationList(notifications) {
+            const notificationList = document.getElementById('notificationList');
+            if (!notificationList) return;
+
+            notificationList.innerHTML = '';
+
+            if (notifications.length === 0) {
+                const emptyLi = document.createElement('li');
+                emptyLi.className = 'notification-item';
+                emptyLi.innerHTML = '<p style="text-align: center; color: var(--light-text);">No notifications</p>';
+                notificationList.appendChild(emptyLi);
+                return;
+            }
+
+            notifications.forEach(notification => {
+                const li = document.createElement('li');
+                li.className = `notification-item ${!notification.isRead ? 'unread' : ''}`;
+                li.onclick = () => markAsRead(notification._id);
+
+                li.innerHTML = `
+                    <div class="notification-title">${notification.title}</div>
+                    <div class="notification-message">${notification.message}</div>
+                    <div class="notification-meta">
+                        <span>From: ${notification.sender}</span>
+                        <span>${formatTime(notification.createdAt)} - ${formatDate(notification.createdAt)}</span>
+                    </div>
+                `;
+
+                notificationList.appendChild(li);
+            });
+        }
+
+        // Helper functions to format date and time
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString();
+        }
+
+        function formatTime(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        }
+
+        // Mark notification as read
+        async function markAsRead(notificationId) {
+            try {
+                await axios.put(`${API_URL}/notifications/${notificationId}/read`);
+                
+                // Update local notifications
+                const notification = notifications.find(n => n._id === notificationId);
+                if (notification) {
+                    notification.isRead = true;
+                }
+                
+                // Refresh the list
+                updateNotificationList(notifications);
+                
+                // Update unread count
+                unreadCount = Math.max(0, unreadCount - 1);
+                updateNotificationBadge(unreadCount);
+                
+            } catch (error) {
+                console.error('Error marking as read:', error);
+                showError('Failed to mark notification as read.');
+            }
+        }
+
+        // Mark all as read
+        async function markAllAsRead() {
+            try {
+                const response = await axios.put(`${API_URL}/notifications/mark-all-read`);
+                
+                // Update local notifications
+                notifications.forEach(n => n.isRead = true);
+                
+                // Refresh the list
+                updateNotificationList(notifications);
+                
+                // Update unread count
+                unreadCount = 0;
+                updateNotificationBadge(0);
+                
+                showSuccessMessage(`${response.data.count} notifications marked as read`);
+                
+            } catch (error) {
+                console.error('Error marking all as read:', error);
+                showError('Failed to mark all notifications as read.');
+            }
+        }
+
+        // Logout function
+        function logout() {
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            window.location.href = '/login';
+        }
     </script>
 </body>
 </html>

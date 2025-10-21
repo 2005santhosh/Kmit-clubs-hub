@@ -440,6 +440,117 @@
             display: none;
         }
 
+        /* Loading Spinner */
+        .spinner {
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            border-radius: 50%;
+            border-top: 4px solid var(--primary);
+            width: 24px;
+            height: 24px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+            display: none;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Debug Panel */
+        .debug-panel {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: var(--border-radius);
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+            font-family: monospace;
+            font-size: 0.85rem;
+            color: var(--text);
+            display: none;
+        }
+
+        .debug-panel h4 {
+            font-size: 1rem;
+            margin-bottom: 0.5rem;
+            color: var(--primary);
+        }
+
+        .debug-panel pre {
+            white-space: pre-wrap;
+            word-break: break-all;
+            background-color: #e9ecef;
+            padding: 0.5rem;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+
+        /* Password Reset Panel */
+        .password-reset-panel {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: var(--border-radius);
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+            display: none;
+        }
+
+        .password-reset-panel h4 {
+            font-size: 1rem;
+            margin-bottom: 0.5rem;
+            color: var(--primary);
+        }
+
+        .password-reset-panel .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .password-reset-panel .btn {
+            width: 100%;
+        }
+
+        /* Fix Password Panel */
+        .fix-password-panel {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: var(--border-radius);
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+            display: none;
+        }
+
+        .fix-password-panel h4 {
+            font-size: 1rem;
+            margin-bottom: 0.5rem;
+            color: var(--primary);
+        }
+
+        .fix-password-panel .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .fix-password-panel .btn {
+            width: 100%;
+        }
+
+        /* Debug Section */
+        .debug-section {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #e9ecef;
+            display: none; /* Hidden by default */
+        }
+
+        .debug-section h3 {
+            font-size: 1rem;
+            margin-bottom: 10px;
+        }
+
+        .debug-section .btn {
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+
         /* Footer */
         .footer {
             background: var(--gradient-primary);
@@ -608,6 +719,42 @@
                         Login successful! Redirecting...
                     </div>
                     
+                    <!-- Debug Panel (hidden by default) -->
+                    <div class="debug-panel" id="debugPanel">
+                        <h4>Debug Information</h4>
+                        <div id="requestInfo"></div>
+                        <div id="responseInfo"></div>
+                    </div>
+                    
+                    <!-- Password Reset Panel (hidden by default) -->
+                    <div class="password-reset-panel" id="passwordResetPanel">
+                        <h4>Reset Password</h4>
+                        <div class="form-group">
+                            <label for="resetUsername" class="form-label">Username</label>
+                            <input type="text" class="form-control" id="resetUsername" placeholder="Enter username">
+                        </div>
+                        <div class="form-group">
+                            <label for="resetPassword" class="form-label">New Password</label>
+                            <input type="password" class="form-control" id="resetPassword" placeholder="Enter new password">
+                        </div>
+                        <button type="button" class="btn btn-primary" id="resetPasswordBtn">Reset Password</button>
+                    </div>
+                    
+                    <!-- Fix Password Panel (hidden by default) -->
+                    <div class="fix-password-panel" id="fixPasswordPanel">
+                        <h4>Fix Password Hash</h4>
+                        <p>This will re-hash your password if it's not properly stored.</p>
+                        <div class="form-group">
+                            <label for="fixUsername" class="form-label">Username</label>
+                            <input type="text" class="form-control" id="fixUsername" placeholder="Enter username">
+                        </div>
+                        <div class="form-group">
+                            <label for="fixPassword" class="form-label">New Password</label>
+                            <input type="password" class="form-control" id="fixPassword" placeholder="Enter new password">
+                        </div>
+                        <button type="button" class="btn btn-primary" id="fixPasswordBtn">Fix Password Hash</button>
+                    </div>
+                    
                     <form id="loginForm">
                         <div class="form-group">
                             <label for="username" class="form-label">Username</label>
@@ -658,11 +805,23 @@
                                 <input type="checkbox" class="form-check-input" id="rememberMe">
                                 <label class="form-check-label" for="rememberMe">Remember me</label>
                             </div>
-                            <a href="#" class="forgot-password">Forgot password?</a>
+                            <a href="#" class="forgot-password" id="forgotPasswordLink">Forgot password?</a>
                         </div>
                         
-                        <button type="submit" class="btn btn-primary">Login</button>
+                        <button type="submit" class="btn btn-primary">
+                            <span id="loginButtonText">Login</span>
+                            <div class="spinner" id="loginSpinner"></div>
+                        </button>
                     </form>
+                    
+                    <!-- Debug Section (hidden by default) -->
+                    <div class="debug-section" id="debugSection">
+                        <h3>Debug Tools (Development Only)</h3>
+                        <button type="button" class="btn btn-secondary" id="fixAdminButton">Fix Admin Account</button>
+                        <button type="button" class="btn btn-secondary" id="debugLoginButton">Debug Login</button>
+                        <button type="button" class="btn btn-secondary" id="resetAdminButton">Reset Admin Password</button>
+                        <button type="button" class="btn btn-secondary" id="fixAdminRoleButton">Fix Admin Role</button>
+                    </div>
                     
                     <div class="divider">
                         <span>or</span>
@@ -683,18 +842,369 @@
     const loginForm = document.getElementById('loginForm');
     const errorMessage = document.getElementById('errorMessage');
     const successMessage = document.getElementById('successMessage');
+    const loginButtonText = document.getElementById('loginButtonText');
+    const loginSpinner = document.getElementById('loginSpinner');
+    const debugPanel = document.getElementById('debugPanel');
+    const requestInfo = document.getElementById('requestInfo');
+    const responseInfo = document.getElementById('responseInfo');
+    const passwordResetPanel = document.getElementById('passwordResetPanel');
+    const forgotPasswordLink = document.getElementById('forgotPasswordLink');
+    const resetPasswordBtn = document.getElementById('resetPasswordBtn');
+    const resetUsername = document.getElementById('resetUsername');
+    const resetPassword = document.getElementById('resetPassword');
+    const fixPasswordPanel = document.getElementById('fixPasswordPanel');
+    const fixPasswordBtn = document.getElementById('fixPasswordBtn');
+    const fixUsername = document.getElementById('fixUsername');
+    const fixPasswordInput = document.getElementById('fixPassword');
+    
+    // Debug section elements
+    const debugSection = document.getElementById('debugSection');
+    const fixAdminButton = document.getElementById('fixAdminButton');
+    const debugLoginButton = document.getElementById('debugLoginButton');
+    const resetAdminButton = document.getElementById('resetAdminButton');
+    const fixAdminRoleButton = document.getElementById('fixAdminRoleButton');
+    
+    // Add fix password hash button
+    const fixPasswordHashButton = document.createElement('button');
+    fixPasswordHashButton.textContent = 'Fix Password Hash';
+    fixPasswordHashButton.className = 'btn btn-secondary';
+    fixPasswordHashButton.style.marginTop = '10px';
+    fixPasswordHashButton.style.display = 'none'; // Hidden by default
+    
+    // Add to the form
+    loginForm.appendChild(fixPasswordHashButton);
+    
+    // Show debug buttons in development
+    if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+        debugSection.style.display = 'block';
+        fixPasswordHashButton.style.display = 'block';
+    }
+    
+    // Fix password hash button click handler
+    fixPasswordHashButton.addEventListener('click', async function() {
+        const username = document.getElementById('username').value.trim();
+        const password = document.getElementById('password').value;
+        
+        if (!username || !password) {
+            alert('Please enter both username and password');
+            return;
+        }
+        
+        if (!confirm(`Are you sure you want to fix the password hash for ${username}? This will re-hash the password to fix any double-hashing issues.`)) {
+            return;
+        }
+        
+        try {
+            const response = await fetch('/api/auth/fix-password-hash', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    username: username,
+                    newPassword: password
+                })
+            });
+            
+            const data = await response.json();
+            
+            alert(data.message);
+            
+            if (response.ok) {
+                // Password hash fixed, now try to log in
+                alert('Password hash fixed! You can now try to login again.');
+            }
+        } catch (error) {
+            console.error('Fix password hash error:', error);
+            alert('An error occurred while fixing password hash');
+        }
+    });
+    
+    // Toggle debug panel (Ctrl+Shift+D)
+    document.addEventListener('keydown', function(e) {
+        if (e.ctrlKey && e.shiftKey && e.key === 'D') {
+            debugPanel.style.display = debugPanel.style.display === 'none' ? 'block' : 'none';
+        }
+    });
+    
+    // Toggle fix password panel (Ctrl+Shift+F)
+    document.addEventListener('keydown', function(e) {
+        if (e.ctrlKey && e.shiftKey && e.key === 'F') {
+            fixPasswordPanel.style.display = fixPasswordPanel.style.display === 'none' ? 'block' : 'none';
+        }
+    });
+    
+    // Toggle password reset panel
+    forgotPasswordLink.addEventListener('click', function(e) {
+        e.preventDefault();
+        passwordResetPanel.style.display = passwordResetPanel.style.display === 'none' ? 'block' : 'none';
+    });
+    
+    // Handle password reset
+    resetPasswordBtn.addEventListener('click', async function() {
+        const username = resetUsername.value.trim();
+        const newPassword = resetPassword.value.trim();
+        
+        if (!username || !newPassword) {
+            alert('Please enter both username and new password');
+            return;
+        }
+        
+        try {
+            const response = await fetch('/api/auth/reset-specific-password', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    username: username,
+                    newPassword: newPassword
+                })
+            });
+            
+            const data = await response.json();
+            
+            if (response.ok) {
+                alert('Password reset successfully! You can now login with the new password.');
+                passwordResetPanel.style.display = 'none';
+                resetUsername.value = '';
+                resetPassword.value = '';
+            } else {
+                alert('Error: ' + data.message);
+            }
+        } catch (error) {
+            console.error('Password reset error:', error);
+            alert('An error occurred while resetting password');
+        }
+    });
+    
+    // Handle fix password
+    fixPasswordBtn.addEventListener('click', async function() {
+        const username = fixUsername.value.trim();
+        const newPassword = fixPasswordInput.value.trim();
+        
+        if (!username) {
+            alert('Please enter username');
+            return;
+        }
+        
+        try {
+            const response = await fetch('/api/auth/fix-password', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    username: username,
+                    newPassword: newPassword
+                })
+            });
+            
+            const data = await response.json();
+            
+            if (response.ok) {
+                alert('Password hash fixed successfully! You can now login with the new password.');
+                fixPasswordPanel.style.display = 'none';
+                fixUsername.value = '';
+                fixPasswordInput.value = '';
+            } else {
+                alert('Error: ' + data.message);
+            }
+        } catch (error) {
+            console.error('Fix password error:', error);
+            alert('An error occurred while fixing password hash');
+        }
+    });
+    
+    // Fix admin button click handler
+    fixAdminButton.addEventListener('click', async function() {
+        try {
+            const response = await fetch('/api/auth/verify-fix-admin', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+            
+            const data = await response.json();
+            
+            alert(data.message);
+            
+            if (data.success) {
+                // Pre-fill the login form with admin credentials
+                document.getElementById('username').value = data.username;
+                document.getElementById('password').value = data.password;
+                document.getElementById('admin').checked = true;
+            }
+        } catch (error) {
+            console.error('Fix admin error:', error);
+            alert('An error occurred while fixing admin account');
+        }
+    });
+    
+    // Debug login button click handler
+    debugLoginButton.addEventListener('click', async function() {
+        const username = document.getElementById('username').value.trim();
+        const password = document.getElementById('password').value;
+        
+        if (!username || !password) {
+            alert('Please enter both username and password');
+            return;
+        }
+        
+        try {
+            const response = await fetch('/api/auth/debug-login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    username: username,
+                    password: password
+                })
+            });
+            
+            const data = await response.json();
+            
+            // Create a modal to show debug information
+            const modal = document.createElement('div');
+            modal.style.position = 'fixed';
+            modal.style.top = '0';
+            modal.style.left = '0';
+            modal.style.width = '100%';
+            modal.style.height = '100%';
+            modal.style.backgroundColor = 'rgba(0, 0, 0, 0.5)';
+            modal.style.display = 'flex';
+            modal.style.justifyContent = 'center';
+            modal.style.alignItems = 'center';
+            modal.style.zIndex = '1000';
+            
+            const modalContent = document.createElement('div');
+            modalContent.style.backgroundColor = 'white';
+            modalContent.style.padding = '20px';
+            modalContent.style.borderRadius = '10px';
+            modalContent.style.maxWidth = '80%';
+            modalContent.style.maxHeight = '80%';
+            modalContent.style.overflow = 'auto';
+            
+            const closeButton = document.createElement('button');
+            closeButton.textContent = 'Close';
+            closeButton.className = 'btn btn-primary';
+            closeButton.style.marginTop = '10px';
+            
+            closeButton.addEventListener('click', function() {
+                document.body.removeChild(modal);
+            });
+            
+            const pre = document.createElement('pre');
+            pre.textContent = JSON.stringify(data, null, 2);
+            
+            modalContent.appendChild(document.createElement('h3')).textContent = 'Debug Information';
+            modalContent.appendChild(pre);
+            modalContent.appendChild(closeButton);
+            modal.appendChild(modalContent);
+            
+            document.body.appendChild(modal);
+        } catch (error) {
+            console.error('Debug login error:', error);
+            alert('An error occurred during debug login');
+        }
+    });
+    
+    // Reset admin password button click handler
+    resetAdminButton.addEventListener('click', async function() {
+        if (!confirm('Are you sure you want to reset the admin password?')) {
+            return;
+        }
+        
+        try {
+            const response = await fetch('/api/auth/reset-specific-password', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    username: 'deepa@kmit',
+                    newPassword: 'Kmit123@'
+                })
+            });
+            
+            const data = await response.json();
+            
+            alert(data.message);
+            
+            // Pre-fill the login form with admin credentials
+            document.getElementById('username').value = 'deepa@kmit';
+            document.getElementById('password').value = 'Kmit123@';
+            document.getElementById('admin').checked = true;
+        } catch (error) {
+            console.error('Reset admin password error:', error);
+            alert('An error occurred while resetting admin password');
+        }
+    });
+    
+    // Fix admin role button click handler
+    fixAdminRoleButton.addEventListener('click', async function() {
+        try {
+            const response = await fetch('/api/auth/fix-admin-role', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+            
+            const data = await response.json();
+            
+            alert(data.message);
+            
+            if (data.success) {
+                // Pre-fill the login form with admin credentials
+                document.getElementById('username').value = 'deepa@kmit';
+                document.getElementById('password').value = 'Kmit123@';
+                document.getElementById('admin').checked = true;
+            }
+        } catch (error) {
+            console.error('Fix admin role error:', error);
+            alert('An error occurred while fixing admin role');
+        }
+    });
     
     loginForm.addEventListener('submit', function(e) {
         e.preventDefault();
         
         // Get form values
-        const username = document.getElementById('username').value;
+        const username = document.getElementById('username').value.trim();
         const password = document.getElementById('password').value;
-        const role = document.querySelector('input[name="role"]:checked').value;
+        const selectedRole = document.querySelector('input[name="role"]:checked').value;
+        
+        // Enhanced logging for debugging
+        console.log('Login attempt:');
+        console.log('Username:', username);
+        console.log('Password length:', password.length);
+        console.log('Selected role:', selectedRole);
+        
+        // Check for whitespace in password
+        if (password !== password.trim()) {
+            console.log('Password contains leading/trailing whitespace');
+        }
         
         // Hide any previous messages
         errorMessage.style.display = 'none';
         successMessage.style.display = 'none';
+        
+        // Show loading state
+        loginButtonText.style.display = 'none';
+        loginSpinner.style.display = 'block';
+        loginForm.querySelector('.btn-primary').disabled = true;
+        
+        // Prepare request data
+        const requestData = {
+            username: username,
+            password: password
+        };
+        
+        // Log request data to debug panel
+        requestInfo.innerHTML = '<strong>Request:</strong><pre>' + JSON.stringify(requestData, null, 2) + '</pre>';
         
         // Send login request to server
         fetch('/api/auth/login', {
@@ -702,63 +1212,89 @@
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({
-                username,
-                password
-            })
+            body: JSON.stringify(requestData)
         })
-        .then(response => response.json())
-        .then(data => {
-            if (data.message === 'Invalid credentials') {
-                // Show error message
-                errorMessage.style.display = 'block';
-            } else {
-                // Check if the selected role matches the actual user role
-                if (data.role !== role) {
-                    errorMessage.textContent = `You don't have ${role} privileges. Please select the correct role.`;
-                    errorMessage.style.display = 'block';
-                    return;
-                }
-                
-                // Store token in localStorage
-                localStorage.setItem('token', data.token);
-                localStorage.setItem('user', JSON.stringify(data));
-                
-                // Show success message
-                successMessage.style.display = 'block';
-                
-                // Redirect based on role
-                setTimeout(() => {
-                    switch(data.role) {
-                        case 'student':
-                            window.location.href = '/student-dashboard';
-                            break;
-                        case 'clubLeader':
-                            window.location.href = '/club-leader-dashboard';
-                            break;
-                        case 'faculty':
-                            window.location.href = '/faculty-dashboard';
-                            break;
-                        case 'admin':
-                            window.location.href = '/admin';
-                            break;
-                        default:
-                            window.location.href = '/';
-                    }
-                }, 1500);
+        .then(response => {
+            // Log response status to debug panel
+            responseInfo.innerHTML = '<strong>Response Status:</strong> ' + response.status + ' ' + response.statusText;
+            
+            // Clone the response so we can read it twice
+            const responseClone = response.clone();
+            
+            // First check if the response is ok
+            if (!response.ok) {
+                // If not ok, parse the error response
+                return responseClone.json().then(errorData => {
+                    // Log error response to debug panel
+                    responseInfo.innerHTML += '<br><strong>Error Response:</strong><pre>' + JSON.stringify(errorData, null, 2) + '</pre>';
+                    
+                    // Throw an error with the message from the server
+                    throw new Error(errorData.message || 'Invalid credentials');
+                });
             }
+            
+            // If response is ok, parse the successful response
+            return response.json();
+        })
+        .then(data => {
+            // Log success response to debug panel
+            responseInfo.innerHTML += '<br><strong>Success Response:</strong><pre>' + JSON.stringify(data, null, 2) + '</pre>';
+            
+            // Check if the selected role matches the actual user role
+            // The response should have a consistent 'role' field now
+            if (data.role !== selectedRole) {
+                errorMessage.textContent = `You don't have ${selectedRole} privileges. Please select the correct role.`;
+                errorMessage.style.display = 'block';
+                resetLoginForm();
+                return;
+            }
+            
+            // Store token in localStorage
+            localStorage.setItem('token', data.token);
+            localStorage.setItem('user', JSON.stringify(data));
+            
+            // Show success message
+            successMessage.style.display = 'block';
+            
+            // Redirect based on role
+            setTimeout(() => {
+                switch(data.role) {
+                    case 'student':
+                        window.location.href = '/student_dashboard';
+                        break;
+                    case 'clubLeader':
+                        window.location.href = '/club_leader_dashboard';
+                        break;
+                    case 'faculty':
+                        window.location.href = '/faculty_dashboard';
+                        break;
+                    case 'admin':
+                        window.location.href = '/admin';
+                        break;
+                    default:
+                        window.location.href = '/';
+                }
+            }, 1500);
         })
         .catch(error => {
-            console.error('Error:', error);
+            console.error('Login error:', error);
+            
+            // Log error to debug panel
+            responseInfo.innerHTML += '<br><strong>Error:</strong><pre>' + error.message + '</pre>';
+            
+            // Display the error message from the server or a default message
+            errorMessage.textContent = error.message || 'An error occurred. Please try again.';
             errorMessage.style.display = 'block';
+            resetLoginForm();
         });
     });
     
-    // Forgot password link
-    document.querySelector('.forgot-password').addEventListener('click', function(e) {
-        e.preventDefault();
-        alert('Password reset functionality would be implemented here.');
-    });
+    // Function to reset the login form state
+    function resetLoginForm() {
+        loginButtonText.style.display = 'inline';
+        loginSpinner.style.display = 'none';
+        loginForm.querySelector('.btn-primary').disabled = false;
+    }
 });
     </script>
 </body>

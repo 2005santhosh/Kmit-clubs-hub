@@ -1,0 +1,1292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Club Details - KMIT Clubs Hub</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+    <style>
+        /* CSS Variables */
+        :root {
+            --primary: #003366; /* Deep Navy */
+            --primary-dark: #002244;
+            --secondary: #f8fafc; /* Soft Gray */
+            --accent: #ffc107; /* Gold Accent */
+            --accent-light: #ffcd39;
+            --text: #212529; /* Darker Text */
+            --light-text: #6c757d;
+            --border-radius: 12px;
+            --box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+            --transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            --section-padding: 100px 0;
+            --container-padding: 0 20px;
+            --gradient-primary: linear-gradient(135deg, #003366 0%, #0055a4 100%);
+            --gradient-accent: linear-gradient(135deg, #ffc107 0%, #ffcd39 100%);
+        }
+
+        /* Global Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Lato', sans-serif;
+            line-height: 1.7;
+            color: var(--text);
+            background-color: #fff;
+            overflow-x: hidden;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: var(--container-padding);
+        }
+
+        /* Typography */
+        h1, h2, h3, h4 {
+            font-family: 'Poppins', sans-serif;
+            margin-bottom: 1.2rem;
+            font-weight: 600;
+            line-height: 1.2;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        h2 {
+            font-size: 2rem;
+            color: var(--primary);
+            margin-bottom: 1.5rem;
+            position: relative;
+        }
+
+        h3 {
+            font-size: 1.5rem;
+            margin-bottom: 0.8rem;
+            color: var(--primary);
+        }
+
+        p {
+            margin-bottom: 1.2rem;
+            color: var(--light-text);
+            font-weight: 300;
+        }
+
+        a {
+            text-decoration: none;
+            color: var(--primary);
+            transition: var(--transition);
+        }
+
+        a:hover {
+            color: var(--accent);
+        }
+
+        /* Dashboard Layout */
+        .dashboard {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 260px;
+            background: var(--gradient-primary);
+            color: white;
+            padding: 2rem 0;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            z-index: 1000;
+            transition: var(--transition);
+        }
+
+        .sidebar-header {
+            padding: 0 1.5rem 2rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 1rem;
+        }
+
+        .sidebar-header h2 {
+            color: white;
+            font-size: 1.5rem;
+            background: none;
+            -webkit-text-fill-color: initial;
+        }
+
+        .sidebar-menu {
+            list-style: none;
+        }
+
+        .sidebar-menu li {
+            margin-bottom: 0.5rem;
+        }
+
+        .sidebar-menu a {
+            display: flex;
+            align-items: center;
+            padding: 0.8rem 1.5rem;
+            color: rgba(255, 255, 255, 0.8);
+            transition: var(--transition);
+        }
+
+        .sidebar-menu a:hover,
+        .sidebar-menu a.active {
+            background-color: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+
+        .sidebar-menu i {
+            margin-right: 0.8rem;
+            font-size: 1.2rem;
+        }
+
+        .user-profile {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 1.5rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1rem;
+            font-weight: 600;
+        }
+
+        .user-info h4 {
+            color: white;
+            font-size: 1rem;
+            margin-bottom: 0.2rem;
+        }
+
+        .user-info p {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.85rem;
+            margin: 0;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            margin-left: 260px;
+            padding: 2rem;
+            background-color: #f8fafc;
+        }
+
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .dashboard-title h1 {
+            margin-bottom: 0.5rem;
+        }
+
+        .dashboard-actions {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .notification-icon {
+            position: relative;
+            font-size: 1.5rem;
+            color: var(--primary);
+            cursor: pointer;
+        }
+
+        .notification-badge {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background-color: var(--accent);
+            color: white;
+            font-size: 0.7rem;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Content Sections */
+        .content-section {
+            background-color: white;
+            border-radius: var(--border-radius);
+            padding: 1.5rem;
+            box-shadow: var(--box-shadow);
+            margin-bottom: 2rem;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .section-title {
+            font-size: 1.3rem;
+            color: var(--primary);
+            margin: 0;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            border-radius: 50px;
+            font-weight: 600;
+            text-align: center;
+            cursor: pointer;
+            transition: var(--transition);
+            border: none;
+            font-size: 0.9rem;
+        }
+
+        .btn-primary {
+            background: var(--gradient-primary);
+            color: white;
+            box-shadow: 0 4px 15px rgba(0, 51, 102, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 51, 102, 0.4);
+        }
+
+        .btn-secondary {
+            background-color: transparent;
+            color: var(--primary);
+            border: 2px solid var(--primary);
+        }
+
+        .btn-secondary:hover {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .btn-success {
+            background-color: #28a745;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background-color: #218838;
+            transform: translateY(-2px);
+        }
+
+        .btn-warning {
+            background-color: #ffc107;
+            color: var(--primary-dark);
+        }
+
+        .btn-warning:hover {
+            background-color: #e0a800;
+            transform: translateY(-2px);
+        }
+
+        .btn-danger {
+            background-color: #dc3545;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background-color: #c82333;
+            transform: translateY(-2px);
+        }
+
+        /* Club Header */
+        .club-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .club-logo {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background-color: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 2rem;
+            font-size: 3rem;
+            color: white;
+            flex-shrink: 0;
+        }
+
+        .club-info {
+            flex: 1;
+        }
+
+        .club-name {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            color: var(--primary);
+        }
+
+        .club-type {
+            display: inline-block;
+            padding: 5px 15px;
+            background-color: var(--accent);
+            color: var(--primary-dark);
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+
+        .club-meta {
+            display: flex;
+            gap: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .club-meta-item {
+            display: flex;
+            align-items: center;
+        }
+
+        .club-meta-item i {
+            margin-right: 0.5rem;
+            color: var(--accent);
+        }
+
+        /* Club Stats */
+        .club-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background-color: var(--secondary);
+            border-radius: var(--border-radius);
+            padding: 1.5rem;
+            text-align: center;
+            transition: var(--transition);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--box-shadow);
+        }
+
+        .stat-card h3 {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            color: var(--primary);
+        }
+
+        .stat-card p {
+            margin: 0;
+            color: var(--light-text);
+        }
+
+        /* Club Tabs */
+        .club-tabs {
+            display: flex;
+            border-bottom: 1px solid #e9ecef;
+            margin-bottom: 1.5rem;
+        }
+
+        .club-tab {
+            padding: 0.75rem 1.5rem;
+            font-weight: 600;
+            color: var(--light-text);
+            cursor: pointer;
+            transition: var(--transition);
+            border-bottom: 3px solid transparent;
+        }
+
+        .club-tab:hover {
+            color: var(--primary);
+        }
+
+        .club-tab.active {
+            color: var(--primary);
+            border-bottom-color: var(--primary);
+        }
+
+        /* Club Tab Content */
+        .club-tab-content {
+            display: none;
+        }
+
+        .club-tab-content.active {
+            display: block;
+        }
+
+        /* Members List */
+        .members-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 1rem;
+        }
+
+        .member-card {
+            background-color: var(--secondary);
+            border-radius: var(--border-radius);
+            padding: 1rem;
+            display: flex;
+            align-items: center;
+            transition: var(--transition);
+        }
+
+        .member-card:hover {
+            background-color: #e9f2f9;
+        }
+
+        .member-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background-color: var(--accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1rem;
+            font-size: 1.2rem;
+            color: white;
+            flex-shrink: 0;
+        }
+
+        .member-info {
+            flex: 1;
+        }
+
+        .member-name {
+            font-weight: 600;
+            margin-bottom: 0.2rem;
+        }
+
+        .member-role {
+            font-size: 0.9rem;
+            color: var(--light-text);
+        }
+
+        /* Events List */
+        .events-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .event-card {
+            background-color: var(--secondary);
+            border-radius: var(--border-radius);
+            padding: 1rem;
+            display: flex;
+            align-items: center;
+            transition: var(--transition);
+        }
+
+        .event-card:hover {
+            background-color: #e9f2f9;
+        }
+
+        .event-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background-color: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1rem;
+            font-size: 1.2rem;
+            color: white;
+            flex-shrink: 0;
+        }
+
+        .event-info {
+            flex: 1;
+        }
+
+        .event-title {
+            font-weight: 600;
+            margin-bottom: 0.2rem;
+        }
+
+        .event-details {
+            font-size: 0.9rem;
+            color: var(--light-text);
+        }
+
+        .event-status {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-left: 1rem;
+        }
+
+        .status-upcoming {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+
+        .status-ongoing {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .status-completed {
+            background-color: #e2e3e5;
+            color: #383d41;
+        }
+
+        /* Mobile Menu Toggle */
+        .mobile-menu-toggle {
+            display: none;
+            position: fixed;
+            top: 1rem;
+            left: 1rem;
+            z-index: 1001;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            box-shadow: var(--box-shadow);
+        }
+
+        /* Loading Spinner */
+        .spinner {
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            border-radius: 50%;
+            border-top: 4px solid var(--primary);
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Alert message styles */
+        .alert {
+            padding: 15px;
+            margin-bottom: 20px;
+            border: 1px solid transparent;
+            border-radius: 4px;
+        }
+
+        .alert-success {
+            color: #155724;
+            background-color: #d4edda;
+            border-color: #c3e6cb;
+        }
+
+        .alert-danger {
+            color: #721c24;
+            background-color: #f8d7da;
+            border-color: #f5c6cb;
+        }
+
+        .alert-info {
+            color: #0c5460;
+            background-color: #d1ecf1;
+            border-color: #bee5eb;
+        }
+
+        .alert-warning {
+            color: #856404;
+            background-color: #fff3cd;
+            border-color: #ffeeba;
+        }
+
+        /* Debug Panel */
+        .debug-panel {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: var(--border-radius);
+            padding: 1rem;
+            margin-bottom: 1rem;
+            font-family: monospace;
+            font-size: 0.9rem;
+        }
+
+        .debug-panel h4 {
+            margin-bottom: 0.5rem;
+            color: var(--primary);
+        }
+
+        .debug-panel pre {
+            white-space: pre-wrap;
+            word-break: break-all;
+            background-color: #e9ecef;
+            padding: 0.5rem;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+
+        /* Retry Button */
+        .retry-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        /* Responsive Styles */
+        @media (max-width: 992px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            
+            .sidebar.active {
+                transform: translateX(0);
+            }
+            
+            .main-content {
+                margin-left: 0;
+            }
+            
+            .mobile-menu-toggle {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+            
+            .club-stats {
+                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            }
+        }
+
+        @media (max-width: 768px) {
+            .dashboard-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+            
+            .club-header {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .club-logo {
+                margin-right: 0;
+                margin-bottom: 1rem;
+            }
+            
+            .club-meta {
+                justify-content: center;
+            }
+            
+            .club-tabs {
+                flex-wrap: wrap;
+            }
+            
+            .members-list {
+                grid-template-columns: 1fr;
+            }
+            
+            .event-card {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .event-icon {
+                margin-right: 0;
+                margin-bottom: 0.5rem;
+            }
+        }
+
+        @media (max-width: 576px) {
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .main-content {
+                padding: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard">
+        <!-- Sidebar -->
+        <nav class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <h2><i class="fas fa-university"></i> KMIT Clubs Hub</h2>
+            </div>
+            <ul class="sidebar-menu">
+                <li><a href="faculty_dashboard.html"><i class="fas fa-home"></i> Dashboard</a></li>
+                <li><a href="approvals.html"><i class="fas fa-check-circle"></i> Approvals</a></li>
+                <li><a href="monitored-clubs.html"><i class="fas fa-users"></i> Monitored Clubs</a></li>
+                <li><a href="faculty_reports.html"><i class="fas fa-file-alt"></i> Reports</a></li>
+                <li><a href="faculty_analytics.html"><i class="fas fa-chart-line"></i> Analytics</a></li>
+                <li><a href="faculty_settings.html"><i class="fas fa-cog"></i> Settings</a></li>
+            </ul>
+            <div class="user-profile">
+                <div class="user-avatar" id="userAvatar">RS</div>
+                <div class="user-info">
+                    <h4 id="userName">Loading...</h4>
+                    <p id="userRole">Faculty Coordinator</p>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <button class="mobile-menu-toggle" id="mobileMenuToggle">
+                <i class="fas fa-bars"></i>
+            </button>
+
+            <!-- Dashboard Header -->
+            <div class="dashboard-header">
+                <div class="dashboard-title">
+                    <h1>Club Details</h1>
+                    <p>View detailed information about the club.</p>
+                </div>
+                <div class="dashboard-actions">
+                    <div class="notification-icon">
+                        <i class="fas fa-bell"></i>
+                        <span class="notification-badge" id="notificationCount">0</span>
+                    </div>
+                    <button class="btn btn-secondary" id="logoutBtn">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </button>
+                </div>
+            </div>
+
+            <!-- Debug Panel (Hidden by default) -->
+            <div class="content-section" id="debugPanel" style="display: none;">
+                <div class="debug-panel">
+                    <h4>Debug Information</h4>
+                    <pre id="debugContent">Loading debug information...</pre>
+                    <button class="btn btn-secondary" id="toggleDebugBtn">Hide Debug Panel</button>
+                </div>
+            </div>
+
+            <!-- Club Header -->
+            <div class="content-section">
+                <div class="club-header" id="clubHeader">
+                    <div class="spinner"></div>
+                </div>
+            </div>
+
+            <!-- Club Stats -->
+            <div class="content-section">
+                <div class="club-stats" id="clubStats">
+                    <div class="stat-card">
+                        <h3 id="memberCount">-</h3>
+                        <p>Members</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3 id="eventCount">-</h3>
+                        <p>Events</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3 id="reportCount">-</h3>
+                        <p>Reports</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3 id="avgAttendance">-</h3>
+                        <p>Avg. Attendance</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Club Tabs -->
+            <div class="content-section">
+                <div class="club-tabs">
+                    <div class="club-tab active" data-tab="overview">Overview</div>
+                    <div class="club-tab" data-tab="members">Members</div>
+                    <div class="club-tab" data-tab="events">Events</div>
+                    <div class="club-tab" data-tab="reports">Reports</div>
+                </div>
+
+                <!-- Overview Tab -->
+                <div class="club-tab-content active" id="overview-tab">
+                    <h3>About the Club</h3>
+                    <p id="clubDescription">Loading club description...</p>
+                    
+                    <h3>Club Information</h3>
+                    <div class="club-meta">
+                        <div class="club-meta-item">
+                            <i class="fas fa-user-tie"></i>
+                            <span>Faculty Coordinator: <span id="facultyName">Loading...</span></span>
+                        </div>
+                        <div class="club-meta-item">
+                            <i class="fas fa-user"></i>
+                            <span>Club Leader: <span id="leaderName">Loading...</span></span>
+                        </div>
+                        <div class="club-meta-item">
+                            <i class="fas fa-calendar-alt"></i>
+                            <span>Established: <span id="establishedDate">Loading...</span></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Members Tab -->
+                <div class="club-tab-content" id="members-tab">
+                    <div class="section-header">
+                        <h3 class="section-title">Club Members</h3>
+                    </div>
+                    <div class="members-list" id="membersList">
+                        <div class="spinner"></div>
+                    </div>
+                </div>
+
+                <!-- Events Tab -->
+                <div class="club-tab-content" id="events-tab">
+                    <div class="section-header">
+                        <h3 class="section-title">Club Events</h3>
+                        <a href="#" class="btn btn-primary" id="addEventBtn">Add Event</a>
+                    </div>
+                    <div class="events-list" id="eventsList">
+                        <div class="spinner"></div>
+                    </div>
+                </div>
+
+                <!-- Reports Tab -->
+                <div class="club-tab-content" id="reports-tab">
+                    <div class="section-header">
+                        <h3 class="section-title">Club Reports</h3>
+                    </div>
+                    <div class="events-list" id="reportsList">
+                        <div class="spinner"></div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check if user is logged in
+            const token = localStorage.getItem('token');
+            const user = JSON.parse(localStorage.getItem('user') || '{}');
+            
+            if (!token) {
+                window.location.href = 'login.html';
+                return;
+            }
+            
+            // Verify user role
+            if (user.role !== 'faculty') {
+                alert('You do not have permission to access this page.');
+                window.location.href = 'login.html';
+                return;
+            }
+            
+            // Get club ID from URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const clubId = urlParams.get('id');
+            
+            if (!clubId) {
+                showError('Club ID is missing. Please select a club from your monitored clubs list.');
+                return;
+            }
+            
+            // Debug information
+            const debugInfo = {
+                clubId: clubId,
+                token: token ? `${token.substring(0, 10)}...` : 'No token',
+                user: user,
+                timestamp: new Date().toISOString()
+            };
+            
+            // Update debug panel
+            document.getElementById('debugContent').textContent = JSON.stringify(debugInfo, null, 2);
+            
+            // Update user profile in sidebar
+            const userAvatar = document.getElementById('userAvatar');
+            const userName = document.getElementById('userName');
+            const userRole = document.getElementById('userRole');
+            
+            // Set user initials for avatar
+            if (user.name) {
+                const initials = user.name.split(' ').map(n => n[0]).join('').toUpperCase();
+                userAvatar.textContent = initials;
+                userName.textContent = user.name;
+            }
+            
+            // Set user role
+            if (user.role) {
+                userRole.textContent = 'Faculty Coordinator';
+            }
+            
+            // Mobile menu toggle
+            const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+            const sidebar = document.getElementById('sidebar');
+            
+            mobileMenuToggle.addEventListener('click', function() {
+                sidebar.classList.toggle('active');
+            });
+            
+            // Close sidebar when clicking on a link
+            document.querySelectorAll('.sidebar-menu a').forEach(link => {
+                link.addEventListener('click', () => {
+                    sidebar.classList.remove('active');
+                });
+            });
+            
+            // Logout functionality
+            document.getElementById('logoutBtn').addEventListener('click', function() {
+                localStorage.removeItem('token');
+                localStorage.removeItem('user');
+                window.location.href = 'login.html';
+            });
+            
+            // Club tabs
+            const clubTabs = document.querySelectorAll('.club-tab');
+            const clubTabContents = document.querySelectorAll('.club-tab-content');
+            
+            clubTabs.forEach(tab => {
+                tab.addEventListener('click', function() {
+                    const tabId = this.getAttribute('data-tab');
+                    
+                    // Update active tab
+                    clubTabs.forEach(t => t.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    // Update active tab content
+                    clubTabContents.forEach(content => {
+                        content.classList.remove('active');
+                        if (content.id === `${tabId}-tab`) {
+                            content.classList.add('active');
+                        }
+                    });
+                });
+            });
+            
+            // Toggle debug panel
+            const toggleDebugBtn = document.getElementById('toggleDebugBtn');
+            const debugPanel = document.getElementById('debugPanel');
+            
+            toggleDebugBtn.addEventListener('click', function() {
+                if (debugPanel.style.display === 'none') {
+                    debugPanel.style.display = 'block';
+                    toggleDebugBtn.textContent = 'Hide Debug Panel';
+                } else {
+                    debugPanel.style.display = 'none';
+                    toggleDebugBtn.textContent = 'Show Debug Panel';
+                }
+            });
+            
+            // Show error function
+            function showError(message, error = null) {
+                const clubHeader = document.getElementById('clubHeader');
+                let errorHTML = `
+                    <div class="alert alert-danger">
+                        <strong>Error:</strong> ${message}
+                        <button class="btn btn-primary retry-btn" id="retryBtn">
+                            <i class="fas fa-redo"></i> Retry
+                        </button>
+                    </div>
+                `;
+                
+                if (error) {
+                    errorHTML += `
+                        <div class="alert alert-warning">
+                            <strong>Debug Information:</strong> ${error.message || 'Unknown error'}
+                        </div>
+                    `;
+                }
+                
+                clubHeader.innerHTML = errorHTML;
+                
+                // Add retry functionality
+                document.getElementById('retryBtn').addEventListener('click', function() {
+                    fetchClubDetails();
+                });
+                
+                // Show debug panel
+                debugPanel.style.display = 'block';
+                toggleDebugBtn.textContent = 'Hide Debug Panel';
+            }
+            
+            // Fetch club details
+            async function fetchClubDetails() {
+                const clubHeader = document.getElementById('clubHeader');
+                clubHeader.innerHTML = '<div class="spinner"></div>';
+                
+                try {
+                    console.log('Fetching club with ID:', clubId);
+                    
+                    const response = await fetch(`/api/clubs/${clubId}`, {
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        }
+                    });
+                    
+                    console.log('Response status:', response.status);
+                    
+                    if (!response.ok) {
+                        const errorData = await response.json();
+                        console.error('Error response:', errorData);
+                        throw new Error(`Failed to fetch club details: ${response.status} - ${errorData.message || 'Unknown error'}`);
+                    }
+                    
+                    const club = await response.json();
+                    console.log('Club data received:', club);
+                    
+                    // Map club type to icon with fallback
+                    let icon = 'fas fa-users';
+                    const clubType = club.type || 'general'; // Fallback to 'general' if type is missing
+                    
+                    if (clubType === 'technical') icon = 'fas fa-laptop-code';
+                    else if (clubType === 'cultural') icon = 'fas fa-music';
+                    else if (clubType === 'sports') icon = 'fas fa-running';
+                    else if (clubType === 'social') icon = 'fas fa-hands-helping';
+                    else if (clubType === 'academic') icon = 'fas fa-book';
+                    else if (clubType === 'literary') icon = 'fas fa-pen-fancy';
+                    
+                    // Update club header
+                    clubHeader.innerHTML = `
+                        <div class="club-logo">
+                            <i class="${icon}"></i>
+                        </div>
+                        <div class="club-info">
+                            <h2 class="club-name">${club.name || 'Unknown Club'}</h2>
+                            <div class="club-type">${clubType.charAt(0).toUpperCase() + clubType.slice(1)} Club</div>
+                            <div class="club-meta">
+                                <div class="club-meta-item">
+                                    <i class="fas fa-users"></i>
+                                    <span>${club.members ? club.members.length : 0} Members</span>
+                                </div>
+                                <div class="club-meta-item">
+                                    <i class="fas fa-calendar-alt"></i>
+                                    <span>${club.events ? club.events.length : 0} Events</span>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    
+                    // Update club stats with fallbacks
+                    document.getElementById('memberCount').textContent = club.members ? club.members.length : 0;
+                    document.getElementById('eventCount').textContent = club.events ? club.events.length : 0;
+                    document.getElementById('reportCount').textContent = club.reports ? club.reports.length : 0;
+                    document.getElementById('avgAttendance').textContent = club.avgAttendance || '0';
+                    
+                    // Update overview tab with fallbacks
+                    document.getElementById('clubDescription').textContent = club.description || 'No description available.';
+                    document.getElementById('facultyName').textContent = club.faculty ? club.faculty.name : 'Not assigned';
+                    document.getElementById('leaderName').textContent = club.leader ? club.leader.name : 'Not assigned';
+                    document.getElementById('establishedDate').textContent = club.establishedDate ? 
+                        new Date(club.establishedDate).toLocaleDateString() : 'Unknown';
+                    
+                    // Update members list
+                    if (club.members && club.members.length > 0) {
+                        updateMembersList(club.members);
+                    } else {
+                        document.getElementById('membersList').innerHTML = '<p class="text-center">No members found.</p>';
+                    }
+                    
+                    // Update events list
+                    if (club.events && club.events.length > 0) {
+                        updateEventsList(club.events);
+                    } else {
+                        document.getElementById('eventsList').innerHTML = '<p class="text-center">No events found.</p>';
+                    }
+                    
+                    // Update reports list
+                    if (club.reports && club.reports.length > 0) {
+                        updateReportsList(club.reports);
+                    } else {
+                        document.getElementById('reportsList').innerHTML = '<p class="text-center">No reports found.</p>';
+                    }
+                    
+                } catch (error) {
+                    console.error('Error fetching club details:', error);
+                    showError('Failed to load club details. Please try again later.', error);
+                }
+            }
+            
+            // Update members list
+            function updateMembersList(members) {
+                const membersList = document.getElementById('membersList');
+                membersList.innerHTML = '';
+                
+                if (members.length === 0) {
+                    membersList.innerHTML = '<p class="text-center">No members found.</p>';
+                    return;
+                }
+                
+                members.forEach(member => {
+                    const memberCard = document.createElement('div');
+                    memberCard.className = 'member-card';
+                    
+                    const initials = member.name ? member.name.split(' ').map(n => n[0]).join('').toUpperCase() : '??';
+                    
+                    memberCard.innerHTML = `
+                        <div class="member-avatar">
+                            ${initials}
+                        </div>
+                        <div class="member-info">
+                            <div class="member-name">${member.name || 'Unknown'}</div>
+                            <div class="member-role">${member.role === 'leader' ? 'Club Leader' : 'Member'}</div>
+                        </div>
+                    `;
+                    
+                    membersList.appendChild(memberCard);
+                });
+            }
+            
+            // Update events list
+            function updateEventsList(events) {
+                const eventsList = document.getElementById('eventsList');
+                eventsList.innerHTML = '';
+                
+                if (events.length === 0) {
+                    eventsList.innerHTML = '<p class="text-center">No events found.</p>';
+                    return;
+                }
+                
+                events.forEach(event => {
+                    const eventCard = document.createElement('div');
+                    eventCard.className = 'event-card';
+                    
+                    let statusClass = 'status-upcoming';
+                    let statusText = 'Upcoming';
+                    
+                    if (event.status === 'ongoing') {
+                        statusClass = 'status-ongoing';
+                        statusText = 'Ongoing';
+                    } else if (event.status === 'completed') {
+                        statusClass = 'status-completed';
+                        statusText = 'Completed';
+                    }
+                    
+                    eventCard.innerHTML = `
+                        <div class="event-icon">
+                            <i class="fas fa-calendar-alt"></i>
+                        </div>
+                        <div class="event-info">
+                            <div class="event-title">${event.title || 'Untitled Event'}</div>
+                            <div class="event-details">
+                                ${event.date ? new Date(event.date).toLocaleDateString() : 'TBD'} • ${event.venue || 'TBD'}
+                            </div>
+                        </div>
+                        <div class="event-status ${statusClass}">${statusText}</div>
+                    `;
+                    
+                    eventsList.appendChild(eventCard);
+                });
+            }
+            
+            // Update reports list
+            function updateReportsList(reports) {
+                const reportsList = document.getElementById('reportsList');
+                reportsList.innerHTML = '';
+                
+                if (reports.length === 0) {
+                    reportsList.innerHTML = '<p class="text-center">No reports found.</p>';
+                    return;
+                }
+                
+                reports.forEach(report => {
+                    const reportCard = document.createElement('div');
+                    reportCard.className = 'event-card';
+                    
+                    reportCard.innerHTML = `
+                        <div class="event-icon">
+                            <i class="fas fa-file-alt"></i>
+                        </div>
+                        <div class="event-info">
+                            <div class="event-title">${report.title || 'Untitled Report'}</div>
+                            <div class="event-details">
+                                Submitted: ${report.submittedDate ? new Date(report.submittedDate).toLocaleDateString() : 'TBD'}
+                            </div>
+                        </div>
+                        <div class="event-status status-${report.status || 'unknown'}">${report.status || 'Unknown'}</div>
+                    `;
+                    
+                    reportsList.appendChild(reportCard);
+                });
+            }
+            
+            // Add event button
+            document.getElementById('addEventBtn').addEventListener('click', function() {
+                window.location.href = `add-event.html?clubId=${clubId}`;
+            });
+            
+            // Initial data fetch
+            fetchClubDetails();
+            
+            // Fetch notification count
+            async function fetchNotificationCount() {
+                try {
+                    const response = await fetch('/api/notifications/unread-count', {
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        }
+                    });
+                    
+                    if (!response.ok) {
+                        throw new Error(`Failed to fetch notification count: ${response.status}`);
+                    }
+                    
+                    const data = await response.json();
+                    document.getElementById('notificationCount').textContent = data.count || 0;
+                } catch (error) {
+                    console.error('Error fetching notification count:', error);
+                }
+            }
+            
+            fetchNotificationCount();
+            
+            // Simulate real-time notifications
+            const notificationIcon = document.querySelector('.notification-icon');
+            
+            // Simulate receiving a new notification
+            setInterval(() => {
+                fetchNotificationCount();
+                
+                // Add a pulse animation to the notification icon
+                notificationIcon.style.animation = 'pulse 1s';
+                setTimeout(() => {
+                    notificationIcon.style.animation = '';
+                }, 1000);
+            }, 30000); // Check every 30 seconds
+        });
+        
+        // Add pulse animation keyframes
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes pulse {
+                0% { transform: scale(1); }
+                50% { transform: scale(1.2); }
+                100% { transform: scale(1); }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>

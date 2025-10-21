@@ -208,6 +208,12 @@
         .dashboard-actions {
             display: flex;
             gap: 1rem;
+            align-items: center;
+        }
+
+        /* Notification Dropdown Styles */
+        .notification-container {
+            position: relative;
         }
 
         .notification-icon {
@@ -230,6 +236,86 @@
             display: flex;
             align-items: center;
             justify-content: center;
+        }
+
+        .notification-dropdown {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background-color: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            width: 350px;
+            max-height: 400px;
+            overflow-y: auto;
+            z-index: 1001;
+            display: none;
+            margin-top: 10px;
+        }
+
+        .notification-dropdown.active {
+            display: block;
+        }
+
+        .notification-header {
+            padding: 1rem;
+            border-bottom: 1px solid #eee;
+            font-weight: 600;
+            color: var(--primary);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .notification-clear {
+            font-size: 0.8rem;
+            color: var(--accent);
+            cursor: pointer;
+        }
+
+        .notification-list {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .notification-item {
+            padding: 1rem;
+            border-bottom: 1px solid #eee;
+            transition: var(--transition);
+        }
+
+        .notification-item:hover {
+            background-color: #f8f9fa;
+        }
+
+        .notification-title {
+            font-weight: 600;
+            margin-bottom: 0.3rem;
+            color: var(--primary);
+        }
+
+        .notification-message {
+            font-size: 0.9rem;
+            color: var(--light-text);
+            margin-bottom: 0.3rem;
+        }
+
+        .notification-time {
+            font-size: 0.8rem;
+            color: var(--light-text);
+            display: flex;
+            align-items: center;
+        }
+
+        .notification-time i {
+            margin-right: 0.3rem;
+            font-size: 0.7rem;
+        }
+
+        .notification-empty {
+            padding: 2rem 1rem;
+            text-align: center;
+            color: var(--light-text);
         }
 
         /* Stats Cards */
@@ -619,12 +705,14 @@
 
         .modal-content {
             background-color: white;
-            padding: 2rem;
+            padding: 1.5rem;
             border-radius: 12px;
             width: 100%;
             max-width: 500px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
             animation: modalFadeIn 0.3s ease-out;
+            max-height: 80vh;
+            overflow-y: auto;
         }
 
         @keyframes modalFadeIn {
@@ -639,14 +727,14 @@
         }
 
         .modal-content h3 {
-            margin-bottom: 1.5rem;
+            margin-bottom: 1rem;
             color: var(--primary);
             text-align: center;
         }
 
         .form-control {
             width: 100%;
-            padding: 12px;
+            padding: 10px;
             border: 1px solid #ddd;
             border-radius: 6px;
             margin-top: 5px;
@@ -663,14 +751,14 @@
 
         .form-control textarea {
             resize: vertical;
-            min-height: 100px;
+            min-height: 80px;
         }
 
         /* Notification Form Styles */
         .notification-form {
             display: flex;
             flex-direction: column;
-            gap: 1rem;
+            gap: 0.8rem;
         }
 
         .notification-recipients {
@@ -702,7 +790,7 @@
         .report-form {
             display: flex;
             flex-direction: column;
-            gap: 1rem;
+            gap: 0.8rem;
         }
 
         .report-options {
@@ -737,12 +825,12 @@
 
         /* Form Group Styles */
         .form-group {
-            margin-bottom: 1rem;
+            margin-bottom: 0.8rem;
         }
 
         .form-group label {
             display: block;
-            margin-bottom: 0.5rem;
+            margin-bottom: 0.4rem;
             font-weight: 600;
             color: var(--text);
         }
@@ -752,7 +840,7 @@
             display: flex;
             justify-content: flex-end;
             gap: 1rem;
-            margin-top: 1.5rem;
+            margin-top: 1.2rem;
         }
 
         /* Error message style */
@@ -763,6 +851,98 @@
             border-radius: 5px;
             margin-bottom: 15px;
             display: none;
+        }
+
+        /* Compact Modal Styles for Create Faculty */
+        .compact-modal .modal-content {
+            padding: 1.2rem;
+            max-height: 65vh;
+        }
+
+        .compact-modal h3 {
+            margin-bottom: 0.8rem;
+            font-size: 1.3rem;
+        }
+
+        .compact-modal .form-group {
+            margin-bottom: 0.6rem;
+        }
+
+        .compact-modal .form-group label {
+            margin-bottom: 0.3rem;
+            font-size: 0.9rem;
+        }
+
+        .compact-modal .form-control {
+            padding: 8px;
+            font-size: 0.95rem;
+        }
+
+        .compact-modal .form-actions {
+            margin-top: 1rem;
+        }
+
+        .compact-modal .btn {
+            padding: 8px 16px;
+            font-size: 0.85rem;
+        }
+
+        /* Faculty Search Dropdown */
+        .faculty-search-container {
+            position: relative;
+        }
+
+        .faculty-search-input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-family: 'Lato', sans-serif;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+
+        .faculty-search-input:focus {
+            border-color: var(--primary);
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(0, 51, 102, 0.2);
+        }
+
+        .faculty-search-dropdown {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background-color: white;
+            border: 1px solid #ddd;
+            border-top: none;
+            border-radius: 0 0 6px 6px;
+            max-height: 200px;
+            overflow-y: auto;
+            z-index: 100;
+            display: none;
+        }
+
+        .faculty-search-dropdown-item {
+            padding: 10px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .faculty-search-dropdown-item:hover {
+            background-color: #f8f9fa;
+        }
+
+        .faculty-search-dropdown-item.selected {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .faculty-search-no-results {
+            padding: 10px;
+            color: var(--light-text);
+            text-align: center;
+            font-style: italic;
         }
 
         /* Responsive Styles */
@@ -787,6 +967,10 @@
             
             .stats-grid {
                 grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            }
+            
+            .notification-dropdown {
+                width: 300px;
             }
         }
 
@@ -838,7 +1022,7 @@
             
             /* Modal adjustments for mobile */
             .modal-content {
-                padding: 1.5rem;
+                padding: 1.2rem;
                 max-width: 100%;
             }
             
@@ -848,6 +1032,11 @@
             
             .form-actions .btn {
                 width: 100%;
+            }
+            
+            .notification-dropdown {
+                width: 280px;
+                right: -20px;
             }
         }
 
@@ -871,12 +1060,16 @@
             
             .modal-content h3 {
                 font-size: 1.2rem;
-                margin-bottom: 1rem;
+                margin-bottom: 0.8rem;
             }
             
             .btn {
                 padding: 8px 16px;
                 font-size: 0.8rem;
+            }
+            
+            .notification-dropdown {
+                width: 250px;
             }
         }
     </style>
@@ -920,10 +1113,24 @@
                     <p>Welcome back! Full control of the KMIT Clubs Hub platform.</p>
                 </div>
                 <div class="dashboard-actions">
-                    <div class="notification-icon">
-                        <i class="fas fa-bell"></i>
-                        <span class="notification-badge" id="notificationCount">0</span>
+                    <div class="notification-container">
+                        <div class="notification-icon" id="notificationIcon">
+                            <i class="fas fa-bell"></i>
+                            <span class="notification-badge" id="notificationCount">0</span>
+                        </div>
+                        <div class="notification-dropdown" id="notificationDropdown">
+                            <div class="notification-header">
+                                <span>Notifications</span>
+                                <span class="notification-clear" id="clearNotifications">Clear All</span>
+                            </div>
+                            <div class="notification-list" id="notificationList">
+                                <div class="notification-empty">No notifications</div>
+                            </div>
+                        </div>
                     </div>
+                    <button class="btn btn-secondary" id="refreshBtn">
+                        <i class="fas fa-sync-alt"></i> Refresh
+                    </button>
                     <button class="btn btn-secondary" id="logoutBtn">
                         <i class="fas fa-sign-out-alt"></i> Logout
                     </button>
@@ -992,7 +1199,7 @@
             <div class="content-section">
                 <div class="section-header">
                     <h3 class="section-title">Recent Activity</h3>
-                    <a href="./activity-log.html" class="btn btn-secondary">View All</a>
+                    <a href="#" id="viewAllActivity" class="btn btn-secondary">View All</a>
                 </div>
                 <div class="activity-log" id="activityLog">
                     <div class="spinner"></div>
@@ -1002,7 +1209,7 @@
     </div>
 
     <!-- Create User Modal -->
-    <div id="createUserModal" class="modal">
+    <div id="createUserModal" class="modal compact-modal">
         <div class="modal-content">
             <h3>Create New Faculty</h3>
             <form id="createUserForm">
@@ -1066,7 +1273,10 @@
                 </div>
                 <div class="form-group">
                     <label for="facultyCoordinator">Faculty Coordinator</label>
-                    <input type="text" id="facultyCoordinator" class="form-control" placeholder="Enter faculty name" required>
+                    <div class="faculty-search-container">
+                        <input type="text" id="facultyCoordinator" class="faculty-search-input" placeholder="Search for a faculty member..." required>
+                        <div class="faculty-search-dropdown" id="facultySearchDropdown"></div>
+                    </div>
                 </div>
                 <div class="form-actions">
                     <button type="button" class="btn btn-secondary" id="cancelCreateClub">Cancel</button>
@@ -1266,6 +1476,9 @@
                 return;
             }
             
+            // Initialize notifications array
+            let notifications = [];
+            
             // Update user profile
             const userAvatar = document.getElementById('userAvatar');
             const userName = document.getElementById('userName');
@@ -1307,88 +1520,132 @@
                 window.location.href = '/login';
             });
             
-            // Fetch dashboard data
+            // Notification dropdown functionality
+            const notificationIcon = document.getElementById('notificationIcon');
+            const notificationDropdown = document.getElementById('notificationDropdown');
+            const notificationList = document.getElementById('notificationList');
+            const notificationCount = document.getElementById('notificationCount');
+            const clearNotifications = document.getElementById('clearNotifications');
+            
+            // Toggle notification dropdown
+            notificationIcon.addEventListener('click', function(e) {
+                e.stopPropagation();
+                notificationDropdown.classList.toggle('active');
+            });
+            
+            // Close dropdown when clicking outside
+            document.addEventListener('click', function(e) {
+                if (!notificationDropdown.contains(e.target) && !notificationIcon.contains(e.target)) {
+                    notificationDropdown.classList.remove('active');
+                }
+            });
+            
+            // Clear all notifications
+            clearNotifications.addEventListener('click', function() {
+                notifications = [];
+                updateNotificationUI();
+            });
+            
+            // Update notification UI
+            function updateNotificationUI() {
+                // Update badge count
+                notificationCount.textContent = notifications.length;
+                notificationCount.style.display = notifications.length > 0 ? 'flex' : 'none';
+                
+                // Update notification list
+                if (notifications.length === 0) {
+                    notificationList.innerHTML = '<div class="notification-empty">No notifications</div>';
+                } else {
+                    notificationList.innerHTML = notifications.map(notification => `
+                        <div class="notification-item">
+                            <div class="notification-title">${notification.title}</div>
+                            <div class="notification-message">${notification.message}</div>
+                            <div class="notification-time">
+                                <i class="fas fa-clock"></i> ${notification.time}
+                            </div>
+                        </div>
+                    `).join('');
+                }
+            }
+            
+            // Debounce function to prevent excessive API calls
+            function debounce(func, wait) {
+                let timeout;
+                return function(...args) {
+                    clearTimeout(timeout);
+                    timeout = setTimeout(() => func.apply(this, args), wait);
+                };
+            }
+            
+            // Fetch dashboard data with parallel loading
             async function fetchDashboardData() {
+                // Show loading state
+                const loadingElements = document.querySelectorAll('.spinner');
+                loadingElements.forEach(el => el.style.display = 'block');
+                
                 try {
                     console.log('Fetching dashboard data...');
                     
-                    // Fetch users data
-                    console.log('Fetching users...');
-                    const usersResponse = await fetch('/api/users', {
-                        headers: {
-                            'Authorization': `Bearer ${token}`
-                        }
+                    // Create a timeout promise
+                    const timeoutPromise = new Promise((_, reject) => {
+                        setTimeout(() => reject(new Error('Request timeout')), 10000); // 10 seconds timeout
                     });
                     
-                    console.log('Users response status:', usersResponse.status);
+                    // Fetch all data in parallel
+                    const [usersResponse, clubsResponse, eventsResponse] = await Promise.allSettled([
+                        Promise.race([
+                            fetch('/api/users', {
+                                headers: { 'Authorization': `Bearer ${token}` }
+                            }),
+                            timeoutPromise
+                        ]),
+                        Promise.race([
+                            fetch('/api/clubs', {
+                                headers: { 'Authorization': `Bearer ${token}` }
+                            }),
+                            timeoutPromise
+                        ]),
+                        Promise.race([
+                            fetch('/api/events', {
+                                headers: { 'Authorization': `Bearer ${token}` }
+                            }),
+                            timeoutPromise
+                        ])
+                    ]);
                     
-                    if (!usersResponse.ok) {
-                        const errorText = await usersResponse.text();
-                        console.error('Users fetch error:', errorText);
-                        throw new Error(`Failed to fetch users: ${usersResponse.status}`);
-                    }
-                    const usersData = await usersResponse.json();
-                    console.log('Users data:', usersData);
-                    
-                    // Fetch clubs data
-                    console.log('Fetching clubs...');
-                    const clubsResponse = await fetch('/api/clubs', {
-                        headers: {
-                            'Authorization': `Bearer ${token}`
-                        }
-                    });
-                    
-                    console.log('Clubs response status:', clubsResponse.status);
-                    
-                    if (!clubsResponse.ok) {
-                        const errorText = await clubsResponse.text();
-                        console.error('Clubs fetch error:', errorText);
-                        throw new Error(`Failed to fetch clubs: ${clubsResponse.status}`);
-                    }
-                    const clubsData = await clubsResponse.json();
-                    console.log('Clubs data:', clubsData);
-                    
-                    // Fetch events data
-                    console.log('Fetching events...');
+                    // Process responses
+                    let usersData = [];
+                    let clubsData = [];
                     let eventsData = [];
-                    try {
-                        const eventsResponse = await fetch('/api/events', {
-                            headers: {
-                                'Authorization': `Bearer ${token}`
-                            }
-                        });
-                        
-                        console.log('Events response status:', eventsResponse.status);
-                        
-                        if (eventsResponse.ok) {
-                            eventsData = await eventsResponse.json();
-                            console.log('Events data:', eventsData);
-                        } else {
-                            const errorText = await eventsResponse.text();
-                            console.error('Events fetch error:', errorText);
-                            // Use empty events array if API fails
-                            eventsData = [];
-                            console.log('Using empty events array');
-                        }
-                    } catch (eventsError) {
-                        console.error('Events fetch exception:', eventsError);
-                        // Use empty events array if API fails
-                        eventsData = [];
-                        console.log('Using empty events array due to exception');
+                    
+                    if (usersResponse.status === 'fulfilled' && usersResponse.value.ok) {
+                        usersData = await usersResponse.value.json();
+                        console.log('Users data loaded:', usersData.length);
+                    } else {
+                        console.error('Failed to load users:', usersResponse.reason);
+                    }
+                    
+                    if (clubsResponse.status === 'fulfilled' && clubsResponse.value.ok) {
+                        clubsData = await clubsResponse.value.json();
+                        console.log('Clubs data loaded:', clubsData.length);
+                    } else {
+                        console.error('Failed to load clubs:', clubsResponse.reason);
+                    }
+                    
+                    if (eventsResponse.status === 'fulfilled' && eventsResponse.value.ok) {
+                        eventsData = await eventsResponse.value.json();
+                        console.log('Events data loaded:', eventsData.length);
+                    } else {
+                        console.error('Failed to load events:', eventsResponse.reason);
                     }
                     
                     // Update dashboard with fetched data
                     updateDashboard(usersData, clubsData, eventsData);
+                    
                 } catch (error) {
                     console.error('Error fetching dashboard data:', error);
                     
-                    // Show more detailed error message
-                    const systemOverview = document.getElementById('systemOverview');
-                    const statsGrid = document.getElementById('statsGrid');
-                    const recentUsers = document.getElementById('recentUsers');
-                    const recentEvents = document.getElementById('recentEvents');
-                    const activityLog = document.getElementById('activityLog');
-                    
+                    // Show error message
                     const errorMessage = `
                         <div style="padding: 20px; background-color: #f8d7da; color: #721c24; border-radius: 5px; margin-bottom: 15px;">
                             <h4>Error Loading Data</h4>
@@ -1399,11 +1656,14 @@
                         </div>
                     `;
                     
-                    systemOverview.innerHTML = errorMessage;
-                    statsGrid.innerHTML = errorMessage;
-                    recentUsers.innerHTML = errorMessage;
-                    recentEvents.innerHTML = errorMessage;
-                    activityLog.innerHTML = errorMessage;
+                    document.getElementById('systemOverview').innerHTML = errorMessage;
+                    document.getElementById('statsGrid').innerHTML = errorMessage;
+                    document.getElementById('recentUsers').innerHTML = errorMessage;
+                    document.getElementById('recentEvents').innerHTML = errorMessage;
+                    document.getElementById('activityLog').innerHTML = errorMessage;
+                } finally {
+                    // Hide loading state
+                    loadingElements.forEach(el => el.style.display = 'none');
                 }
             }
             
@@ -1662,12 +1922,26 @@
                     }
                 }
                 
-                // Update notification count (only if there are pending events)
-                const notificationCount = document.getElementById('notificationCount');
-                if (notificationCount) {
-                    const pendingEvents = events.filter(e => e.status === 'pending').length;
-                    notificationCount.textContent = pendingEvents;
-                    notificationCount.style.display = pendingEvents > 0 ? 'flex' : 'none';
+                // Update notification count for pending events
+                const pendingEvents = events.filter(e => e.status === 'pending').length;
+                if (pendingEvents > 0) {
+                    // Add notification for pending events
+                    const pendingNotification = {
+                        title: 'Pending Events',
+                        message: `You have ${pendingEvents} event(s) waiting for approval.`,
+                        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                    };
+                    
+                    // Check if this notification already exists
+                    const exists = notifications.some(n => 
+                        n.title === pendingNotification.title && 
+                        n.message === pendingNotification.message
+                    );
+                    
+                    if (!exists) {
+                        notifications.unshift(pendingNotification);
+                        updateNotificationUI();
+                    }
                 }
             }
             
@@ -1952,6 +2226,68 @@
             const cancelCreateClub = document.getElementById('cancelCreateClub');
             const createClubForm = document.getElementById('createClubForm');
             const createClubError = document.getElementById('createClubError');
+            const facultyCoordinatorInput = document.getElementById('facultyCoordinator');
+            const facultySearchDropdown = document.getElementById('facultySearchDropdown');
+            let selectedFaculty = null;
+            
+            // Faculty search functionality
+            facultyCoordinatorInput.addEventListener('input', async function() {
+                const searchTerm = this.value.trim();
+                
+                if (searchTerm.length < 2) {
+                    facultySearchDropdown.style.display = 'none';
+                    return;
+                }
+                
+                try {
+                    const response = await fetch(`/api/users/search?term=${encodeURIComponent(searchTerm)}`, {
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        }
+                    });
+                    
+                    if (response.ok) {
+                        const facultyList = await response.json();
+                        
+                        if (facultyList.length > 0) {
+                            facultySearchDropdown.innerHTML = facultyList.map(faculty => `
+                                <div class="faculty-search-dropdown-item" data-id="${faculty._id}" data-name="${faculty.name}">
+                                    ${faculty.name} ${faculty.department ? `(${faculty.department})` : ''}
+                                </div>
+                            `).join('');
+                            
+                            // Add event listeners to dropdown items
+                            document.querySelectorAll('.faculty-search-dropdown-item').forEach(item => {
+                                item.addEventListener('click', function() {
+                                    selectedFaculty = {
+                                        id: this.getAttribute('data-id'),
+                                        name: this.getAttribute('data-name')
+                                    };
+                                    facultyCoordinatorInput.value = selectedFaculty.name;
+                                    facultySearchDropdown.style.display = 'none';
+                                });
+                            });
+                            
+                            facultySearchDropdown.style.display = 'block';
+                        } else {
+                            facultySearchDropdown.innerHTML = '<div class="faculty-search-no-results">No faculty found</div>';
+                            facultySearchDropdown.style.display = 'block';
+                        }
+                    } else {
+                        facultySearchDropdown.style.display = 'none';
+                    }
+                } catch (error) {
+                    console.error('Error searching faculty:', error);
+                    facultySearchDropdown.style.display = 'none';
+                }
+            });
+            
+            // Hide dropdown when clicking outside
+            document.addEventListener('click', function(e) {
+                if (!facultyCoordinatorInput.contains(e.target) && !facultySearchDropdown.contains(e.target)) {
+                    facultySearchDropdown.style.display = 'none';
+                }
+            });
             
             createClubBtn.addEventListener('click', function() {
                 createClubModal.style.display = 'flex';
@@ -1963,6 +2299,7 @@
                 createClubModal.style.display = 'none';
                 createClubForm.reset();
                 createClubError.style.display = 'none';
+                selectedFaculty = null;
             });
             
             createClubForm.addEventListener('submit', async function(e) {
@@ -1974,46 +2311,29 @@
                 const mission = document.getElementById('clubMission').value;
                 const vision = document.getElementById('clubVision').value;
                 const establishedDate = document.getElementById('clubEstablishedDate').value;
-                const facultyCoordinatorName = document.getElementById('facultyCoordinator').value;
+                
+                // Check if a faculty coordinator was selected
+                if (!selectedFaculty) {
+                    createClubError.textContent = 'Please select a faculty coordinator from the dropdown list.';
+                    createClubError.style.display = 'block';
+                    return;
+                }
                 
                 try {
-                    // First, find the faculty by name
-                    const facultyResponse = await fetch(`/api/users/findByName?name=${encodeURIComponent(facultyCoordinatorName)}&role=faculty`, {
+                    // First, find the faculty by name to ensure they exist
+                    const facultyResponse = await fetch(`/api/users/findByName?name=${encodeURIComponent(selectedFaculty.name)}&role=faculty`, {
                         headers: {
                             'Authorization': `Bearer ${token}`
                         }
                     });
                     
-                    let facultyCoordinatorId = null;
-                    
-                    if (facultyResponse.ok) {
-                        const faculty = await facultyResponse.json();
-                        facultyCoordinatorId = faculty._id;
-                    } else {
-                        // If faculty not found, create a new one
-                        const newFacultyResponse = await fetch('/api/users/faculty', {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'Authorization': `Bearer ${token}`
-                            },
-                            body: JSON.stringify({ 
-                                username: facultyCoordinatorName.toLowerCase().replace(/\s+/g, '.'), 
-                                name: facultyCoordinatorName,
-                                department: 'To be updated'
-                            })
-                        });
-                        
-                        if (newFacultyResponse.ok) {
-                            const newFaculty = await newFacultyResponse.json();
-                            facultyCoordinatorId = newFaculty._id;
-                        } else {
-                            const error = await newFacultyResponse.json();
-                            createClubError.textContent = `Error creating faculty: ${error.message}`;
-                            createClubError.style.display = 'block';
-                            return;
-                        }
+                    if (!facultyResponse.ok) {
+                        createClubError.textContent = `No faculty found with the name "${selectedFaculty.name}". Please check the name and try again.`;
+                        createClubError.style.display = 'block';
+                        return;
                     }
+                    
+                    const faculty = await facultyResponse.json();
                     
                     // Now create the club with all required fields
                     const clubResponse = await fetch('/api/clubs', {
@@ -2029,15 +2349,18 @@
                             mission,
                             vision,
                             establishedDate,
-                            facultyCoordinator: facultyCoordinatorId
+                            faculty: faculty._id
                         })
                     });
                     
                     if (clubResponse.ok) {
-                        alert('Club created successfully!');
+                        const club = await clubResponse.json();
+                        
+                        alert(`Club "${name}" created successfully and assigned to ${faculty.name}!`);
                         createClubModal.style.display = 'none';
                         createClubForm.reset();
                         createClubError.style.display = 'none';
+                        selectedFaculty = null;
                         fetchDashboardData(); // Refresh dashboard data
                     } else {
                         const error = await clubResponse.json();
@@ -2049,6 +2372,12 @@
                     createClubError.textContent = `Error creating club: ${error.message}`;
                     createClubError.style.display = 'block';
                 }
+            });
+            
+            // Update the viewAllActivity link
+            document.getElementById('viewAllActivity').addEventListener('click', function(e) {
+                e.preventDefault();
+                window.location.href = '/activity-log';
             });
             
             // Send Notification Modal
@@ -2096,7 +2425,8 @@
                     });
                     
                     if (response.ok) {
-                        alert('Notification sent successfully!');
+                        const data = await response.json();
+                        alert(`Notification sent successfully to ${data.recipientsCount} users!`);
                         sendNotificationModal.style.display = 'none';
                         sendNotificationForm.reset();
                     } else {
@@ -2300,26 +2630,14 @@
                 eventDetailModal.style.display = 'none';
             });
             
+            // Add refresh button with debouncing
+            const refreshBtn = document.getElementById('refreshBtn');
+            const debouncedRefresh = debounce(fetchDashboardData, 3000);
+            
+            refreshBtn.addEventListener('click', debouncedRefresh);
+            
             // Initial data fetch
             fetchDashboardData();
-            
-            // Simulate real-time notifications
-            const notificationIcon = document.querySelector('.notification-icon');
-            const notificationBadge = document.querySelector('.notificationBadge');
-            
-            // Simulate receiving a new notification (only if there are pending events)
-            setTimeout(() => {
-                const currentCount = parseInt(notificationBadge.textContent || 0);
-                if (currentCount > 0) {
-                    notificationBadge.textContent = currentCount + 1;
-                    
-                    // Add a pulse animation to the notification icon
-                    notificationIcon.style.animation = 'pulse 1s';
-                    setTimeout(() => {
-                        notificationIcon.style.animation = '';
-                    }, 1000);
-                }
-            }, 5000);
         });
         
         // Add pulse animation keyframes

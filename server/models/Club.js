@@ -1,103 +1,69 @@
 const mongoose = require('mongoose');
 
 const clubSchema = new mongoose.Schema({
-  name: {
-    type: String,
-    required: true,
-    unique: true,
-    trim: true
-  },
-  description: {
-    type: String,
-    required: true
-  },
-  category: {
-    type: String,
-    required: true,
-    enum: ['technical', 'cultural', 'literary', 'arts', 'social-service', 'sports', 'other']
-  },
-  logo: {
-    type: String,
-    default: ''
-  },
-  mission: {
-    type: String,
-    required: true
-  },
-  vision: {
-    type: String,
-    required: true
-  },
-  facultyCoordinator: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
-    required: true
-  },
-  president: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User'
-  },
-  vicePresident: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User'
-  },
-  secretary: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User'
-  },
-  treasurer: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User'
-  },
-  members: [{
-    userId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'User',
-      required: true
+    name: {
+        type: String,
+        required: true,
+        unique: true
     },
-    role: {
-      type: String,
-      enum: ['member', 'officer', 'president', 'vice-president', 'secretary', 'treasurer'],
-      default: 'member'
+    description: {
+        type: String,
+        required: true
     },
-    joinedAt: {
-      type: Date,
-      default: Date.now
+    type: {
+        type: String,
+        required: true,
+        enum: ['technical', 'technology', 'cultural', 'sports', 'social', 'academic', 'literary', 'general'],
+        default: 'general'
+    },
+    faculty: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+        required: true
+    },
+    leader: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+        default: null
     },
     status: {
-      type: String,
-      enum: ['active', 'inactive', 'pending'],
-      default: 'pending'
-    }
-  }],
-  events: [{
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Event'
-  }],
-  isActive: {
-    type: Boolean,
-    default: true
-  },
-  establishedDate: {
-    type: Date,
-    required: true
-  },
-  budget: {
-    allocated: {
-      type: Number,
-      default: 0
+        type: String,
+        enum: ['active', 'inactive'],
+        default: 'active'
     },
-    spent: {
-      type: Number,
-      default: 0
+    members: [{
+        user: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'User'
+        },
+        role: {
+            type: String,
+            enum: ['president', 'vice-president', 'associate-president', 'public-relations', 'human-resources', 'secretary', 'treasurer', 'documentation-head', 'photography', 'content-creation', 'digital-head', 'coordinator-incharge', 'member'],
+            default: 'member'
+        },
+        joinDate: {
+            type: Date,
+            default: Date.now
+        }
+    }],
+    events: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Event'
+    }],
+    bannerImage: {
+        type: String,
+        default: null
+    },
+    registerLink: {  // New field for registration link
+        type: String,
+        default: null
+    },
+    createdBy: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User'
     }
-  },
-  contact: {
-    email: String,
-    phone: String
-  }
 }, {
-  timestamps: true
+    timestamps: true
 });
 
 module.exports = mongoose.model('Club', clubSchema);

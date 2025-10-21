@@ -1,0 +1,1079 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analytics - KMIT Clubs Hub</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        /* CSS Variables */
+        :root {
+            --primary: #003366; /* Deep Navy */
+            --primary-dark: #002244;
+            --secondary: #f8fafc; /* Soft Gray */
+            --accent: #ffc107; /* Gold Accent */
+            --accent-light: #ffcd39;
+            --text: #212529; /* Darker Text */
+            --light-text: #6c757d;
+            --border-radius: 12px;
+            --box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+            --transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            --section-padding: 100px 0;
+            --container-padding: 0 20px;
+            --gradient-primary: linear-gradient(135deg, #003366 0%, #0055a4 100%);
+            --gradient-accent: linear-gradient(135deg, #ffc107 0%, #ffcd39 100%);
+        }
+
+        /* Global Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Lato', sans-serif;
+            line-height: 1.7;
+            color: var(--text);
+            background-color: #fff;
+            overflow-x: hidden;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: var(--container-padding);
+        }
+
+        /* Typography */
+        h1, h2, h3, h4 {
+            font-family: 'Poppins', sans-serif;
+            margin-bottom: 1.2rem;
+            font-weight: 600;
+            line-height: 1.2;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        h2 {
+            font-size: 2rem;
+            color: var(--primary);
+            margin-bottom: 1.5rem;
+            position: relative;
+        }
+
+        h3 {
+            font-size: 1.5rem;
+            margin-bottom: 0.8rem;
+            color: var(--primary);
+        }
+
+        p {
+            margin-bottom: 1.2rem;
+            color: var(--light-text);
+            font-weight: 300;
+        }
+
+        a {
+            text-decoration: none;
+            color: var(--primary);
+            transition: var(--transition);
+        }
+
+        a:hover {
+            color: var(--accent);
+        }
+
+        /* Dashboard Layout */
+        .dashboard {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 260px;
+            background: var(--gradient-primary);
+            color: white;
+            padding: 2rem 0;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            z-index: 1000;
+            transition: var(--transition);
+        }
+
+        .sidebar-header {
+            padding: 0 1.5rem 2rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 1rem;
+        }
+
+        .sidebar-header h2 {
+            color: white;
+            font-size: 1.5rem;
+            background: none;
+            -webkit-text-fill-color: initial;
+        }
+
+        .sidebar-menu {
+            list-style: none;
+        }
+
+        .sidebar-menu li {
+            margin-bottom: 0.5rem;
+        }
+
+        .sidebar-menu a {
+            display: flex;
+            align-items: center;
+            padding: 0.8rem 1.5rem;
+            color: rgba(255, 255, 255, 0.8);
+            transition: var(--transition);
+        }
+
+        .sidebar-menu a:hover,
+        .sidebar-menu a.active {
+            background-color: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+
+        .sidebar-menu i {
+            margin-right: 0.8rem;
+            font-size: 1.2rem;
+        }
+
+        .user-profile {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 1.5rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1rem;
+            font-weight: 600;
+        }
+
+        .user-info h4 {
+            color: white;
+            font-size: 1rem;
+            margin-bottom: 0.2rem;
+        }
+
+        .user-info p {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.85rem;
+            margin: 0;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            margin-left: 260px;
+            padding: 2rem;
+            background-color: #f8fafc;
+        }
+
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .dashboard-title h1 {
+            margin-bottom: 0.5rem;
+        }
+
+        .dashboard-actions {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .notification-icon {
+            position: relative;
+            font-size: 1.5rem;
+            color: var(--primary);
+            cursor: pointer;
+        }
+
+        .notification-badge {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background-color: var(--accent);
+            color: white;
+            font-size: 0.7rem;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Content Sections */
+        .content-section {
+            background-color: white;
+            border-radius: var(--border-radius);
+            padding: 1.5rem;
+            box-shadow: var(--box-shadow);
+            margin-bottom: 2rem;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .section-title {
+            font-size: 1.3rem;
+            color: var(--primary);
+            margin: 0;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            border-radius: 50px;
+            font-weight: 600;
+            text-align: center;
+            cursor: pointer;
+            transition: var(--transition);
+            border: none;
+            font-size: 0.9rem;
+        }
+
+        .btn-primary {
+            background: var(--gradient-primary);
+            color: white;
+            box-shadow: 0 4px 15px rgba(0, 51, 102, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 51, 102, 0.4);
+        }
+
+        .btn-secondary {
+            background-color: transparent;
+            color: var(--primary);
+            border: 2px solid var(--primary);
+        }
+
+        .btn-secondary:hover {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        /* Stats Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background-color: white;
+            border-radius: var(--border-radius);
+            padding: 1.5rem;
+            box-shadow: var(--box-shadow);
+            transition: var(--transition);
+            border-left: 4px solid var(--primary);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+        }
+
+        .stat-card h3 {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            color: var(--primary);
+        }
+
+        .stat-card p {
+            margin: 0;
+            color: var(--light-text);
+        }
+
+        .stat-card i {
+            float: right;
+            font-size: 2rem;
+            color: var(--accent);
+            opacity: 0.7;
+        }
+
+        /* Charts */
+        .chart-container {
+            position: relative;
+            height: 300px;
+            margin-bottom: 1rem;
+        }
+
+        /* Time Period Selector */
+        .time-selector {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .time-option {
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            background-color: var(--secondary);
+            color: var(--light-text);
+            cursor: pointer;
+            transition: var(--transition);
+            border: none;
+            font-family: 'Lato', sans-serif;
+        }
+
+        .time-option:hover,
+        .time-option.active {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        /* Activity Table */
+        .activity-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+
+        .activity-table th,
+        .activity-table td {
+            padding: 0.75rem;
+            text-align: left;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .activity-table th {
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .activity-table tr:hover {
+            background-color: var(--secondary);
+        }
+
+        .activity-type {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .type-club {
+            background-color: rgba(0, 51, 102, 0.1);
+            color: var(--primary);
+        }
+
+        .type-event {
+            background-color: rgba(255, 193, 7, 0.1);
+            color: var(--accent);
+        }
+
+        .type-reward {
+            background-color: rgba(40, 167, 69, 0.1);
+            color: #28a745;
+        }
+
+        /* Loading Spinner */
+        .spinner {
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            border-radius: 50%;
+            border-top: 4px solid var(--primary);
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Error Message */
+        .error-message {
+            background-color: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            text-align: center;
+            display: none;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 2rem;
+            color: var(--light-text);
+        }
+
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            color: #dee2e6;
+        }
+
+        /* Mobile Menu Toggle */
+        .mobile-menu-toggle {
+            display: none;
+            position: fixed;
+            top: 1rem;
+            left: 1rem;
+            z-index: 1001;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            box-shadow: var(--box-shadow);
+        }
+
+        /* Responsive Styles */
+        @media (max-width: 992px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            
+            .sidebar.active {
+                transform: translateX(0);
+            }
+            
+            .main-content {
+                margin-left: 0;
+            }
+            
+            .mobile-menu-toggle {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+            
+            .stats-grid {
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            }
+        }
+
+        @media (max-width: 768px) {
+            .dashboard-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+            
+            .activity-table {
+                font-size: 0.9rem;
+            }
+            
+            .activity-table th,
+            .activity-table td {
+                padding: 0.5rem;
+            }
+        }
+
+        @media (max-width: 576px) {
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .main-content {
+                padding: 1rem;
+            }
+            
+            .time-selector {
+                flex-wrap: wrap;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard">
+        <!-- Sidebar -->
+        <nav class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <h2><i class="fas fa-university"></i> KMIT Clubs Hub</h2>
+            </div>
+            <ul class="sidebar-menu">
+                <li><a href="/student_dashboard"><i class="fas fa-home"></i> Dashboard</a></li>
+                <li><a href="/student_clubs"><i class="fas fa-users"></i> My Clubs</a></li>
+                <li><a href="/student_events"><i class="fas fa-calendar-alt"></i> Events</a></li>
+                <li><a href="/student_rewards"><i class="fas fa-trophy"></i> Rewards</a></li>
+                <li><a href="/student_analytics" class="active"><i class="fas fa-chart-line"></i> Analytics</a></li>
+                <li><a href="/student_settings"><i class="fas fa-cog"></i> Settings</a></li>
+            </ul>
+            <div class="user-profile">
+                <div class="user-avatar" id="userAvatar">SK</div>
+                <div class="user-info">
+                    <h4 id="userName">Sai Kumar</h4>
+                    <p id="userRollNumber">KMIT401</p>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <button class="mobile-menu-toggle" id="mobileMenuToggle">
+                <i class="fas fa-bars"></i>
+            </button>
+
+            <!-- Dashboard Header -->
+            <div class="dashboard-header">
+                <div class="dashboard-title">
+                    <h1>Analytics</h1>
+                    <p>Track your club activities and performance</p>
+                </div>
+                <div class="dashboard-actions">
+                    <div class="notification-icon">
+                        <i class="fas fa-bell"></i>
+                        <span class="notification-badge" id="notificationBadge">3</span>
+                    </div>
+                    <button class="btn btn-secondary" onclick="logout()">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </button>
+                </div>
+            </div>
+
+            <!-- Error Message -->
+            <div id="errorMessage" class="error-message"></div>
+
+            <!-- Loading Spinner -->
+            <div id="loadingSpinner" class="spinner" style="display: none;"></div>
+
+            <!-- Stats Cards -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <i class="fas fa-users"></i>
+                    <h3 id="clubsJoinedCount">-</h3>
+                    <p>Clubs Joined</p>
+                </div>
+                <div class="stat-card">
+                    <i class="fas fa-calendar-check"></i>
+                    <h3 id="eventsAttendedCount">-</h3>
+                    <p>Events Attended</p>
+                </div>
+                <div class="stat-card">
+                    <i class="fas fa-trophy"></i>
+                    <h3 id="rewardPointsCount">-</h3>
+                    <p>Reward Points</p>
+                </div>
+               
+            </div>
+
+            <!-- Activity Overview Chart -->
+            <div class="content-section">
+                <div class="section-header">
+                    <h3 class="section-title">Activity Overview</h3>
+                </div>
+                
+                <div class="time-selector">
+                    <button class="time-option" data-period="week">Week</button>
+                    <button class="time-option active" data-period="month">Month</button>
+                    <button class="time-option" data-period="quarter">Quarter</button>
+                    <button class="time-option" data-period="year">Year</button>
+                </div>
+                
+                <div class="chart-container">
+                    <canvas id="activityChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Points Progress Chart -->
+            <div class="content-section">
+                <div class="section-header">
+                    <h3 class="section-title">Points Progress</h3>
+                </div>
+                
+                <div class="chart-container">
+                    <canvas id="pointsChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Recent Activity -->
+            <div class="content-section">
+                <div class="section-header">
+                    <h3 class="section-title">Recent Activity</h3>
+                    
+                </div>
+                
+                <div class="activity-table-container">
+                    <table class="activity-table">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Activity</th>
+                                <th>Type</th>
+                                <th>Points</th>
+                            </tr>
+                        </thead>
+                        <tbody id="activityTableBody">
+                            <!-- Activities will be dynamically loaded here -->
+                            <tr>
+                                <td colspan="4" class="empty-state">
+                                    <i class="fas fa-chart-line"></i>
+                                    <p>Loading activity data...</p>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+   <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+<script>
+    // API base URL
+    const API_URL = '/api';
+    
+    // Current user ID (in a real app, this would come from authentication)
+    let currentUserId = null;
+    
+    // Socket.io connection
+    const socket = io('http://localhost:3000');
+    
+    // Chart instances
+    let activityChart = null;
+    let pointsChart = null;
+    
+    // Check if user is logged in
+    document.addEventListener('DOMContentLoaded', function() {
+        // Check for token in localStorage
+        const token = localStorage.getItem('token');
+        if (!token) {
+            window.location.href = '/login';
+            return;
+        }
+        
+        // Set up axios default headers
+        axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+        
+        // Initialize page
+        initializePage();
+        
+        // Set up mobile menu toggle
+        setupMobileMenu();
+        
+        // Set up time period selector
+        setupTimePeriodSelector();
+        
+        // Set up socket listeners
+        setupSocketListeners();
+    });
+
+    // Initialize page with data fetching
+    async function initializePage() {
+        try {
+            showLoading(true);
+            hideError();
+            
+            // Fetch user data
+            const userData = await fetchUserData();
+            updateUserInterface(userData);
+            currentUserId = userData._id;
+            
+            // Join socket room for this user
+            socket.emit('join-room', currentUserId);
+            
+            // Fetch user analytics
+            const analyticsData = await fetchUserAnalytics();
+            updateAnalyticsSummary(analyticsData);
+            
+            // Fetch activity data
+            const activityData = await fetchActivityData('month');
+            updateActivityChart(activityData);
+            
+            // Fetch points progress data
+            const pointsData = await fetchPointsProgressData();
+            updatePointsChart(pointsData);
+            
+            // Fetch recent activity
+            const recentActivity = await fetchRecentActivity();
+            updateActivityTable(recentActivity);
+            
+        } catch (error) {
+            console.error('Error initializing page:', error);
+            showError('Failed to load analytics data. Please try again later.');
+            
+            // If unauthorized, redirect to login
+            if (error.response && error.response.status === 401) {
+                localStorage.removeItem('token');
+                window.location.href = '/login';
+            }
+        } finally {
+            showLoading(false);
+        }
+    }
+
+    // Setup socket listeners
+    function setupSocketListeners() {
+        socket.on('points-updated', (data) => {
+            if (data.userId === currentUserId) {
+                // Refresh data
+                initializePage();
+            }
+        });
+    }
+
+    // Show/hide loading spinner
+    function showLoading(show) {
+        const spinner = document.getElementById('loadingSpinner');
+        if (spinner) {
+            spinner.style.display = show ? 'block' : 'none';
+        }
+    }
+
+    // Show/hide error message
+    function showError(message) {
+        const errorElement = document.getElementById('errorMessage');
+        if (errorElement) {
+            errorElement.textContent = message;
+            errorElement.style.display = 'block';
+        }
+    }
+
+    function hideError() {
+        const errorElement = document.getElementById('errorMessage');
+        if (errorElement) {
+            errorElement.style.display = 'none';
+        }
+    }
+
+    // Fetch user data
+    async function fetchUserData() {
+        const response = await axios.get(`${API_URL}/auth/me`);
+        return response.data;
+    }
+
+    // Update user interface with user data
+    function updateUserInterface(userData) {
+        // Update user profile in sidebar
+        const userAvatar = document.getElementById('userAvatar');
+        const userName = document.getElementById('userName');
+        const userRollNumber = document.getElementById('userRollNumber');
+        
+        if (userAvatar) {
+            userAvatar.textContent = userData.name.split(' ').map(n => n[0]).join('');
+        }
+        
+        if (userName) {
+            userName.textContent = userData.name;
+        }
+        
+        if (userRollNumber) {
+            userRollNumber.textContent = userData.username; // Using username as roll number
+        }
+    }
+
+   // Fetch user analytics
+async function fetchUserAnalytics() {
+    try {
+        const response = await axios.get(`${API_URL}/userAnalytics/analytics`);
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching user analytics:', error);
+        // Return default data if endpoint fails
+        return {
+            clubsJoined: 0,
+            eventsAttended: 0,
+            rewardPoints: 0,
+            averageRating: '0.0'
+        };
+    }
+}
+    // Update analytics summary
+    function updateAnalyticsSummary(analyticsData) {
+        const clubsJoinedCount = document.getElementById('clubsJoinedCount');
+        const eventsAttendedCount = document.getElementById('eventsAttendedCount');
+        const rewardPointsCount = document.getElementById('rewardPointsCount');
+        const averageRating = document.getElementById('averageRating');
+        
+        if (clubsJoinedCount) {
+            clubsJoinedCount.textContent = analyticsData.clubsJoined || 0;
+        }
+        
+        if (eventsAttendedCount) {
+            eventsAttendedCount.textContent = analyticsData.eventsAttended || 0;
+        }
+        
+        if (rewardPointsCount) {
+            rewardPointsCount.textContent = analyticsData.rewardPoints || 0;
+        }
+        
+        if (averageRating) {
+            averageRating.textContent = analyticsData.averageRating || '0.0';
+        }
+    }
+
+   // Fetch activity data
+async function fetchActivityData(period) {
+    try {
+        const response = await axios.get(`${API_URL}/userActivity/activity?period=${period}`);
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching activity data:', error);
+        // Return default data if endpoint fails
+        return {
+            labels: [],
+            data: []
+        };
+    }
+}
+
+    // Update activity chart
+    function updateActivityChart(activityData) {
+        const ctx = document.getElementById('activityChart').getContext('2d');
+        
+        // Destroy existing chart if it exists
+        if (activityChart) {
+            activityChart.destroy();
+        }
+        
+        // Create new chart
+        activityChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: activityData.labels || [],
+                datasets: [{
+                    label: 'Activity',
+                    data: activityData.data || [],
+                    backgroundColor: 'rgba(0, 51, 102, 0.1)',
+                    borderColor: '#003366',
+                    borderWidth: 2,
+                    tension: 0.4,
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        mode: 'index',
+                        intersect: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            precision: 0,
+                            stepSize: 1
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+   // Fetch points progress data
+async function fetchPointsProgressData() {
+    try {
+        const response = await axios.get(`${API_URL}/userAnalytics/points`);
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching points progress data:', error);
+        // Return default data if endpoint fails
+        return {
+            labels: [],
+            data: []
+        };
+    }
+}
+
+    // Update points chart
+    function updatePointsChart(pointsData) {
+        const ctx = document.getElementById('pointsChart').getContext('2d');
+        
+        // Destroy existing chart if it exists
+        if (pointsChart) {
+            pointsChart.destroy();
+        }
+        
+        // Create new chart
+        pointsChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: pointsData.labels || [],
+                datasets: [{
+                    label: 'Points',
+                    data: pointsData.data || [],
+                    backgroundColor: '#ffc107',
+                    borderColor: '#ffcd39',
+                    borderWidth: 1,
+                    borderRadius: 5
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return `Points: ${context.parsed.y}`;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            precision: 0
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+   // Fetch recent activity
+async function fetchRecentActivity() {
+    try {
+        const response = await axios.get(`${API_URL}/recentActivity`);
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching recent activity:', error);
+        // Return default data if endpoint fails
+        return [];
+    }
+}
+
+    // Update activity table
+    function updateActivityTable(activities) {
+        const activityTableBody = document.getElementById('activityTableBody');
+        
+        if (!activities || activities.length === 0) {
+            activityTableBody.innerHTML = `
+                <tr>
+                    <td colspan="4" class="empty-state">
+                        <i class="fas fa-chart-line"></i>
+                        <p>No activity data available</p>
+                    </td>
+                </tr>
+            `;
+            return;
+        }
+        
+        // Clear existing activities
+        activityTableBody.innerHTML = '';
+        
+        // Add activities to the table
+        activities.forEach(activity => {
+            const row = document.createElement('tr');
+            
+            const dateCell = document.createElement('td');
+            dateCell.textContent = new Date(activity.date).toLocaleDateString();
+            
+            const activityCell = document.createElement('td');
+            activityCell.textContent = activity.description;
+            
+            const typeCell = document.createElement('td');
+            const typeSpan = document.createElement('span');
+            typeSpan.className = `activity-type type-${activity.type}`;
+            typeSpan.textContent = activity.type.charAt(0).toUpperCase() + activity.type.slice(1);
+            typeCell.appendChild(typeSpan);
+            
+            const pointsCell = document.createElement('td');
+            pointsCell.textContent = `+${activity.points}`;
+            
+            row.appendChild(dateCell);
+            row.appendChild(activityCell);
+            row.appendChild(typeCell);
+            row.appendChild(pointsCell);
+            
+            activityTableBody.appendChild(row);
+        });
+    }
+
+    // Setup time period selector
+    function setupTimePeriodSelector() {
+        const timeOptions = document.querySelectorAll('.time-option');
+        
+        timeOptions.forEach(option => {
+            option.addEventListener('click', function() {
+                // Remove active class from all options
+                timeOptions.forEach(opt => opt.classList.remove('active'));
+                
+                // Add active class to clicked option
+                this.classList.add('active');
+                
+                // Fetch activity data for selected period
+                const period = this.getAttribute('data-period');
+                fetchActivityData(period).then(data => {
+                    updateActivityChart(data);
+                });
+            });
+        });
+    }
+
+    // Setup mobile menu toggle
+    function setupMobileMenu() {
+        const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+        const sidebar = document.getElementById('sidebar');
+        
+        if (mobileMenuToggle && sidebar) {
+            mobileMenuToggle.addEventListener('click', function() {
+                sidebar.classList.toggle('active');
+            });
+            
+            // Close sidebar when clicking on a link
+            document.querySelectorAll('.sidebar-menu a').forEach(link => {
+                link.addEventListener('click', () => {
+                    sidebar.classList.remove('active');
+                });
+            });
+        }
+    }
+
+    // Logout function
+    function logout() {
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        window.location.href = '/login';
+    }
+</script>
+</body>
+</html>

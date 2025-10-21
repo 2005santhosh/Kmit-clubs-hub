@@ -45,6 +45,27 @@ const eventSchema = new mongoose.Schema({
     type: Number,
     default: 0
   },
+  entryPrice: {
+    type: Number,
+    default: 0,
+    min: 0
+  },
+  budget: {
+    requested: {
+      type: Number,
+      default: 0,
+      min: 0
+    },
+    approved: {
+      type: Number,
+      default: 0,
+      min: 0
+    }
+  },
+  thumbnail: {
+    type: String,
+    default: ''
+  },
   registeredParticipants: [{
     userId: {
       type: mongoose.Schema.Types.ObjectId,
@@ -66,16 +87,6 @@ const eventSchema = new mongoose.Schema({
   },
   approvalNotes: {
     type: String
-  },
-  budget: {
-    requested: {
-      type: Number,
-      default: 0
-    },
-    approved: {
-      type: Number,
-      default: 0
-    }
   },
   photos: [{
     url: String,
@@ -108,6 +119,11 @@ const eventSchema = new mongoose.Schema({
   isPublic: {
     type: Boolean,
     default: true
+  },
+  rating: {
+    type: Number,
+    min: 0,
+    max: 5
   }
 }, {
   timestamps: true

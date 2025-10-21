@@ -282,24 +282,6 @@
             font-size: 0.8rem;
         }
 
-        .status-badge {
-            padding: 0.3rem 0.6rem;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            font-weight: 600;
-            text-transform: uppercase;
-        }
-
-        .status-badge.active {
-            background-color: #28a745;
-            color: white;
-        }
-
-        .status-badge.inactive {
-            background-color: #dc3545;
-            color: white;
-        }
-
         .role-badge {
             padding: 0.3rem 0.6rem;
             border-radius: 20px;
@@ -465,6 +447,26 @@
             margin-top: 1.5rem;
         }
 
+        /* Checkbox styling */
+        .checkbox-container {
+            display: flex;
+            align-items: center;
+            margin-top: 0.5rem;
+        }
+
+        .checkbox-container input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            margin-right: 10px;
+            cursor: pointer;
+        }
+
+        .checkbox-container label {
+            margin: 0;
+            cursor: pointer;
+            font-weight: 500;
+        }
+
         /* Mobile Menu Toggle */
         .mobile-menu-toggle {
             display: none;
@@ -607,14 +609,6 @@
                             <option value="student">Student</option>
                         </select>
                     </div>
-                    <div class="filter-group">
-                        <label for="filterStatus">Status</label>
-                        <select id="filterStatus" class="filter-control">
-                            <option value="">All Status</option>
-                            <option value="true">Active</option>
-                            <option value="false">Inactive</option>
-                        </select>
-                    </div>
                 </div>
             </div>
 
@@ -629,14 +623,13 @@
                                 <th>Role</th>
                                 <th>Department</th>
                                 <th>Club</th>
-                                <th>Status</th>
                                 <th>Joined Date</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
                         <tbody id="usersTableBody">
                             <tr>
-                                <td colspan="8" style="text-align: center;">
+                                <td colspan="7" style="text-align: center;">
                                     <div class="spinner"></div>
                                 </td>
                             </tr>
@@ -669,8 +662,6 @@
                     <label for="newRole">Role</label>
                     <select id="newRole" class="form-control" required>
                         <option value="faculty">Faculty</option>
-                        <option value="clubLeader">Club Leader</option>
-                        <option value="student">Student</option>
                     </select>
                 </div>
                 <div class="form-group">
@@ -711,6 +702,12 @@
                 <div class="form-group">
                     <label for="editDepartment">Department</label>
                     <input type="text" id="editDepartment" class="form-control">
+                </div>
+                <div class="form-group">
+                    <label for="editClub">Club</label>
+                    <select id="editClub" class="form-control">
+                        <option value="">No Club</option>
+                    </select>
                 </div>
                 <div class="form-actions">
                     <button type="button" class="btn btn-secondary" id="cancelEditUser">Cancel</button>
@@ -776,10 +773,72 @@
             const itemsPerPage = 10;
             let totalUsers = 0;
             let filteredUsers = [];
+            let allUsers = [];
+            let clubMap = {}; // Map of club ID to name for fallback
+            
+            // Fetch clubs data
+            async function fetchClubs() {
+                try {
+                    const response = await fetch('/api/clubs', {
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        }
+                    });
+                    
+                    if (response.ok) {
+                        const clubs = await response.json();
+                        // Create map for quick lookup
+                        clubMap = {};
+                        clubs.forEach(club => {
+                            clubMap[club._id] = club.name;
+                        });
+                        return clubs;
+                    } else {
+                        console.error('Error fetching clubs');
+                        return [];
+                    }
+                } catch (error) {
+                    console.error('Error fetching clubs:', error);
+                    return [];
+                }
+            }
+            
+            // Get club name by ID using map or populated data
+            function getClubName(user) {
+                let clubName = 'N/A';
+                let clubId = null;
+                
+                if (user.clubs && user.clubs.length > 0) {
+                    const club = user.clubs[0];
+                    if (club._id && club._id.name) {
+                        return club._id.name;
+                    } else if (club._id) {
+                        clubId = club._id;
+                    }
+                } else if (user.club && user.club.name) {
+                    return user.club.name;
+                } else if (user.club) {
+                    clubId = user.club;
+                }
+                
+                // Fallback to map if ID found
+                if (clubId && clubMap[clubId]) {
+                    clubName = clubMap[clubId];
+                } else if (clubId) {
+                    console.warn('Club ID not found in map:', clubId);
+                    clubName = `Club ID: ${clubId}`;
+                }
+                
+                console.log('Final clubName for user', user.username, ':', clubName);
+                return clubName;
+            }
             
             // Fetch users data
             async function fetchUsers() {
                 try {
+                    // First fetch clubs to build map
+                    await fetchClubs();
+                    
                     const response = await fetch('/api/users', {
                         headers: {
                             'Authorization': `Bearer ${token}`
@@ -789,6 +848,7 @@
                     if (response.ok) {
                         const users = await response.json();
                         filteredUsers = users;
+                        allUsers = [...users];
                         totalUsers = users.length;
                         renderUsersTable();
                         renderPagination();
@@ -809,7 +869,7 @@
                 if (filteredUsers.length === 0) {
                     tableBody.innerHTML = `
                         <tr>
-                            <td colspan="8" style="text-align: center;">No users found</td>
+                            <td colspan="7" style="text-align: center;">No users found</td>
                         </tr>
                     `;
                     return;
@@ -820,35 +880,38 @@
                 const endIndex = startIndex + itemsPerPage;
                 const paginatedUsers = filteredUsers.slice(startIndex, endIndex);
                 
-                tableBody.innerHTML = paginatedUsers.map(user => `
-                    <tr>
-                        <td>
-                            <div style="display: flex; align-items: center;">
-                                <div class="user-avatar-small">${user.name ? user.name.split(' ').map(n => n[0]).join('').toUpperCase() : 'U'}</div>
-                                <span>${user.name || 'Unknown'}</span>
-                            </div>
-                        </td>
-                        <td>${user.username || 'N/A'}</td>
-                        <td><span class="role-badge ${user.role}">${user.role}</span></td>
-                        <td>${user.department || 'N/A'}</td>
-                        <td>${user.club && user.club.name ? user.club.name : 'N/A'}</td>
-                        <td><span class="status-badge ${user.isActive ? 'active' : 'inactive'}">${user.isActive ? 'Active' : 'Inactive'}</span></td>
-                        <td>${user.createdAt ? new Date(user.createdAt).toLocaleDateString() : 'N/A'}</td>
-                        <td>
-                            <div class="action-buttons">
-                                <button class="btn btn-primary btn-sm view-user" data-id="${user._id}">
-                                    <i class="fas fa-eye"></i>
-                                </button>
-                                <button class="btn btn-secondary btn-sm edit-user" data-id="${user._id}">
-                                    <i class="fas fa-edit"></i>
-                                </button>
-                                <button class="btn btn-danger btn-sm delete-user" data-id="${user._id}">
-                                    <i class="fas fa-trash"></i>
-                                </button>
-                            </div>
-                        </td>
-                    </tr>
-                `).join('');
+                tableBody.innerHTML = paginatedUsers.map(user => {
+                    const clubName = getClubName(user);
+                    
+                    return `
+                        <tr>
+                            <td>
+                                <div style="display: flex; align-items: center;">
+                                    <div class="user-avatar-small">${user.name ? user.name.split(' ').map(n => n[0]).join('').toUpperCase() : 'U'}</div>
+                                    <span>${user.name || 'Unknown'}</span>
+                                </div>
+                            </td>
+                            <td>${user.username || 'N/A'}</td>
+                            <td><span class="role-badge ${user.role}">${user.role}</span></td>
+                            <td>${user.department || 'N/A'}</td>
+                            <td>${clubName}</td>
+                            <td>${user.createdAt ? new Date(user.createdAt).toLocaleDateString() : 'N/A'}</td>
+                            <td>
+                                <div class="action-buttons">
+                                    <button class="btn btn-primary btn-sm view-user" data-id="${user._id}">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                    <button class="btn btn-secondary btn-sm edit-user" data-id="${user._id}">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="btn btn-danger btn-sm delete-user" data-id="${user._id}">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                }).join('');
                 
                 // Add event listeners for action buttons
                 document.querySelectorAll('.view-user').forEach(button => {
@@ -871,6 +934,40 @@
                         deleteUser(userId);
                     });
                 });
+            }
+            
+            // View user details
+            async function viewUser(userId) {
+                try {
+                    const response = await fetch(`/api/users/${userId}`, {
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        }
+                    });
+                    
+                    if (response.ok) {
+                        const user = await response.json();
+                        const clubName = getClubName(user);
+                        
+                        // Create a simple alert with user details
+                        const userDetails = `
+                            Username: ${user.username}
+                            Name: ${user.name}
+                            Role: ${user.role}
+                            Department: ${user.department || 'N/A'}
+                            Club: ${clubName}
+                            Joined: ${user.createdAt ? new Date(user.createdAt).toLocaleDateString() : 'N/A'}
+                        `;
+                        
+                        alert(userDetails);
+                    } else {
+                        const error = await response.json();
+                        alert(`Error: ${error.message}`);
+                    }
+                } catch (error) {
+                    console.error('Error fetching user details:', error);
+                    alert('Error fetching user details. Please try again.');
+                }
             }
             
             // Render pagination
@@ -918,7 +1015,6 @@
             function filterUsers() {
                 const searchTerm = document.getElementById('searchUser').value.toLowerCase();
                 const roleFilter = document.getElementById('filterRole').value;
-                const statusFilter = document.getElementById('filterStatus').value;
                 
                 filteredUsers = allUsers.filter(user => {
                     const matchesSearch = !searchTerm || 
@@ -927,9 +1023,7 @@
                     
                     const matchesRole = !roleFilter || user.role === roleFilter;
                     
-                    const matchesStatus = !statusFilter || user.isActive.toString() === statusFilter;
-                    
-                    return matchesSearch && matchesRole && matchesStatus;
+                    return matchesSearch && matchesRole;
                 });
                 
                 totalUsers = filteredUsers.length;
@@ -938,51 +1032,18 @@
                 renderPagination();
             }
             
-            // View user details
-            async function viewUser(userId) {
-                try {
-                    const response = await fetch(`/api/users/${userId}`, {
-                        headers: {
-                            'Authorization': `Bearer ${token}`
-                        }
-                    });
-                    
-                    if (response.ok) {
-                        const user = await response.json();
-                        
-                        // Create a simple alert with user details
-                        const userDetails = `
-                            Username: ${user.username}
-                            Name: ${user.name}
-                            Role: ${user.role}
-                            Department: ${user.department || 'N/A'}
-                            Club: ${user.club && user.club.name ? user.club.name : 'N/A'}
-                            Status: ${user.isActive ? 'Active' : 'Inactive'}
-                            Joined: ${user.createdAt ? new Date(user.createdAt).toLocaleDateString() : 'N/A'}
-                        `;
-                        
-                        alert(userDetails);
-                    } else {
-                        const error = await response.json();
-                        alert(`Error: ${error.message}`);
-                    }
-                } catch (error) {
-                    console.error('Error fetching user details:', error);
-                    alert('Error fetching user details. Please try again.');
-                }
-            }
-            
             // Edit user
             async function editUser(userId) {
                 try {
-                    const response = await fetch(`/api/users/${userId}`, {
+                    // Fetch user data
+                    const userResponse = await fetch(`/api/users/${userId}`, {
                         headers: {
                             'Authorization': `Bearer ${token}`
                         }
                     });
                     
-                    if (response.ok) {
-                        const user = await response.json();
+                    if (userResponse.ok) {
+                        const user = await userResponse.json();
                         
                         // Populate the edit form
                         document.getElementById('editUserId').value = user._id;
@@ -991,9 +1052,38 @@
                         document.getElementById('editRole').value = user.role || 'student';
                         document.getElementById('editDepartment').value = user.department || '';
                         
+                        // Fetch clubs and populate the club dropdown
+                        const clubs = await fetchClubs();
+                        const clubSelect = document.getElementById('editClub');
+                        
+                        // Clear existing options except the first one
+                        clubSelect.innerHTML = '<option value="">No Club</option>';
+                        
+                        // Check if user has clubs in the clubs array or club field
+                        let currentClubId = '';
+                        if (user.clubs && user.clubs.length > 0) {
+                            currentClubId = user.clubs[0]._id || user.clubs[0]._id._id || '';
+                        } else if (user.club && (user.club._id || user.club)) {
+                            currentClubId = user.club._id || user.club;
+                        }
+                        
+                        // Add clubs to the dropdown
+                        clubs.forEach(club => {
+                            const option = document.createElement('option');
+                            option.value = club._id;
+                            option.textContent = club.name;
+                            
+                            // Set as selected if this is the user's current club
+                            if (currentClubId === club._id) {
+                                option.selected = true;
+                            }
+                            
+                            clubSelect.appendChild(option);
+                        });
+                        
                         document.getElementById('editUserModal').style.display = 'flex';
                     } else {
-                        const error = await response.json();
+                        const error = await userResponse.json();
                         alert(`Error: ${error.message}`);
                     }
                 } catch (error) {
@@ -1103,16 +1193,55 @@
                 const name = document.getElementById('editName').value;
                 const role = document.getElementById('editRole').value;
                 const department = document.getElementById('editDepartment').value;
+                const clubId = document.getElementById('editClub').value;
                 
                 try {
-                    const response = await fetch(`/api/users/${userId}`, {
+                    // Prepare the update data based on the user schema
+                    const updateData = {
+                        username,
+                        name,
+                        role,
+                        department
+                    };
+                    
+                    // Handle club assignment based on role
+                    if (role === 'faculty' || role === 'clubLeader') {
+                        if (clubId) {
+                            // Properly structure the clubs array
+                            updateData.clubs = [{
+                                _id: clubId,
+                                role: role === 'faculty' ? 'member' : 'leader',
+                                joinDate: new Date()
+                            }];
+                            // Set a valid clubRole
+                            updateData.clubRole = role === 'faculty' ? 'member' : 'president';
+                        } else {
+                            updateData.clubs = [];
+                            updateData.clubRole = 'member';
+                        }
+                    } else if (role === 'student') {
+                        // For students, use club field
+                        if (clubId) {
+                            updateData.club = clubId;
+                        }
+                        // Clear clubs array for students
+                        updateData.clubs = [];
+                    }
+                    
+                    console.log('Updating user with data:', updateData);
+                    
+                    // Use the admin route for updates
+                    const response = await fetch(`/api/users/${userId}/admin`, {
                         method: 'PUT',
                         headers: {
                             'Content-Type': 'application/json',
                             'Authorization': `Bearer ${token}`
                         },
-                        body: JSON.stringify({ username, name, role, department })
+                        body: JSON.stringify(updateData)
                     });
+                    
+                    const responseData = await response.json();
+                    console.log('Update response:', responseData);
                     
                     if (response.ok) {
                         alert('User updated successfully!');
@@ -1120,8 +1249,7 @@
                         editUserForm.reset();
                         fetchUsers();
                     } else {
-                        const error = await response.json();
-                        alert(`Error: ${error.message}`);
+                        alert(`Error: ${responseData.message}`);
                     }
                 } catch (error) {
                     console.error('Error updating user:', error);
@@ -1132,15 +1260,9 @@
             // Add event listeners for filters
             document.getElementById('searchUser').addEventListener('input', filterUsers);
             document.getElementById('filterRole').addEventListener('change', filterUsers);
-            document.getElementById('filterStatus').addEventListener('change', filterUsers);
-            
-            // Store all users for filtering
-            let allUsers = [];
             
             // Initial data fetch
-            fetchUsers().then(() => {
-                allUsers = [...filteredUsers];
-            });
+            fetchUsers();
         });
     </script>
 </body>

@@ -1,0 +1,1756 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Events - KMIT Clubs Hub</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+    <style>
+        /* CSS Variables */
+        :root {
+            --primary: #003366; /* Deep Navy */
+            --primary-dark: #002244;
+            --secondary: #f8fafc; /* Soft Gray */
+            --accent: #ffc107; /* Gold Accent */
+            --accent-light: #ffcd39;
+            --text: #212529; /* Darker Text */
+            --light-text: #6c757d;
+            --border-radius: 12px;
+            --box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+            --transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            --section-padding: 100px 0;
+            --container-padding: 0 20px;
+            --gradient-primary: linear-gradient(135deg, #003366 0%, #0055a4 100%);
+            --gradient-accent: linear-gradient(135deg, #ffc107 0%, #ffcd39 100%);
+        }
+
+        /* Global Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Lato', sans-serif;
+            line-height: 1.7;
+            color: var(--text);
+            background-color: #fff;
+            overflow-x: hidden;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: var(--container-padding);
+        }
+
+        /* Typography */
+        h1, h2, h3, h4 {
+            font-family: 'Poppins', sans-serif;
+            margin-bottom: 1.2rem;
+            font-weight: 600;
+            line-height: 1.2;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        h2 {
+            font-size: 2rem;
+            color: var(--primary);
+            margin-bottom: 1.5rem;
+            position: relative;
+        }
+
+        h3 {
+            font-size: 1.5rem;
+            margin-bottom: 0.8rem;
+            color: var(--primary);
+        }
+
+        p {
+            margin-bottom: 1.2rem;
+            color: var(--light-text);
+            font-weight: 300;
+        }
+
+        a {
+            text-decoration: none;
+            color: var(--primary);
+            transition: var(--transition);
+        }
+
+        a:hover {
+            color: var(--accent);
+        }
+
+        /* Dashboard Layout */
+        .dashboard {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 260px;
+            background: var(--gradient-primary);
+            color: white;
+            padding: 2rem 0;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            z-index: 1000;
+            transition: var(--transition);
+        }
+
+        .sidebar-header {
+            padding: 0 1.5rem 2rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 1rem;
+        }
+
+        .sidebar-header h2 {
+            color: white;
+            font-size: 1.5rem;
+            background: none;
+            -webkit-text-fill-color: initial;
+        }
+
+        .sidebar-menu {
+            list-style: none;
+        }
+
+        .sidebar-menu li {
+            margin-bottom: 0.5rem;
+        }
+
+        .sidebar-menu a {
+            display: flex;
+            align-items: center;
+            padding: 0.8rem 1.5rem;
+            color: rgba(255, 255, 255, 0.8);
+            transition: var(--transition);
+        }
+
+        .sidebar-menu a:hover,
+        .sidebar-menu a.active {
+            background-color: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+
+        .sidebar-menu i {
+            margin-right: 0.8rem;
+            font-size: 1.2rem;
+        }
+
+        .user-profile {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 1.5rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1rem;
+            font-weight: 600;
+        }
+
+        .user-info h4 {
+            color: white;
+            font-size: 1rem;
+            margin-bottom: 0.2rem;
+        }
+
+        .user-info p {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.85rem;
+            margin: 0;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            margin-left: 260px;
+            padding: 2rem;
+            background-color: #f8fafc;
+        }
+
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .dashboard-title h1 {
+            margin-bottom: 0.5rem;
+        }
+
+        .dashboard-actions {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .notification-icon {
+            position: relative;
+            font-size: 1.5rem;
+            color: var(--primary);
+            cursor: pointer;
+        }
+
+        .notification-badge {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background-color: var(--accent);
+            color: white;
+            font-size: 0.7rem;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Content Sections */
+        .content-section {
+            background-color: white;
+            border-radius: var(--border-radius);
+            padding: 1.5rem;
+            box-shadow: var(--box-shadow);
+            margin-bottom: 2rem;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .section-title {
+            font-size: 1.3rem;
+            color: var(--primary);
+            margin: 0;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            border-radius: 50px;
+            font-weight: 600;
+            text-align: center;
+            cursor: pointer;
+            transition: var(--transition);
+            border: none;
+            font-size: 0.9rem;
+        }
+
+        .btn-primary {
+            background: var(--gradient-primary);
+            color: white;
+            box-shadow: 0 4px 15px rgba(0, 51, 102, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 51, 102, 0.4);
+        }
+
+        .btn-secondary {
+            background-color: transparent;
+            color: var(--primary);
+            border: 2px solid var(--primary);
+        }
+
+        .btn-secondary:hover {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        /* Events List */
+        .events-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .event-item {
+            display: flex;
+            align-items: center;
+            padding: 1rem;
+            background-color: var(--secondary);
+            border-radius: var(--border-radius);
+            transition: var(--transition);
+        }
+
+        .event-item:hover {
+            background-color: #e9f2f9;
+        }
+
+        .event-date {
+            min-width: 80px;
+            text-align: center;
+            margin-right: 1rem;
+        }
+
+        .event-day {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .event-month {
+            font-size: 0.9rem;
+            color: var(--light-text);
+        }
+
+        .event-info {
+            flex: 1;
+        }
+
+        .event-name {
+            font-weight: 600;
+            margin-bottom: 0.3rem;
+        }
+
+        .event-club {
+            font-size: 0.9rem;
+            color: var(--light-text);
+        }
+
+        .event-action {
+            margin-left: 1rem;
+        }
+
+        .event-status {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-right: 0.5rem;
+        }
+
+        .status-registered {
+            background-color: rgba(0, 51, 102, 0.1);
+            color: var(--primary);
+        }
+
+        .status-attended {
+            background-color: rgba(40, 167, 69, 0.1);
+            color: #28a745;
+        }
+
+        /* Event Detail Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background-color: white;
+            border-radius: var(--border-radius);
+            padding: 2rem;
+            max-width: 600px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-title {
+            font-size: 1.5rem;
+            color: var(--primary);
+            margin: 0;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: var(--light-text);
+            cursor: pointer;
+        }
+
+        .modal-body {
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
+        }
+
+        /* Loading Spinner */
+        .spinner {
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            border-radius: 50%;
+            border-top: 4px solid var(--primary);
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Error Message */
+        .error-message {
+            background-color: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            text-align: center;
+            display: none;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 2rem;
+            color: var(--light-text);
+        }
+
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            color: #dee2e6;
+        }
+
+        /* Mobile Menu Toggle */
+        .mobile-menu-toggle {
+            display: none;
+            position: fixed;
+            top: 1rem;
+            left: 1rem;
+            z-index: 1001;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            box-shadow: var(--box-shadow);
+        }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            margin-bottom: 1.5rem;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .tab {
+            padding: 0.8rem 1.5rem;
+            cursor: pointer;
+            font-weight: 600;
+            color: var(--light-text);
+            position: relative;
+            transition: var(--transition);
+        }
+
+        .tab:hover {
+            color: var(--primary);
+        }
+
+        .tab.active {
+            color: var(--primary);
+        }
+
+        .tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background-color: var(--primary);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Filter Bar */
+        .filter-bar {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .filter-select {
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            border: 1px solid #ced4da;
+            background-color: white;
+            color: var(--text);
+            font-family: 'Lato', sans-serif;
+        }
+
+        /* Responsive Styles */
+        @media (max-width: 992px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            
+            .sidebar.active {
+                transform: translateX(0);
+            }
+            
+            .main-content {
+                margin-left: 0;
+            }
+            
+            .mobile-menu-toggle {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .dashboard-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+            
+            .event-item {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .event-date {
+                margin-right: 0;
+                margin-bottom: 0.5rem;
+            }
+            
+            .event-action {
+                margin-left: 0;
+                margin-top: 0.5rem;
+            }
+        }
+
+        @media (max-width: 576px) {
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .main-content {
+                padding: 1rem;
+            }
+            
+            .tabs {
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+        }
+        /* Success Message */
+.success-message {
+    background-color: #d4edda;
+    color: #155724;
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    text-align: center;
+}
+    </style>
+</head>
+<body>
+    <div class="dashboard">
+        <!-- Sidebar -->
+        <nav class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <h2><i class="fas fa-university"></i> KMIT Clubs Hub</h2>
+            </div>
+            <ul class="sidebar-menu">
+                <li><a href="/student_dashboard"><i class="fas fa-home"></i> Dashboard</a></li>
+                <li><a href="/student_clubs"><i class="fas fa-users"></i> My Clubs</a></li>
+                <li><a href="/student_events" class="active"><i class="fas fa-calendar-alt"></i> Events</a></li>
+                <li><a href="/student_rewards"><i class="fas fa-trophy"></i> Rewards</a></li>
+                <li><a href="/student_analytics"><i class="fas fa-chart-line"></i> Analytics</a></li>
+                <li><a href="/student_settings"><i class="fas fa-cog"></i> Settings</a></li>
+            </ul>
+            <div class="user-profile">
+                <div class="user-avatar" id="userAvatar">SK</div>
+                <div class="user-info">
+                    <h4 id="userName">Sai Kumar</h4>
+                    <p id="userRollNumber">KMIT401</p>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <button class="mobile-menu-toggle" id="mobileMenuToggle">
+                <i class="fas fa-bars"></i>
+            </button>
+
+            <!-- Dashboard Header -->
+            <div class="dashboard-header">
+                <div class="dashboard-title">
+                    <h1>Events</h1>
+                    <p>Discover and register for upcoming events</p>
+                </div>
+                <div class="dashboard-actions">
+                    <div class="notification-icon">
+                        <i class="fas fa-bell"></i>
+                        <span class="notification-badge" id="notificationBadge">3</span>
+                    </div>
+                    <button class="btn btn-secondary" onclick="logout()">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </button>
+                </div>
+            </div>
+
+            <!-- Error Message -->
+            <div id="errorMessage" class="error-message"></div>
+
+            <!-- Loading Spinner -->
+            <div id="loadingSpinner" class="spinner" style="display: none;"></div>
+
+            <!-- Events Tabs -->
+            <div class="content-section">
+                <div class="tabs">
+                    <div class="tab active" data-tab="upcoming-events">Upcoming Events</div>
+                    <div class="tab" data-tab="registered-events">Registered Events</div>
+                    <div class="tab" data-tab="past-events">Past Events</div>
+                </div>
+
+                <!-- Filter Bar -->
+                <div class="filter-bar">
+                    <select class="filter-select" id="clubFilter">
+                        <option value="">All Clubs</option>
+                        <!-- Club options will be dynamically loaded here -->
+                    </select>
+                    <select class="filter-select" id="monthFilter">
+                        <option value="">All Months</option>
+                        <option value="1">January</option>
+                        <option value="2">February</option>
+                        <option value="3">March</option>
+                        <option value="4">April</option>
+                        <option value="5">May</option>
+                        <option value="6">June</option>
+                        <option value="7">July</option>
+                        <option value="8">August</option>
+                        <option value="9">September</option>
+                        <option value="10">October</option>
+                        <option value="11">November</option>
+                        <option value="12">December</option>
+                    </select>
+                </div>
+
+                <!-- Upcoming Events Tab -->
+                <div class="tab-content active" id="upcoming-events">
+                    <div class="events-list" id="upcomingEventsList">
+                        <!-- Events will be dynamically loaded here -->
+                        <div class="empty-state" id="upcomingEventsEmptyState" style="display: none;">
+                            <i class="fas fa-calendar-alt"></i>
+                            <p>No upcoming events</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Registered Events Tab -->
+                <div class="tab-content" id="registered-events">
+                    <div class="events-list" id="registeredEventsList">
+                        <!-- Events will be dynamically loaded here -->
+                        <div class="empty-state" id="registeredEventsEmptyState" style="display: none;">
+                            <i class="fas fa-calendar-check"></i>
+                            <p>No registered events</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Past Events Tab -->
+                <div class="tab-content" id="past-events">
+                    <div class="events-list" id="pastEventsList">
+                        <!-- Events will be dynamically loaded here -->
+                        <div class="empty-state" id="pastEventsEmptyState" style="display: none;">
+                            <i class="fas fa-history"></i>
+                            <p>No past events</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Event Detail Modal -->
+    <div class="modal" id="eventModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="modalTitle">Event Details</h3>
+                <button class="modal-close" onclick="closeModal()">&times;</button>
+            </div>
+            <div class="modal-body" id="modalBody">
+                <!-- Event details will be loaded here -->
+            </div>
+            <div class="modal-footer" id="modalFooter">
+                <!-- Modal actions will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script>
+     // API base URL
+const API_URL = '/api';
+
+// Global variables to store data
+let allEvents = [];
+let userClubs = [];
+let currentUser = null;
+
+// Check if user is logged in
+document.addEventListener('DOMContentLoaded', function() {
+    // Check for token in localStorage
+    const token = localStorage.getItem('token');
+    if (!token) {
+        window.location.href = '/login';
+        return;
+    }
+    
+    // Set up axios default headers
+    axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+    
+    // Initialize page
+    initializePage();
+    
+    // Set up mobile menu toggle
+    setupMobileMenu();
+    
+    // Set up tabs
+    setupTabs();
+    
+    // Set up filters
+    setupFilters();
+});
+
+// Initialize page with data fetching
+async function initializePage() {
+    try {
+        showLoading(true);
+        hideError();
+        
+        console.log('Initializing page...');
+        
+        // Fetch user data
+        console.log('Fetching user data...');
+        currentUser = await fetchUserData();
+        console.log('User data:', currentUser);
+        updateUserInterface(currentUser);
+        
+        // Fetch user's clubs
+        console.log('Fetching user clubs...');
+        userClubs = await fetchUserClubs();
+        console.log('User clubs:', userClubs);
+        
+        // Fetch all events
+        console.log('Fetching all events...');
+        allEvents = await fetchAllEvents();
+        console.log('All events:', allEvents);
+        
+        // Update club filter
+        updateClubFilter(userClubs);
+        
+        // Update events lists with initial data
+        updateEventsLists();
+        
+    } catch (error) {
+        console.error('Error initializing page:', error);
+        showError('Failed to load events data. Please try again later.');
+        
+        // If unauthorized, redirect to login
+        if (error.response && error.response.status === 401) {
+            localStorage.removeItem('token');
+            window.location.href = '/login';
+        }
+    } finally {
+        showLoading(false);
+    }
+}
+
+// Show/hide loading spinner
+function showLoading(show) {
+    const spinner = document.getElementById('loadingSpinner');
+    if (spinner) {
+        spinner.style.display = show ? 'block' : 'none';
+    }
+}
+
+// Show/hide error message
+function showError(message) {
+    const errorElement = document.getElementById('errorMessage');
+    if (errorElement) {
+        errorElement.textContent = message;
+        errorElement.style.display = 'block';
+    }
+}
+
+function hideError() {
+    const errorElement = document.getElementById('errorMessage');
+    if (errorElement) {
+        errorElement.style.display = 'none';
+    }
+}
+
+// Fetch user data
+async function fetchUserData() {
+    try {
+        const response = await axios.get(`${API_URL}/auth/me`);
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching user data:', error);
+        throw error;
+    }
+}
+
+// Update user interface with user data
+function updateUserInterface(userData) {
+    console.log('Updating user interface with data:', userData);
+    
+    // Update user profile in sidebar
+    const userAvatar = document.getElementById('userAvatar');
+    const userName = document.getElementById('userName');
+    const userRollNumber = document.getElementById('userRollNumber');
+    
+    if (userAvatar) {
+        userAvatar.textContent = userData.name ? userData.name.split(' ').map(n => n[0]).join('') : 'U';
+    }
+    
+    if (userName) {
+        userName.textContent = userData.name || 'Unknown User';
+    }
+    
+    if (userRollNumber) {
+        userRollNumber.textContent = userData.username || 'No username';
+    }
+}
+
+// Fetch user's clubs
+async function fetchUserClubs() {
+    try {
+        // First, get the user data to check for clubs
+        const userData = await fetchUserData();
+        const clubs = [];
+        const processedClubIds = new Set(); // To avoid duplicates
+        
+        console.log('User data for clubs:', userData);
+        
+        // If the user has a clubs array, fetch each club
+        if (userData.clubs && userData.clubs.length > 0) {
+            console.log('Processing clubs array with', userData.clubs.length, 'clubs');
+            
+            // Process each club in the clubs array
+            for (const clubRef of userData.clubs) {
+                let clubId;
+                
+                console.log('Processing club reference:', clubRef);
+                
+                // If clubRef is a string, use it directly
+                if (typeof clubRef === 'string') {
+                    clubId = clubRef;
+                } 
+                // If clubRef is an object, try to extract the ID
+                else if (typeof clubRef === 'object' && clubRef !== null) {
+                    // If it has an _id property (MongoDB document)
+                    if (clubRef._id) {
+                        clubId = clubRef._id;
+                    } 
+                    // If it has an id property (common alternative)
+                    else if (clubRef.id) {
+                        clubId = clubRef.id;
+                    }
+                    // If it has a buffer property (MongoDB ObjectId as Buffer)
+                    else if (clubRef.buffer && clubRef.buffer.type === 'Buffer' && clubRef.buffer.data) {
+                        // Convert the Buffer data to a hexadecimal string
+                        const hexString = Array.from(clubRef.buffer.data)
+                            .map(byte => byte.toString(16).padStart(2, '0'))
+                            .join('');
+                        
+                        // Format as MongoDB ObjectId (24 hex characters)
+                        clubId = hexString;
+                        console.log('Converted Buffer to hex string:', clubId);
+                    }
+                    // If it's a populated club object with a name, we can use it directly
+                    else if (clubRef.name) {
+                        // This is already a populated club object, no need to fetch
+                        clubs.push(clubRef);
+                        processedClubIds.add(String(clubRef._id));
+                        continue; // Skip to the next club
+                    }
+                    // If none of the above, convert to string (last resort)
+                    else {
+                        clubId = String(clubRef);
+                    }
+                } 
+                // For any other type, convert to string
+                else {
+                    clubId = String(clubRef);
+                }
+                
+                // Ensure clubId is a string
+                clubId = String(clubId);
+                
+                // Skip if we've already processed this club
+                if (processedClubIds.has(clubId)) {
+                    console.log('Skipping already processed club with ID:', clubId);
+                    continue;
+                }
+                
+                // Skip if the club ID is "[object Object]" (invalid)
+                if (clubId === '[object Object]') {
+                    console.log('Skipping club with invalid ID:', clubId);
+                    continue;
+                }
+                
+                console.log('Fetching club with ID:', clubId);
+                
+                try {
+                    const response = await axios.get(`${API_URL}/clubs/${clubId}`);
+                    const club = response.data;
+                    
+                    if (club && club._id) {
+                        console.log('Successfully fetched club:', club);
+                        clubs.push(club);
+                        processedClubIds.add(String(club._id));
+                    } else {
+                        console.log('Invalid club data received:', club);
+                    }
+                } catch (err) {
+                    console.error(`Error fetching club ${clubId}:`, err);
+                }
+            }
+        } else {
+            console.log('User has no clubs array');
+        }
+        
+        // If the user has a legacy club field and it's not already included
+        if (userData.club) {
+            console.log('Processing legacy club:', userData.club);
+            
+            let legacyClubId;
+            
+            // Handle different formats of the legacy club reference
+            if (typeof userData.club === 'string') {
+                legacyClubId = userData.club;
+            } else if (typeof userData.club === 'object' && userData.club !== null) {
+                if (userData.club._id) {
+                    legacyClubId = userData.club._id;
+                } else if (userData.club.name) {
+                    // This is already a populated club object
+                    const clubIdStr = String(userData.club._id);
+                    if (!processedClubIds.has(clubIdStr)) {
+                        clubs.push(userData.club);
+                        processedClubIds.add(clubIdStr);
+                    }
+                    return clubs;
+                } else {
+                    legacyClubId = String(userData.club);
+                }
+            } else {
+                legacyClubId = String(userData.club);
+            }
+            
+            // Ensure legacyClubId is a string
+            legacyClubId = String(legacyClubId);
+            
+            // Check if this club is already in the clubs array
+            if (!processedClubIds.has(legacyClubId)) {
+                try {
+                    console.log('Fetching legacy club with ID:', legacyClubId);
+                    const clubResponse = await axios.get(`${API_URL}/clubs/${legacyClubId}`);
+                    clubs.push(clubResponse.data);
+                    processedClubIds.add(legacyClubId);
+                } catch (err) {
+                    console.error(`Error fetching legacy club ${legacyClubId}:`, err);
+                }
+            } else {
+                console.log('Legacy club already included in clubs array');
+            }
+        } else {
+            console.log('User has no legacy club');
+        }
+        
+        console.log('Final clubs list:', clubs);
+        return clubs;
+    } catch (error) {
+        console.error('Error in fetchUserClubs:', error);
+        return [];
+    }
+}
+
+
+
+// Update club filter
+function updateClubFilter(clubsData) {
+    console.log('Updating club filter with data:', clubsData);
+    
+    const clubFilter = document.getElementById('clubFilter');
+    
+    if (!clubFilter) {
+        console.error('Club filter element not found');
+        return;
+    }
+    
+    // Clear existing options except the first one
+    while (clubFilter.children.length > 1) {
+        clubFilter.removeChild(clubFilter.lastChild);
+    }
+    
+    // Add club options
+    if (clubsData && clubsData.length > 0) {
+        clubsData.forEach(club => {
+            const option = document.createElement('option');
+            option.value = club._id;
+            option.textContent = club.name;
+            clubFilter.appendChild(option);
+        });
+    } else {
+        console.log('No clubs data to populate filter');
+    }
+}
+
+// Update events lists based on current filters
+function updateEventsLists() {
+    console.log('Updating events lists...');
+    
+    // Get current filter values
+    const clubFilter = document.getElementById('clubFilter').value;
+    const monthFilter = document.getElementById('monthFilter').value;
+    
+    console.log('Current filters - Club:', clubFilter, 'Month:', monthFilter);
+    
+    // If we have no events, show empty states
+    if (!allEvents || allEvents.length === 0) {
+        console.log('No events to display');
+        updateUpcomingEventsList([]);
+        updateRegisteredEventsList([]);
+        updatePastEventsList([]);
+        return;
+    }
+    
+    // Filter events based on selected filters
+    const filteredEvents = filterEvents(allEvents, clubFilter, monthFilter);
+    console.log('Filtered events:', filteredEvents);
+    
+    // Log detailed information about each event
+    filteredEvents.forEach((event, index) => {
+        console.log(`Event ${index}:`, event);
+        console.log(`Event ${index} ID:`, event._id);
+        console.log(`Event ${index} title:`, event.title);
+        console.log(`Event ${index} date:`, event.date);
+        console.log(`Event ${index} date type:`, typeof event.date);
+        console.log(`Event ${index} clubId:`, event.clubId);
+    });
+    
+    // Categorize events
+    const now = new Date();
+    console.log('Current date and time:', now);
+    
+    const upcomingEvents = [];
+    const registeredEvents = [];
+    const pastEvents = [];
+    
+    filteredEvents.forEach(event => {
+        try {
+            // Handle different date formats
+            let eventDate;
+            
+            if (typeof event.date === 'string') {
+                // If it's a string, try to parse it
+                eventDate = new Date(event.date);
+                console.log(`Parsed date from string:`, eventDate);
+            } else if (typeof event.date === 'object' && event.date instanceof Date) {
+                // If it's already a Date object, use it directly
+                eventDate = event.date;
+                console.log(`Using existing Date object:`, eventDate);
+            } else if (typeof event.date === 'object' && event.date.$date) {
+                // Handle MongoDB date format
+                eventDate = new Date(event.date.$date);
+                console.log(`Parsed MongoDB date:`, eventDate);
+            } else {
+                // If it's something else, try to convert to string and parse
+                eventDate = new Date(String(event.date));
+                console.log(`Parsed from converted string:`, eventDate);
+            }
+            
+            console.log(`Event "${event.title}" date:`, eventDate);
+            console.log(`Event "${event.title}" date isValid:`, !isNaN(eventDate.getTime()));
+            
+            // Check if the date is valid
+            if (isNaN(eventDate.getTime())) {
+                console.error('Invalid event date:', event.date);
+                // Default to considering it as an upcoming event
+                upcomingEvents.push(event);
+                console.log(`Added "${event.title}" to upcoming events (invalid date)`);
+                return;
+            }
+            
+            // Check if user is registered for this event
+            const isRegistered = isUserRegisteredForEvent(event._id);
+            console.log(`Event "${event.title}" registered:`, isRegistered);
+            
+            // Categorize the event
+            if (eventDate > now) {
+                // Future event
+                if (isRegistered) {
+                    registeredEvents.push(event);
+                    console.log(`Added "${event.title}" to registered events`);
+                } else {
+                    upcomingEvents.push(event);
+                    console.log(`Added "${event.title}" to upcoming events`);
+                }
+            } else {
+                // Past event
+                if (isRegistered) {
+                    pastEvents.push(event);
+                    console.log(`Added "${event.title}" to past events`);
+                } else {
+                    console.log(`Event "${event.title}" is in the past but user is not registered`);
+                }
+            }
+        } catch (e) {
+            console.error('Error processing event:', event, e);
+            // Default to considering it as an upcoming event
+            upcomingEvents.push(event);
+            console.log(`Added "${event.title}" to upcoming events (error)`);
+        }
+    });
+    
+    console.log('Final upcoming events:', upcomingEvents);
+    console.log('Final registered events:', registeredEvents);
+    console.log('Final past events:', pastEvents);
+    
+    // Update UI
+    updateUpcomingEventsList(upcomingEvents);
+    updateRegisteredEventsList(registeredEvents);
+    updatePastEventsList(pastEvents);
+}
+
+// Check if user is registered for an event
+function isUserRegisteredForEvent(eventId) {
+    if (!currentUser) {
+        console.log('No current user data');
+        return false;
+    }
+    
+    console.log('Checking if user is registered for event:', eventId);
+    
+    // For now, let's assume the user is not registered for any events
+    // This will make all future events appear in the "Upcoming Events" tab
+    // Later, we can implement proper registration tracking
+    
+    // Check if the event ID is in the user's eventsAttended array
+    if (currentUser.eventsAttended && currentUser.eventsAttended.length > 0) {
+        console.log('User eventsAttended:', currentUser.eventsAttended);
+        
+        const isInEventsAttended = currentUser.eventsAttended.some(eventRef => {
+            if (typeof eventRef === 'string') {
+                return eventRef === eventId;
+            } else if (typeof eventRef === 'object' && eventRef !== null) {
+                if (eventRef._id) {
+                    return eventRef._id === eventId;
+                } else if (eventRef.buffer && eventRef.buffer.type === 'Buffer' && eventRef.buffer.data) {
+                    // Convert the Buffer data to a hexadecimal string
+                    const hexString = Array.from(eventRef.buffer.data)
+                        .map(byte => byte.toString(16).padStart(2, '0'))
+                        .join('');
+                    
+                    return hexString === eventId;
+                }
+            }
+            return false;
+        });
+        
+        if (isInEventsAttended) {
+            console.log('Event found in eventsAttended');
+            return true;
+        }
+    }
+    
+    // As a fallback, check if the event's club is in the user's clubs
+    // This is not ideal but might work as a temporary solution
+    if (allEvents.length > 0 && userClubs.length > 0) {
+        const event = allEvents.find(e => e._id === eventId);
+        if (event && event.clubId) {
+            let eventClubId;
+            
+            if (typeof event.clubId === 'string') {
+                eventClubId = event.clubId;
+            } else if (typeof event.clubId === 'object' && event.clubId !== null && event.clubId._id) {
+                eventClubId = event.clubId._id;
+            }
+            
+            if (eventClubId) {
+                const userHasClub = userClubs.some(club => club._id === eventClubId);
+                console.log(`Event club ID: ${eventClubId}, User has club: ${userHasClub}`);
+                return userHasClub;
+            }
+        }
+    }
+    
+    console.log('Event not found in user data');
+    return false;
+}
+
+// Fetch all events
+async function fetchAllEvents() {
+    try {
+        const response = await axios.get(`${API_URL}/events`);
+        console.log('Events API response:', response.data);
+        
+        // Log the first event to understand its structure
+        if (response.data && response.data.length > 0) {
+            console.log('First event details:', response.data[0]);
+            console.log('First event date:', response.data[0].date);
+            console.log('First event date type:', typeof response.data[0].date);
+            
+            // Log all properties of the first event
+            console.log('First event properties:');
+            for (const prop in response.data[0]) {
+                console.log(`  ${prop}:`, response.data[0][prop]);
+            }
+        }
+        
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching events:', error);
+        
+        // Try alternative endpoint
+        try {
+            const altResponse = await axios.get(`${API_URL}/event`);
+            console.log('Alternative events API response:', altResponse.data);
+            return altResponse.data;
+        } catch (altError) {
+            console.error('Error fetching events from alternative endpoint:', altError);
+            return [];
+        }
+    }
+}
+// Filter events based on club and month
+function filterEvents(events, clubId, month) {
+    console.log('Filtering events:', events, 'Club ID:', clubId, 'Month:', month);
+    
+    if (!events || !Array.isArray(events)) {
+        console.log('No events to filter or events is not an array');
+        return [];
+    }
+    
+    return events.filter(event => {
+        // Skip invalid events
+        if (!event || !event._id) {
+            console.log('Skipping invalid event:', event);
+            return false;
+        }
+        
+        // Filter by club if specified
+        if (clubId) {
+            // Handle different club ID formats
+            let eventClubId = event.clubId;
+            
+            // If clubId is an object, try to extract the ID
+            if (typeof eventClubId === 'object' && eventClubId !== null) {
+                if (eventClubId._id) {
+                    eventClubId = eventClubId._id;
+                } else {
+                    eventClubId = String(eventClubId);
+                }
+            }
+            
+            if (String(eventClubId) !== clubId) {
+                return false;
+            }
+        }
+        
+        // Filter by month if specified
+        if (month) {
+            try {
+                const eventDate = new Date(event.date);
+                const eventMonth = (eventDate.getMonth() + 1).toString();
+                if (eventMonth !== month) {
+                    return false;
+                }
+            } catch (e) {
+                console.error('Error parsing event date for filtering:', event.date, e);
+                return false;
+            }
+        }
+        
+        return true;
+    });
+}
+
+
+// Check if user attended an event
+function isUserAttendedEvent(eventId) {
+    // For now, we'll use the same logic as registered events
+    // In a real implementation, you would have a separate field for attended events
+    return isUserRegisteredForEvent(eventId);
+}
+
+// Update upcoming events list
+function updateUpcomingEventsList(eventsData) {
+    console.log('Updating upcoming events list with:', eventsData);
+    
+    const upcomingEventsList = document.getElementById('upcomingEventsList');
+    const upcomingEventsEmptyState = document.getElementById('upcomingEventsEmptyState');
+    
+    if (!upcomingEventsList) {
+        console.error('Upcoming events list element not found');
+        return;
+    }
+    
+    if (!eventsData || eventsData.length === 0) {
+        console.log('No upcoming events to display');
+        if (upcomingEventsEmptyState) {
+            upcomingEventsEmptyState.style.display = 'block';
+        }
+        // Clear existing events
+        upcomingEventsList.innerHTML = '';
+        return;
+    }
+    
+    if (upcomingEventsEmptyState) {
+        upcomingEventsEmptyState.style.display = 'none';
+    }
+    
+    // Clear existing events
+    upcomingEventsList.innerHTML = '';
+    
+    // Add events to the list
+    eventsData.forEach(event => {
+        try {
+            const eventItem = createEventItem(event, 'upcoming');
+            upcomingEventsList.appendChild(eventItem);
+        } catch (e) {
+            console.error('Error creating event item:', event, e);
+        }
+    });
+}
+
+// Update registered events list
+function updateRegisteredEventsList(eventsData) {
+    console.log('Updating registered events list with:', eventsData);
+    
+    const registeredEventsList = document.getElementById('registeredEventsList');
+    const registeredEventsEmptyState = document.getElementById('registeredEventsEmptyState');
+    
+    if (!registeredEventsList) {
+        console.error('Registered events list element not found');
+        return;
+    }
+    
+    if (!eventsData || eventsData.length === 0) {
+        console.log('No registered events to display');
+        if (registeredEventsEmptyState) {
+            registeredEventsEmptyState.style.display = 'block';
+        }
+        // Clear existing events
+        registeredEventsList.innerHTML = '';
+        return;
+    }
+    
+    if (registeredEventsEmptyState) {
+        registeredEventsEmptyState.style.display = 'none';
+    }
+    
+    // Clear existing events
+    registeredEventsList.innerHTML = '';
+    
+    // Add events to the list
+    eventsData.forEach(event => {
+        try {
+            const eventItem = createEventItem(event, 'registered');
+            registeredEventsList.appendChild(eventItem);
+        } catch (e) {
+            console.error('Error creating event item:', event, e);
+        }
+    });
+}
+
+// Update past events list
+function updatePastEventsList(eventsData) {
+    console.log('Updating past events list with:', eventsData);
+    
+    const pastEventsList = document.getElementById('pastEventsList');
+    const pastEventsEmptyState = document.getElementById('pastEventsEmptyState');
+    
+    if (!pastEventsList) {
+        console.error('Past events list element not found');
+        return;
+    }
+    
+    if (!eventsData || eventsData.length === 0) {
+        console.log('No past events to display');
+        if (pastEventsEmptyState) {
+            pastEventsEmptyState.style.display = 'block';
+        }
+        // Clear existing events
+        pastEventsList.innerHTML = '';
+        return;
+    }
+    
+    if (pastEventsEmptyState) {
+        pastEventsEmptyState.style.display = 'none';
+    }
+    
+    // Clear existing events
+    pastEventsList.innerHTML = '';
+    
+    // Add events to the list
+    eventsData.forEach(event => {
+        try {
+            const eventItem = createEventItem(event, 'past');
+            pastEventsList.appendChild(eventItem);
+        } catch (e) {
+            console.error('Error creating event item:', event, e);
+        }
+    });
+}
+
+// Create event item element
+function createEventItem(event, type) {
+    console.log('Creating event item for:', event, 'Type:', type);
+    
+    const eventItem = document.createElement('div');
+    eventItem.className = 'event-item';
+    
+    // Create event date element
+    const eventDate = document.createElement('div');
+    eventDate.className = 'event-date';
+    
+    let date, day, month;
+    
+    try {
+        date = new Date(event.date);
+        day = date.getDate();
+        month = date.toLocaleString('default', { month: 'short' });
+    } catch (e) {
+        console.error('Error parsing event date:', event.date, e);
+        day = '??';
+        month = '???';
+    }
+    
+    const eventDay = document.createElement('div');
+    eventDay.className = 'event-day';
+    eventDay.textContent = day;
+    
+    const eventMonth = document.createElement('div');
+    eventMonth.className = 'event-month';
+    eventMonth.textContent = month;
+    
+    eventDate.appendChild(eventDay);
+    eventDate.appendChild(eventMonth);
+    
+    // Create event info element
+    const eventInfo = document.createElement('div');
+    eventInfo.className = 'event-info';
+    
+    const eventName = document.createElement('div');
+    eventName.className = 'event-name';
+    eventName.textContent = event.title || 'Untitled Event';
+    
+    const eventClub = document.createElement('div');
+    eventClub.className = 'event-club';
+    
+    // Find club name by ID
+    let clubName = 'Unknown Club';
+    if (event.clubId) {
+        if (typeof event.clubId === 'string') {
+            const club = userClubs.find(c => c._id === event.clubId);
+            clubName = club ? club.name : 'Unknown Club';
+        } else if (typeof event.clubId === 'object' && event.clubId.name) {
+            clubName = event.clubId.name;
+        }
+    }
+    eventClub.textContent = clubName;
+    
+    eventInfo.appendChild(eventName);
+    eventInfo.appendChild(eventClub);
+    
+    // Create event action element
+    const eventAction = document.createElement('div');
+    eventAction.className = 'event-action';
+    
+    // Add status badge if needed
+    if (type === 'registered') {
+        const statusBadge = document.createElement('span');
+        statusBadge.className = 'event-status status-registered';
+        statusBadge.textContent = 'Registered';
+        eventAction.appendChild(statusBadge);
+    } else if (type === 'past') {
+        const statusBadge = document.createElement('span');
+        statusBadge.className = 'event-status status-attended';
+        statusBadge.textContent = 'Attended';
+        eventAction.appendChild(statusBadge);
+    }
+    
+    // Create action button
+    let actionButton;
+    
+    if (type === 'upcoming') {
+        actionButton = document.createElement('button');
+        actionButton.className = 'btn btn-primary';
+        actionButton.textContent = 'Register';
+        actionButton.onclick = () => registerForEvent(event._id);
+    } else {
+        actionButton = document.createElement('button');
+        actionButton.className = 'btn btn-secondary';
+        actionButton.textContent = 'View Details';
+        actionButton.onclick = () => showEventDetails(event);
+    }
+    
+    eventAction.appendChild(actionButton);
+    
+    eventItem.appendChild(eventDate);
+    eventItem.appendChild(eventInfo);
+    eventItem.appendChild(eventAction);
+    
+    return eventItem;
+}
+
+// Register for event
+async function registerForEvent(eventId) {
+    try {
+        showLoading(true);
+        
+        console.log('Registering for event:', eventId);
+        
+        // Make API call to register for the event
+        await axios.post(`${API_URL}/events/${eventId}/register`);
+        
+        // Show success message
+        const successMessage = document.createElement('div');
+        successMessage.className = 'success-message';
+        successMessage.textContent = 'Successfully registered for the event!';
+        document.querySelector('.content-section').prepend(successMessage);
+        
+        // Hide success message after 3 seconds
+        setTimeout(() => {
+            successMessage.remove();
+        }, 3000);
+        
+        // Refresh data
+        await initializePage();
+        
+    } catch (error) {
+        console.error('Error registering for event:', error);
+        showError('Failed to register for event. Please try again later.');
+    } finally {
+        showLoading(false);
+    }
+}
+
+// Show event details modal
+function showEventDetails(event) {
+    console.log('Showing event details for:', event);
+    
+    const modal = document.getElementById('eventModal');
+    const modalTitle = document.getElementById('modalTitle');
+    const modalBody = document.getElementById('modalBody');
+    const modalFooter = document.getElementById('modalFooter');
+    
+    if (!modal || !modalTitle || !modalBody || !modalFooter) {
+        console.error('Modal elements not found');
+        return;
+    }
+    
+    // Set modal title
+    modalTitle.textContent = event.title || 'Event Details';
+    
+    // Clear modal body
+    modalBody.innerHTML = '';
+    
+    // Add event details to modal body
+    let formattedDate = 'Not specified';
+    try {
+        const eventDate = new Date(event.date);
+        formattedDate = eventDate.toLocaleDateString('en-US', { 
+            weekday: 'long', 
+            year: 'numeric', 
+            month: 'long', 
+            day: 'numeric' 
+        });
+    } catch (e) {
+        console.error('Error formatting event date:', event.date, e);
+    }
+    
+    const dateInfo = document.createElement('p');
+    dateInfo.innerHTML = `<strong>Date:</strong> ${formattedDate}`;
+    modalBody.appendChild(dateInfo);
+    
+    const timeInfo = document.createElement('p');
+    timeInfo.innerHTML = `<strong>Time:</strong> ${event.time || 'Not specified'}`;
+    modalBody.appendChild(timeInfo);
+    
+    const venueInfo = document.createElement('p');
+    venueInfo.innerHTML = `<strong>Venue:</strong> ${event.venue || 'Not specified'}`;
+    modalBody.appendChild(venueInfo);
+    
+    // Find club name by ID
+    let clubName = 'Unknown Club';
+    if (event.clubId) {
+        if (typeof event.clubId === 'string') {
+            const club = userClubs.find(c => c._id === event.clubId);
+            clubName = club ? club.name : 'Unknown Club';
+        } else if (typeof event.clubId === 'object' && event.clubId.name) {
+            clubName = event.clubId.name;
+        }
+    }
+    
+    const clubInfo = document.createElement('p');
+    clubInfo.innerHTML = `<strong>Organized by:</strong> ${clubName}`;
+    modalBody.appendChild(clubInfo);
+    
+    const descriptionInfo = document.createElement('p');
+    descriptionInfo.innerHTML = `<strong>Description:</strong> ${event.description || 'No description available'}`;
+    modalBody.appendChild(descriptionInfo);
+    
+    // Clear modal footer
+    modalFooter.innerHTML = '';
+    
+    // Add close button to modal footer
+    const closeButton = document.createElement('button');
+    closeButton.className = 'btn btn-secondary';
+    closeButton.textContent = 'Close';
+    closeButton.onclick = () => closeModal();
+    
+    modalFooter.appendChild(closeButton);
+    
+    // Show modal
+    modal.classList.add('active');
+}
+
+// Close modal
+function closeModal() {
+    const modal = document.getElementById('eventModal');
+    if (modal) {
+        modal.classList.remove('active');
+    }
+}
+
+// Setup mobile menu toggle
+function setupMobileMenu() {
+    const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+    const sidebar = document.getElementById('sidebar');
+    
+    if (mobileMenuToggle && sidebar) {
+        mobileMenuToggle.addEventListener('click', function() {
+            sidebar.classList.toggle('active');
+        });
+        
+        // Close sidebar when clicking on a link
+        document.querySelectorAll('.sidebar-menu a').forEach(link => {
+            link.addEventListener('click', () => {
+                sidebar.classList.remove('active');
+            });
+        });
+    }
+}
+
+// Setup tabs
+function setupTabs() {
+    const tabs = document.querySelectorAll('.tab');
+    const tabContents = document.querySelectorAll('.tab-content');
+    
+    tabs.forEach(tab => {
+        tab.addEventListener('click', function() {
+            // Remove active class from all tabs and tab contents
+            tabs.forEach(t => t.classList.remove('active'));
+            tabContents.forEach(c => c.classList.remove('active'));
+            
+            // Add active class to clicked tab
+            this.classList.add('active');
+            
+            // Show corresponding tab content
+            const tabId = this.getAttribute('data-tab');
+            const tabContent = document.getElementById(tabId);
+            if (tabContent) {
+                tabContent.classList.add('active');
+            }
+        });
+    });
+}
+
+// Setup filters
+function setupFilters() {
+    const clubFilter = document.getElementById('clubFilter');
+    const monthFilter = document.getElementById('monthFilter');
+    
+    if (clubFilter) {
+        clubFilter.addEventListener('change', function() {
+            console.log('Club filter changed to:', this.value);
+            updateEventsLists();
+        });
+    }
+    
+    if (monthFilter) {
+        monthFilter.addEventListener('change', function() {
+            console.log('Month filter changed to:', this.value);
+            updateEventsLists();
+        });
+    }
+}
+
+// Logout function
+function logout() {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    window.location.href = '/login';
+}
+    </script>
+</body>
+</html>

@@ -1,0 +1,1900 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Clubs - KMIT Clubs Hub</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+    <style>
+        /* CSS Variables */
+        :root {
+            --primary: #003366; /* Deep Navy */
+            --primary-dark: #002244;
+            --secondary: #f8fafc; /* Soft Gray */
+            --accent: #ffc107; /* Gold Accent */
+            --accent-light: #ffcd39;
+            --text: #212529; /* Darker Text */
+            --light-text: #6c757d;
+            --border-radius: 12px;
+            --box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+            --transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            --section-padding: 100px 0;
+            --container-padding: 0 20px;
+            --gradient-primary: linear-gradient(135deg, #003366 0%, #0055a4 100%);
+            --gradient-accent: linear-gradient(135deg, #ffc107 0%, #ffcd39 100%);
+            
+            /* Club type colors */
+            --technical-color: #3498db;
+            --technology-color: #9b59b6;
+            --cultural-color: #e74c3c;
+            --sports-color: #2ecc71;
+            --social-color: #f1c40f;
+            --academic-color: #34495e;
+            --literary-color: #16a085;
+            --general-color: #95a5a6;
+        }
+
+        /* Global Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Lato', sans-serif;
+            line-height: 1.7;
+            color: var(--text);
+            background-color: #fff;
+            overflow-x: hidden;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: var(--container-padding);
+        }
+
+        /* Typography */
+        h1, h2, h3, h4 {
+            font-family: 'Poppins', sans-serif;
+            margin-bottom: 1.2rem;
+            font-weight: 600;
+            line-height: 1.2;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        h2 {
+            font-size: 2rem;
+            color: var(--primary);
+            margin-bottom: 1.5rem;
+            position: relative;
+        }
+
+        h3 {
+            font-size: 1.5rem;
+            margin-bottom: 0.8rem;
+            color: var(--primary);
+        }
+
+        p {
+            margin-bottom: 1.2rem;
+            color: var(--light-text);
+            font-weight: 300;
+        }
+
+        a {
+            text-decoration: none;
+            color: var(--primary);
+            transition: var(--transition);
+        }
+
+        a:hover {
+            color: var(--accent);
+        }
+
+        /* Dashboard Layout */
+        .dashboard {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 260px;
+            background: var(--gradient-primary);
+            color: white;
+            padding: 2rem 0;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            z-index: 1000;
+            transition: var(--transition);
+        }
+
+        .sidebar-header {
+            padding: 0 1.5rem 2rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 1rem;
+        }
+
+        .sidebar-header h2 {
+            color: white;
+            font-size: 1.5rem;
+            background: none;
+            -webkit-text-fill-color: initial;
+        }
+
+        .sidebar-menu {
+            list-style: none;
+        }
+
+        .sidebar-menu li {
+            margin-bottom: 0.5rem;
+        }
+
+        .sidebar-menu a {
+            display: flex;
+            align-items: center;
+            padding: 0.8rem 1.5rem;
+            color: rgba(255, 255, 255, 0.8);
+            transition: var(--transition);
+        }
+
+        .sidebar-menu a:hover,
+        .sidebar-menu a.active {
+            background-color: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+
+        .sidebar-menu i {
+            margin-right: 0.8rem;
+            font-size: 1.2rem;
+        }
+
+        .user-profile {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 1.5rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1rem;
+            font-weight: 600;
+        }
+
+        .user-info h4 {
+            color: white;
+            font-size: 1rem;
+            margin-bottom: 0.2rem;
+        }
+
+        .user-info p {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.85rem;
+            margin: 0;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            margin-left: 260px;
+            padding: 2rem;
+            background-color: #f8fafc;
+        }
+
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .dashboard-title h1 {
+            margin-bottom: 0.5rem;
+        }
+
+        .dashboard-actions {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .notification-icon {
+            position: relative;
+            font-size: 1.5rem;
+            color: var(--primary);
+            cursor: pointer;
+        }
+
+        .notification-badge {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background-color: var(--accent);
+            color: white;
+            font-size: 0.7rem;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Content Sections */
+        .content-section {
+            background-color: white;
+            border-radius: var(--border-radius);
+            padding: 1.5rem;
+            box-shadow: var(--box-shadow);
+            margin-bottom: 2rem;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .section-title {
+            font-size: 1.3rem;
+            color: var(--primary);
+            margin: 0;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            border-radius: 50px;
+            font-weight: 600;
+            text-align: center;
+            cursor: pointer;
+            transition: var(--transition);
+            border: none;
+            font-size: 0.9rem;
+        }
+
+        .btn-primary {
+            background: var(--gradient-primary);
+            color: white;
+            box-shadow: 0 4px 15px rgba(0, 51, 102, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 51, 102, 0.4);
+        }
+
+        .btn-secondary {
+            background-color: transparent;
+            color: var(--primary);
+            border: 2px solid var(--primary);
+        }
+
+        .btn-secondary:hover {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        /* Clubs Grid */
+        .clubs-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .club-card {
+            background-color: white;
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            box-shadow: var(--box-shadow);
+            transition: var(--transition);
+            cursor: pointer;
+            position: relative;
+        }
+
+        .club-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+        }
+
+        .club-type-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: white;
+            z-index: 1;
+        }
+
+        .type-technical { background-color: var(--technical-color); }
+        .type-technology { background-color: var(--technology-color); }
+        .type-cultural { background-color: var(--cultural-color); }
+        .type-sports { background-color: var(--sports-color); }
+        .type-social { background-color: var(--social-color); }
+        .type-academic { background-color: var(--academic-color); }
+        .type-literary { background-color: var(--literary-color); }
+        .type-general { background-color: var(--general-color); }
+
+        .club-image {
+            height: 160px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .club-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: var(--transition);
+        }
+
+        .club-card:hover .club-image img {
+            transform: scale(1.05);
+        }
+
+        .club-info {
+            padding: 1.5rem;
+        }
+
+        .club-name {
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
+            color: var(--primary);
+        }
+
+        .club-description {
+            color: var(--light-text);
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+            height: 40px;
+            overflow: hidden;
+        }
+
+        .club-members {
+            display: flex;
+            align-items: center;
+            color: var(--light-text);
+            font-size: 0.9rem;
+        }
+
+        .club-members i {
+            margin-right: 5px;
+            color: var(--accent);
+        }
+
+        .club-actions {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 1rem;
+        }
+
+        .club-status {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .status-member {
+            background-color: rgba(0, 51, 102, 0.1);
+            color: var(--primary);
+        }
+
+        .status-pending {
+            background-color: rgba(255, 193, 7, 0.1);
+            color: var(--accent);
+        }
+
+        /* Loading Spinner */
+        .spinner {
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            border-radius: 50%;
+            border-top: 4px solid var(--primary);
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Error Message */
+        .error-message {
+            background-color: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            text-align: center;
+            display: none;
+        }
+
+        /* Success Message */
+        .success-message {
+            background-color: #d4edda;
+            color: #155724;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            text-align: center;
+            display: none;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 2rem;
+            color: var(--light-text);
+        }
+
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            color: #dee2e6;
+        }
+
+        /* Mobile Menu Toggle */
+        .mobile-menu-toggle {
+            display: none;
+            position: fixed;
+            top: 1rem;
+            left: 1rem;
+            z-index: 1001;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            box-shadow: var(--box-shadow);
+        }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            margin-bottom: 1.5rem;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .tab {
+            padding: 0.8rem 1.5rem;
+            cursor: pointer;
+            font-weight: 600;
+            color: var(--light-text);
+            position: relative;
+            transition: var(--transition);
+        }
+
+        .tab:hover {
+            color: var(--primary);
+        }
+
+        .tab.active {
+            color: var(--primary);
+        }
+
+        .tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background-color: var(--primary);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Club Details Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background-color: white;
+            border-radius: var(--border-radius);
+            padding: 2rem;
+            max-width: 800px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-title {
+            font-size: 1.5rem;
+            color: var(--primary);
+            margin: 0;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: var(--light-text);
+            cursor: pointer;
+        }
+
+        .modal-body {
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
+        }
+
+        .club-detail-section {
+            margin-bottom: 1.5rem;
+        }
+
+        .club-detail-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .club-detail-content {
+            color: var(--text);
+        }
+
+        .club-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .club-stat {
+            background-color: var(--secondary);
+            padding: 1rem;
+            border-radius: var(--border-radius);
+            text-align: center;
+        }
+
+        .club-stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .club-stat-label {
+            font-size: 0.9rem;
+            color: var(--light-text);
+        }
+
+        .club-roles {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+
+        .club-role {
+            background-color: rgba(0, 51, 102, 0.1);
+            color: var(--primary);
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .club-faculty {
+            display: flex;
+            align-items: center;
+            margin-top: 0.5rem;
+        }
+
+        .club-faculty i {
+            color: var(--accent);
+            margin-right: 0.5rem;
+        }
+
+        /* Club Type Filter */
+        .club-type-filter {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .type-filter-btn {
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            background-color: #f8f9fa;
+            color: var(--text);
+            border: 1px solid #dee2e6;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .type-filter-btn:hover {
+            background-color: #e9ecef;
+        }
+
+        .type-filter-btn.active {
+            color: white;
+        }
+
+        .type-filter-btn.active.type-technical { background-color: var(--technical-color); }
+        .type-filter-btn.active.type-technology { background-color: var(--technology-color); }
+        .type-filter-btn.active.type-cultural { background-color: var(--cultural-color); }
+        .type-filter-btn.active.type-sports { background-color: var(--sports-color); }
+        .type-filter-btn.active.type-social { background-color: var(--social-color); }
+        .type-filter-btn.active.type-academic { background-color: var(--academic-color); }
+        .type-filter-btn.active.type-literary { background-color: var(--literary-color); }
+        .type-filter-btn.active.type-general { background-color: var(--general-color); }
+
+        /* Responsive Styles */
+        @media (max-width: 992px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            
+            .sidebar.active {
+                transform: translateX(0);
+            }
+            
+            .main-content {
+                margin-left: 0;
+            }
+            
+            .mobile-menu-toggle {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .dashboard-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+            
+            .clubs-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .modal-content {
+                padding: 1.5rem;
+            }
+        }
+
+        @media (max-width: 576px) {
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .main-content {
+                padding: 1rem;
+            }
+            
+            .tabs {
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+            
+            .club-stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard">
+        <!-- Sidebar -->
+        <nav class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <h2><i class="fas fa-university"></i> KMIT Clubs Hub</h2>
+            </div>
+            <ul class="sidebar-menu">
+                <li><a href="/student_dashboard"><i class="fas fa-home"></i> Dashboard</a></li>
+                <li><a href="/student_clubs" class="active"><i class="fas fa-users"></i> My Clubs</a></li>
+                <li><a href="/student_events"><i class="fas fa-calendar-alt"></i> Events</a></li>
+                <li><a href="/student_rewards"><i class="fas fa-trophy"></i> Rewards</a></li>
+                <li><a href="/student_analytics"><i class="fas fa-chart-line"></i> Analytics</a></li>
+                <li><a href="/student_settings"><i class="fas fa-cog"></i> Settings</a></li>
+            </ul>
+            <div class="user-profile">
+                <div class="user-avatar" id="userAvatar">SK</div>
+                <div class="user-info">
+                    <h4 id="userName">Sai Kumar</h4>
+                    <p id="userRollNumber">KMIT401</p>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <button class="mobile-menu-toggle" id="mobileMenuToggle">
+                <i class="fas fa-bars"></i>
+            </button>
+
+            <!-- Dashboard Header -->
+            <div class="dashboard-header">
+                <div class="dashboard-title">
+                    <h1>My Clubs</h1>
+                    <p>Manage your club memberships and discover new ones</p>
+                </div>
+                <div class="dashboard-actions">
+                    <div class="notification-icon">
+                        <i class="fas fa-bell"></i>
+                        <span class="notification-badge" id="notificationBadge">3</span>
+                    </div>
+                    <button class="btn btn-secondary" onclick="logout()">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </button>
+                </div>
+            </div>
+
+            <!-- Error Message -->
+            <div id="errorMessage" class="error-message"></div>
+
+            <!-- Success Message -->
+            <div id="successMessage" class="success-message"></div>
+
+            <!-- Loading Spinner -->
+            <div id="loadingSpinner" class="spinner" style="display: none;"></div>
+
+            <!-- Clubs Tabs -->
+            <div class="content-section">
+                <div class="tabs">
+                    <div class="tab active" data-tab="my-clubs">My Clubs</div>
+                    <div class="tab" data-tab="available-clubs">Available Clubs</div>
+                    <div class="tab" data-tab="pending-requests">Pending Requests</div>
+                </div>
+
+                <!-- My Clubs Tab -->
+                <div class="tab-content active" id="my-clubs">
+                    <div class="clubs-grid" id="myClubsGrid">
+                        <!-- Clubs will be dynamically loaded here -->
+                        <div class="empty-state" id="myClubsEmptyState" style="display: none;">
+                            <i class="fas fa-users"></i>
+                            <p>You haven't joined any clubs yet</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Available Clubs Tab -->
+                <div class="tab-content" id="available-clubs">
+                    <!-- Club Type Filter -->
+                    <div class="club-type-filter" id="clubTypeFilter">
+                        <div class="type-filter-btn active" data-type="all">All Types</div>
+                        <div class="type-filter-btn type-technical" data-type="technical">Technical</div>
+                        <div class="type-filter-btn type-technology" data-type="technology">Technology</div>
+                        <div class="type-filter-btn type-cultural" data-type="cultural">Cultural</div>
+                        <div class="type-filter-btn type-sports" data-type="sports">Sports</div>
+                        <div class="type-filter-btn type-social" data-type="social">Social</div>
+                        <div class="type-filter-btn type-academic" data-type="academic">Academic</div>
+                        <div class="type-filter-btn type-literary" data-type="literary">Literary</div>
+                        <div class="type-filter-btn type-general" data-type="general">General</div>
+                    </div>
+                    
+                    <div class="clubs-grid" id="availableClubsGrid">
+                        <!-- Clubs will be dynamically loaded here -->
+                        <div class="empty-state" id="availableClubsEmptyState" style="display: none;">
+                            <i class="fas fa-users"></i>
+                            <p>No clubs available to join</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Pending Requests Tab -->
+                <div class="tab-content" id="pending-requests">
+                    <div class="clubs-grid" id="pendingRequestsGrid">
+                        <!-- Clubs will be dynamically loaded here -->
+                        <div class="empty-state" id="pendingRequestsEmptyState" style="display: none;">
+                            <i class="fas fa-clock"></i>
+                            <p>No pending requests</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Club Details Modal -->
+    <div class="modal" id="clubDetailsModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="modalTitle">Club Details</h3>
+                <button class="modal-close" onclick="closeClubDetailsModal()">&times;</button>
+            </div>
+            <div class="modal-body" id="modalBody">
+                <!-- Club details will be loaded here -->
+            </div>
+            <div class="modal-footer" id="modalFooter">
+                <!-- Modal actions will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script>
+        // API base URL
+        const API_URL = '/api';
+        
+        // Global variables
+        let allAvailableClubs = []; // Store all available clubs for filtering
+        let currentUserData = null; // Store current user data
+        
+        // Check if user is logged in
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check for token in localStorage
+            const token = localStorage.getItem('token');
+            if (!token) {
+                window.location.href = '/login';
+                return;
+            }
+            
+            // Set up axios default headers
+            axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+            
+            // Initialize page
+            initializePage();
+            
+            // Set up mobile menu toggle
+            setupMobileMenu();
+            
+            // Set up tabs
+            setupTabs();
+            
+            // Set up club type filter
+            setupClubTypeFilter();
+        });
+
+        // Initialize page with data fetching
+        async function initializePage() {
+            try {
+                showLoading(true);
+                hideError();
+                hideSuccess();
+                
+                // Fetch user data
+                currentUserData = await fetchUserData();
+                updateUserInterface(currentUserData);
+                
+                // Fetch user's clubs
+                const myClubsData = await fetchUserClubs();
+                updateMyClubsGrid(myClubsData);
+                
+                // Fetch available clubs
+                const availableClubsData = await fetchAvailableClubs();
+                updateAvailableClubsGrid(availableClubsData);
+                
+                // Fetch pending requests
+                const pendingRequestsData = await fetchPendingRequests();
+                updatePendingRequestsGrid(pendingRequestsData);
+                
+            } catch (error) {
+                console.error('Error initializing page:', error);
+                showError('Failed to load clubs data. Please try again later.');
+                
+                // If unauthorized, redirect to login
+                if (error.response && error.response.status === 401) {
+                    localStorage.removeItem('token');
+                    window.location.href = '/login';
+                }
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        // Show/hide loading spinner
+        function showLoading(show) {
+            const spinner = document.getElementById('loadingSpinner');
+            if (spinner) {
+                spinner.style.display = show ? 'block' : 'none';
+            }
+        }
+
+        // Show/hide error message
+        function showError(message) {
+            const errorElement = document.getElementById('errorMessage');
+            if (errorElement) {
+                errorElement.textContent = message;
+                errorElement.style.display = 'block';
+            }
+        }
+
+        function hideError() {
+            const errorElement = document.getElementById('errorMessage');
+            if (errorElement) {
+                errorElement.style.display = 'none';
+            }
+        }
+
+        // Show/hide success message
+        function showSuccess(message) {
+            const successElement = document.getElementById('successMessage');
+            if (successElement) {
+                successElement.textContent = message;
+                successElement.style.display = 'block';
+                
+                // Hide after 3 seconds
+                setTimeout(() => {
+                    successElement.style.display = 'none';
+                }, 3000);
+            }
+        }
+
+        function hideSuccess() {
+            const successElement = document.getElementById('successMessage');
+            if (successElement) {
+                successElement.style.display = 'none';
+            }
+        }
+
+        // Fetch user data
+        async function fetchUserData() {
+            try {
+                const response = await axios.get(`${API_URL}/auth/me`);
+                return response.data;
+            } catch (error) {
+                console.error('Error fetching user data:', error);
+                throw error;
+            }
+        }
+
+        // Update user interface with user data
+        function updateUserInterface(userData) {
+            // Update user profile in sidebar
+            const userAvatar = document.getElementById('userAvatar');
+            const userName = document.getElementById('userName');
+            const userRollNumber = document.getElementById('userRollNumber');
+            
+            if (userAvatar) {
+                userAvatar.textContent = userData.name.split(' ').map(n => n[0]).join('');
+            }
+            
+            if (userName) {
+                userName.textContent = userData.name;
+            }
+            
+            if (userRollNumber) {
+                userRollNumber.textContent = userData.username; // Using username as roll number
+            }
+        }
+// Fetch user's clubs
+async function fetchUserClubs() {
+    try {
+        // First, get the user data to check for clubs
+        const userData = await fetchUserData();
+        const clubs = [];
+        const processedClubIds = new Set(); // To avoid duplicates
+        
+        console.log('User data for clubs:', userData);
+        console.log('User clubs array:', userData.clubs);
+        console.log('User legacy club:', userData.club);
+        
+        // If the user has a clubs array, fetch each club
+        if (userData.clubs && userData.clubs.length > 0) {
+            console.log('Processing clubs array with', userData.clubs.length, 'clubs');
+            
+            // Process each club in the clubs array
+            for (const clubRef of userData.clubs) {
+                let clubId;
+                
+                // Check the type of clubRef
+                console.log('Club reference type:', typeof clubRef);
+                console.log('Club reference value:', clubRef);
+                
+                // If clubRef is a string, use it directly
+                if (typeof clubRef === 'string') {
+                    clubId = clubRef;
+                } 
+                // If clubRef is an object, try to extract the ID
+                else if (typeof clubRef === 'object' && clubRef !== null) {
+                    // If it has an _id property (MongoDB document)
+                    if (clubRef._id) {
+                        clubId = clubRef._id;
+                    } 
+                    // If it has an id property (common alternative)
+                    else if (clubRef.id) {
+                        clubId = clubRef.id;
+                    }
+                    // If it has a buffer property (MongoDB ObjectId as Buffer)
+                    else if (clubRef.buffer && clubRef.buffer.type === 'Buffer' && clubRef.buffer.data) {
+                        // Convert the Buffer data to a hexadecimal string
+                        const hexString = Array.from(clubRef.buffer.data)
+                            .map(byte => byte.toString(16).padStart(2, '0'))
+                            .join('');
+                        
+                        // Format as MongoDB ObjectId (24 hex characters)
+                        clubId = hexString;
+                        console.log('Converted Buffer to hex string:', clubId);
+                    }
+                    // If it's a populated club object with a name, we can use it directly
+                    else if (clubRef.name) {
+                        // This is already a populated club object, no need to fetch
+                        clubs.push(clubRef);
+                        processedClubIds.add(String(clubRef._id));
+                        continue; // Skip to the next club
+                    }
+                    // If none of the above, convert to string (last resort)
+                    else {
+                        clubId = String(clubRef);
+                    }
+                } 
+                // For any other type, convert to string
+                else {
+                    clubId = String(clubRef);
+                }
+                
+                // Ensure clubId is a string
+                clubId = String(clubId);
+                
+                // Skip if we've already processed this club
+                if (processedClubIds.has(clubId)) {
+                    console.log('Skipping already processed club with ID:', clubId);
+                    continue;
+                }
+                
+                console.log('Extracted club ID:', clubId);
+                
+                // Skip if the club ID is "[object Object]" (invalid)
+                if (clubId === '[object Object]') {
+                    console.log('Skipping club with invalid ID:', clubId);
+                    continue;
+                }
+                
+                console.log('Fetching club with ID:', clubId, typeof clubId);
+                
+                try {
+                    const response = await axios.get(`${API_URL}/clubs/${clubId}`);
+                    const club = response.data;
+                    
+                    if (club && club._id) {
+                        console.log('Successfully fetched club:', club);
+                        clubs.push(club);
+                        processedClubIds.add(String(club._id));
+                    } else {
+                        console.log('Invalid club data received:', club);
+                    }
+                } catch (err) {
+                    console.error(`Error fetching club ${clubId}:`, err);
+                    if (err.response) {
+                        console.error('Error response:', err.response.status, err.response.data);
+                    }
+                }
+            }
+        } else {
+            console.log('User has no clubs array');
+        }
+        
+        // If the user has a legacy club field and it's not already included
+        if (userData.club) {
+            console.log('Processing legacy club:', userData.club);
+            
+            let legacyClubId;
+            
+            // Handle different formats of the legacy club reference
+            if (typeof userData.club === 'string') {
+                legacyClubId = userData.club;
+            } else if (typeof userData.club === 'object' && userData.club !== null) {
+                if (userData.club._id) {
+                    legacyClubId = userData.club._id;
+                } else if (userData.club.id) {
+                    legacyClubId = userData.club.id;
+                } else if (userData.club.name) {
+                    // This is already a populated club object
+                    const clubIdStr = String(userData.club._id);
+                    if (!processedClubIds.has(clubIdStr)) {
+                        clubs.push(userData.club);
+                        processedClubIds.add(clubIdStr);
+                    }
+                    return clubs;
+                } else {
+                    legacyClubId = String(userData.club);
+                }
+            } else {
+                legacyClubId = String(userData.club);
+            }
+            
+            // Ensure legacyClubId is a string
+            legacyClubId = String(legacyClubId);
+            
+            // Check if this club is already in the clubs array
+            if (!processedClubIds.has(legacyClubId)) {
+                try {
+                    console.log('Fetching legacy club with ID:', legacyClubId);
+                    const clubResponse = await axios.get(`${API_URL}/clubs/${legacyClubId}`);
+                    console.log('Successfully fetched legacy club:', clubResponse.data);
+                    clubs.push(clubResponse.data);
+                    processedClubIds.add(legacyClubId);
+                } catch (err) {
+                    console.error(`Error fetching legacy club ${legacyClubId}:`, err);
+                    if (err.response) {
+                        console.error('Error response:', err.response.status, err.response.data);
+                    }
+                }
+            } else {
+                console.log('Legacy club already included in clubs array');
+            }
+        } else {
+            console.log('User has no legacy club');
+        }
+        
+        console.log('Final user clubs count:', clubs.length);
+        clubs.forEach((club, index) => {
+            console.log(`Club ${index}:`, club ? club.name : 'null');
+        });
+        
+        return clubs;
+    } catch (error) {
+        console.error('Error in fetchUserClubs:', error);
+        return [];
+    }
+}
+       // Update my clubs grid
+function updateMyClubsGrid(clubsData) {
+    const myClubsGrid = document.getElementById('myClubsGrid');
+    const myClubsEmptyState = document.getElementById('myClubsEmptyState');
+    
+    console.log('updateMyClubsGrid called with data:', clubsData);
+    console.log('Clubs data type:', typeof clubsData);
+    console.log('Clubs data isArray:', Array.isArray(clubsData));
+    console.log('Clubs data length:', clubsData ? clubsData.length : 'undefined');
+    
+    if (!clubsData || !Array.isArray(clubsData) || clubsData.length === 0) {
+        console.log('No clubs found, showing empty state');
+        if (myClubsEmptyState) {
+            myClubsEmptyState.style.display = 'block';
+        }
+        return;
+    }
+    
+    if (myClubsEmptyState) {
+        myClubsEmptyState.style.display = 'none';
+    }
+    
+    // Clear existing clubs
+    myClubsGrid.innerHTML = '';
+    
+    // Add clubs to the grid
+    clubsData.forEach((club, index) => {
+        console.log(`Adding club ${index} to My Clubs grid:`, club);
+        if (club && club._id && club.name) {
+            const clubCard = createClubCard(club, 'member');
+            myClubsGrid.appendChild(clubCard);
+        } else {
+            console.error(`Invalid club at index ${index}:`, club);
+        }
+    });
+}
+        // Fetch available clubs
+        async function fetchAvailableClubs() {
+            try {
+                const response = await axios.get(`${API_URL}/clubs`);
+                allAvailableClubs = response.data;
+                console.log('All available clubs:', allAvailableClubs);
+                
+                // Get user's clubs to filter them out
+                const userClubs = await fetchUserClubs();
+                const userClubIds = userClubs.map(club => club._id);
+                console.log('User club IDs:', userClubIds);
+                
+                // Get pending requests to filter them out
+                const pendingRequests = await fetchPendingRequests();
+                const pendingClubIds = pendingRequests.map(club => club._id);
+                console.log('Pending club IDs:', pendingClubIds);
+                
+                // Filter out clubs the user is already a member of or has pending requests
+                const availableClubs = allAvailableClubs.filter(club => {
+                    const isMember = userClubIds.includes(club._id);
+                    const isPending = pendingClubIds.includes(club._id);
+                    console.log(`Club ${club.name} (${club._id}): member=${isMember}, pending=${isPending}`);
+                    return !isMember && !isPending;
+                });
+                
+                console.log('Available clubs count:', availableClubs.length);
+                return availableClubs;
+            } catch (error) {
+                console.error('Error fetching available clubs:', error);
+                return [];
+            }
+        }
+
+        // Update available clubs grid
+        function updateAvailableClubsGrid(clubsData) {
+            const availableClubsGrid = document.getElementById('availableClubsGrid');
+            const availableClubsEmptyState = document.getElementById('availableClubsEmptyState');
+            
+            console.log('Available Clubs data:', clubsData);
+            
+            if (!clubsData || clubsData.length === 0) {
+                if (availableClubsEmptyState) {
+                    availableClubsEmptyState.style.display = 'block';
+                }
+                return;
+            }
+            
+            if (availableClubsEmptyState) {
+                availableClubsEmptyState.style.display = 'none';
+            }
+            
+            // Clear existing clubs
+            availableClubsGrid.innerHTML = '';
+            
+            // Add clubs to the grid
+            clubsData.forEach(club => {
+                console.log('Adding club to Available Clubs grid:', club);
+                const clubCard = createClubCard(club, 'available');
+                availableClubsGrid.appendChild(clubCard);
+            });
+        }
+
+       // Fetch pending requests
+async function fetchPendingRequests() {
+    try {
+        const response = await axios.get(`${API_URL}/users/pending-requests`);
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching pending requests:', error);
+        // If the endpoint doesn't exist (404), return an empty array
+        if (error.response && error.response.status === 404) {
+            console.log('Pending requests endpoint not found, assuming no pending requests');
+            return [];
+        }
+        // For other errors, also return an empty array to avoid breaking the UI
+        return [];
+    }
+}
+
+        // Update pending requests grid
+        function updatePendingRequestsGrid(requestsData) {
+            const pendingRequestsGrid = document.getElementById('pendingRequestsGrid');
+            const pendingRequestsEmptyState = document.getElementById('pendingRequestsEmptyState');
+            
+            if (!requestsData || requestsData.length === 0) {
+                if (pendingRequestsEmptyState) {
+                    pendingRequestsEmptyState.style.display = 'block';
+                }
+                return;
+            }
+            
+            if (pendingRequestsEmptyState) {
+                pendingRequestsEmptyState.style.display = 'none';
+            }
+            
+            // Clear existing requests
+            pendingRequestsGrid.innerHTML = '';
+            
+            // Add requests to the grid
+            requestsData.forEach(club => {
+                const clubCard = createClubCard(club, 'pending');
+                pendingRequestsGrid.appendChild(clubCard);
+            });
+        }
+
+        // Create club card element
+function createClubCard(club, status) {
+    console.log(`Creating club card for ${club.name} with status ${status}`);
+    
+    const clubCard = document.createElement('div');
+    clubCard.className = 'club-card';
+    
+    // Ensure club ID is a string before storing it
+    const clubId = club._id ? String(club._id) : '';
+    clubCard.dataset.clubId = clubId;
+    
+    // Create club type badge
+    if (club.type) {
+        const typeBadge = document.createElement('div');
+        typeBadge.className = `club-type-badge type-${club.type}`;
+        typeBadge.textContent = club.type.charAt(0).toUpperCase() + club.type.slice(1);
+        clubCard.appendChild(typeBadge);
+    }
+    
+    // Create club image element
+    const clubImage = document.createElement('div');
+    clubImage.className = 'club-image';
+    
+    const img = document.createElement('img');
+    img.src = club.bannerImage || 'https://images.pexels.com/photos/5386754/pexels-photo-5386754.jpeg?auto=compress&cs=tinysrgb&w=500';
+    img.alt = club.name;
+    
+    clubImage.appendChild(img);
+    clubCard.appendChild(clubImage);
+    
+    // Create club info element
+    const clubInfo = document.createElement('div');
+    clubInfo.className = 'club-info';
+    
+    const clubName = document.createElement('h4');
+    clubName.className = 'club-name';
+    clubName.textContent = club.name;
+    
+    const clubDescription = document.createElement('p');
+    clubDescription.className = 'club-description';
+    clubDescription.textContent = club.description || 'No description available';
+    
+    const clubMembers = document.createElement('div');
+    clubMembers.className = 'club-members';
+    
+    const membersIcon = document.createElement('i');
+    membersIcon.className = 'fas fa-users';
+    
+    // Check if members array exists and has length
+    const membersCount = club.members && club.members.length ? club.members.length : 0;
+    const membersText = document.createTextNode(` ${membersCount}+ Members`);
+    
+    clubMembers.appendChild(membersIcon);
+    clubMembers.appendChild(membersText);
+    
+    // Create club actions element
+    const clubActions = document.createElement('div');
+    clubActions.className = 'club-actions';
+    
+    // Create status badge
+    const clubStatus = document.createElement('span');
+    clubStatus.className = 'club-status';
+    
+    if (status === 'member') {
+        clubStatus.classList.add('status-member');
+        clubStatus.textContent = 'Member';
+    } else if (status === 'pending') {
+        clubStatus.classList.add('status-pending');
+        clubStatus.textContent = 'Pending';
+    }
+    
+    // Create action button
+    let actionButton;
+    
+    if (status === 'available') {
+        actionButton = document.createElement('button');
+        actionButton.className = 'btn btn-primary';
+        actionButton.textContent = 'Join Club';
+        // Pass the string club ID to the joinClub function
+        actionButton.onclick = () => joinClub(clubId);
+    } else if (status === 'pending') {
+        actionButton = document.createElement('button');
+        actionButton.className = 'btn btn-secondary';
+        actionButton.textContent = 'Cancel Request';
+        // Pass the string club ID to the cancelJoinRequest function
+        actionButton.onclick = () => cancelJoinRequest(clubId);
+    } else {
+        actionButton = document.createElement('button');
+        actionButton.className = 'btn btn-secondary';
+        actionButton.textContent = 'View Details';
+        // Pass the string club ID to the showClubDetails function
+        actionButton.onclick = () => showClubDetails(clubId);
+    }
+    
+    // Add view button for available clubs
+    if (status === 'available') {
+        const viewButton = document.createElement('button');
+        viewButton.className = 'btn btn-secondary';
+        viewButton.textContent = 'View';
+        // Pass the string club ID to the showClubDetails function
+        viewButton.onclick = () => showClubDetails(clubId);
+        clubActions.appendChild(viewButton);
+        clubActions.appendChild(actionButton);
+    } else {
+        clubActions.appendChild(clubStatus);
+        clubActions.appendChild(actionButton);
+    }
+    
+    clubInfo.appendChild(clubName);
+    clubInfo.appendChild(clubDescription);
+    clubInfo.appendChild(clubMembers);
+    clubInfo.appendChild(clubActions);
+    
+    clubCard.appendChild(clubInfo);
+    
+    return clubCard;
+}
+
+        // Join club
+        async function joinClub(clubId) {
+            try {
+                showLoading(true);
+                
+                // Make API call to join the club
+                await axios.post(`${API_URL}/clubs/${clubId}/join`);
+                
+                // Show success message
+                showSuccess(`Request to join club has been submitted`);
+                
+                // Refresh data
+                await refreshData();
+                
+            } catch (error) {
+                console.error('Error joining club:', error);
+                showError('Failed to join club. Please try again later.');
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        // Cancel join request
+        async function cancelJoinRequest(clubId) {
+            try {
+                showLoading(true);
+                
+                // Make API call to cancel the request
+                await axios.delete(`${API_URL}/clubs/${clubId}/join-request`);
+                
+                // Show success message
+                showSuccess(`Join request has been cancelled`);
+                
+                // Refresh data
+                await refreshData();
+                
+            } catch (error) {
+                console.error('Error cancelling join request:', error);
+                showError('Failed to cancel join request. Please try again later.');
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        // Refresh data
+        async function refreshData() {
+            try {
+                showLoading(true);
+                
+                // Fetch user's clubs
+                const myClubsData = await fetchUserClubs();
+                updateMyClubsGrid(myClubsData);
+                
+                // Fetch available clubs
+                const availableClubsData = await fetchAvailableClubs();
+                updateAvailableClubsGrid(availableClubsData);
+                
+                // Fetch pending requests
+                const pendingRequestsData = await fetchPendingRequests();
+                updatePendingRequestsGrid(pendingRequestsData);
+                
+            } catch (error) {
+                console.error('Error refreshing data:', error);
+                showError('Failed to refresh data. Please try again later.');
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        // View club details
+        function viewClubDetails(clubId) {
+            window.location.href = `/student_clubs#${clubId}`;
+        }
+
+        // Show club details in modal
+        async function showClubDetails(clubId) {
+            try {
+                showLoading(true);
+                
+                // Validate clubId is a string
+                if (!clubId) {
+                    console.error('Invalid club ID:', clubId);
+                    showError('Invalid club ID. Please try again.');
+                    return;
+                }
+                
+                // If clubId is an object, try to extract the _id property
+                if (typeof clubId === 'object' && clubId !== null) {
+                    if (clubId._id) {
+                        clubId = clubId._id;
+                    } else {
+                        console.error('Invalid club ID object:', clubId);
+                        showError('Invalid club ID. Please try again.');
+                        return;
+                    }
+                }
+                
+                // Convert to string if it's not already
+                clubId = String(clubId);
+                
+                console.log('Fetching club with ID:', clubId);
+                
+                // Fetch club details
+                const response = await axios.get(`${API_URL}/clubs/${clubId}`);
+                const club = response.data;
+                
+                // Populate modal with club details
+                populateClubDetailsModal(club);
+                
+                // Show modal
+                const modal = document.getElementById('clubDetailsModal');
+                modal.classList.add('active');
+                
+            } catch (error) {
+                console.error('Error fetching club details:', error);
+                showError('Failed to load club details. Please try again later.');
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        // Populate club details modal
+        function populateClubDetailsModal(club) {
+            const modalTitle = document.getElementById('modalTitle');
+            const modalBody = document.getElementById('modalBody');
+            const modalFooter = document.getElementById('modalFooter');
+            
+            // Set modal title
+            modalTitle.textContent = club.name;
+            
+            // Clear modal body
+            modalBody.innerHTML = '';
+            
+            // Add club image
+            const clubImageContainer = document.createElement('div');
+            clubImageContainer.className = 'club-image';
+            clubImageContainer.style.height = '200px';
+            clubImageContainer.style.overflow = 'hidden';
+            clubImageContainer.style.marginBottom = '1.5rem';
+            clubImageContainer.style.borderRadius = 'var(--border-radius)';
+            
+            const clubImage = document.createElement('img');
+            clubImage.src = club.bannerImage || 'https://images.pexels.com/photos/5386754/pexels-photo-5386754.jpeg?auto=compress&cs=tinysrgb&w=500';
+            clubImage.alt = club.name;
+            clubImage.style.width = '100%';
+            clubImage.style.height = '100%';
+            clubImage.style.objectFit = 'cover';
+            
+            clubImageContainer.appendChild(clubImage);
+            modalBody.appendChild(clubImageContainer);
+            
+            // Add club type if available
+            if (club.type) {
+                const typeSection = document.createElement('div');
+                typeSection.className = 'club-detail-section';
+                
+                const typeTitle = document.createElement('h4');
+                typeTitle.className = 'club-detail-title';
+                typeTitle.textContent = 'Club Type';
+                
+                const typeContent = document.createElement('div');
+                typeContent.className = `club-type-badge type-${club.type}`;
+                typeContent.textContent = club.type.charAt(0).toUpperCase() + club.type.slice(1);
+                
+                typeSection.appendChild(typeTitle);
+                typeSection.appendChild(typeContent);
+                modalBody.appendChild(typeSection);
+            }
+            
+            // Add club description
+            const descriptionSection = document.createElement('div');
+            descriptionSection.className = 'club-detail-section';
+            
+            const descriptionTitle = document.createElement('h4');
+            descriptionTitle.className = 'club-detail-title';
+            descriptionTitle.textContent = 'Description';
+            
+            const descriptionContent = document.createElement('p');
+            descriptionContent.className = 'club-detail-content';
+            descriptionContent.textContent = club.description || 'No description available';
+            
+            descriptionSection.appendChild(descriptionTitle);
+            descriptionSection.appendChild(descriptionContent);
+            modalBody.appendChild(descriptionSection);
+            
+            // Add club stats
+            const statsSection = document.createElement('div');
+            statsSection.className = 'club-detail-section';
+            
+            const statsTitle = document.createElement('h4');
+            statsTitle.className = 'club-detail-title';
+            statsTitle.textContent = 'Club Statistics';
+            
+            const statsGrid = document.createElement('div');
+            statsGrid.className = 'club-stats';
+            
+            // Members stat
+            const membersStat = document.createElement('div');
+            membersStat.className = 'club-stat';
+            
+            const membersValue = document.createElement('div');
+            membersValue.className = 'club-stat-value';
+            membersValue.textContent = club.members ? club.members.length : 0;
+            
+            const membersLabel = document.createElement('div');
+            membersLabel.className = 'club-stat-label';
+            membersLabel.textContent = 'Members';
+            
+            membersStat.appendChild(membersValue);
+            membersStat.appendChild(membersLabel);
+            statsGrid.appendChild(membersStat);
+            
+            // Events stat
+            const eventsStat = document.createElement('div');
+            eventsStat.className = 'club-stat';
+            
+            const eventsValue = document.createElement('div');
+            eventsValue.className = 'club-stat-value';
+            eventsValue.textContent = club.events ? club.events.length : 0;
+            
+            const eventsLabel = document.createElement('div');
+            eventsLabel.className = 'club-stat-label';
+            eventsLabel.textContent = 'Events';
+            
+            eventsStat.appendChild(eventsValue);
+            eventsStat.appendChild(eventsLabel);
+            statsGrid.appendChild(eventsStat);
+            
+            statsSection.appendChild(statsTitle);
+            statsSection.appendChild(statsGrid);
+            modalBody.appendChild(statsSection);
+            
+            // Add faculty coordinator
+            if (club.faculty) {
+                const facultySection = document.createElement('div');
+                facultySection.className = 'club-detail-section';
+                
+                const facultyTitle = document.createElement('h4');
+                facultyTitle.className = 'club-detail-title';
+                facultyTitle.textContent = 'Faculty Coordinator';
+                
+                const facultyContent = document.createElement('div');
+                facultyContent.className = 'club-faculty';
+                
+                const facultyIcon = document.createElement('i');
+                facultyIcon.className = 'fas fa-user-tie';
+                
+                const facultyName = document.createElement('span');
+                facultyName.textContent = club.faculty.name || 'Not assigned';
+                
+                facultyContent.appendChild(facultyIcon);
+                facultyContent.appendChild(facultyName);
+                
+                facultySection.appendChild(facultyTitle);
+                facultySection.appendChild(facultyContent);
+                modalBody.appendChild(facultySection);
+            }
+            
+            // Add club leader
+            if (club.leader) {
+                const leaderSection = document.createElement('div');
+                leaderSection.className = 'club-detail-section';
+                
+                const leaderTitle = document.createElement('h4');
+                leaderTitle.className = 'club-detail-title';
+                leaderTitle.textContent = 'Club Leader';
+                
+                const leaderContent = document.createElement('div');
+                leaderContent.className = 'club-faculty';
+                
+                const leaderIcon = document.createElement('i');
+                leaderIcon.className = 'fas fa-user';
+                
+                const leaderName = document.createElement('span');
+                leaderName.textContent = club.leader.name || 'Not assigned';
+                
+                leaderContent.appendChild(leaderIcon);
+                leaderContent.appendChild(leaderName);
+                
+                leaderSection.appendChild(leaderTitle);
+                leaderSection.appendChild(leaderContent);
+                modalBody.appendChild(leaderSection);
+            }
+            
+            // Add club roles
+            if (club.roles && club.roles.length > 0) {
+                const rolesSection = document.createElement('div');
+                rolesSection.className = 'club-detail-section';
+                
+                const rolesTitle = document.createElement('h4');
+                rolesTitle.className = 'club-detail-title';
+                rolesTitle.textContent = 'Popular Roles';
+                
+                const rolesContainer = document.createElement('div');
+                rolesContainer.className = 'club-roles';
+                
+                club.roles.forEach(role => {
+                    const roleTag = document.createElement('span');
+                    roleTag.className = 'club-role';
+                    roleTag.textContent = role;
+                    rolesContainer.appendChild(roleTag);
+                });
+                
+                rolesSection.appendChild(rolesTitle);
+                rolesSection.appendChild(rolesContainer);
+                modalBody.appendChild(rolesSection);
+            }
+            
+            // Add registration link if available
+            if (club.registerLink) {
+                const registerSection = document.createElement('div');
+                registerSection.className = 'club-detail-section';
+                
+                const registerTitle = document.createElement('h4');
+                registerTitle.className = 'club-detail-title';
+                registerTitle.textContent = 'Registration Link';
+                
+                const registerLink = document.createElement('a');
+                registerLink.href = club.registerLink;
+                registerLink.target = '_blank';
+                registerLink.className = 'btn btn-primary';
+                registerLink.textContent = 'Register Now';
+                
+                registerSection.appendChild(registerTitle);
+                registerSection.appendChild(registerLink);
+                modalBody.appendChild(registerSection);
+            }
+            
+            // Clear modal footer
+            modalFooter.innerHTML = '';
+            
+            // Add close button
+            const closeButton = document.createElement('button');
+            closeButton.className = 'btn btn-secondary';
+            closeButton.textContent = 'Close';
+            closeButton.onclick = closeClubDetailsModal;
+            
+            modalFooter.appendChild(closeButton);
+        }
+
+        // Close club details modal
+        function closeClubDetailsModal() {
+            const modal = document.getElementById('clubDetailsModal');
+            modal.classList.remove('active');
+        }
+
+        // Setup mobile menu toggle
+        function setupMobileMenu() {
+            const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+            const sidebar = document.getElementById('sidebar');
+            
+            if (mobileMenuToggle && sidebar) {
+                mobileMenuToggle.addEventListener('click', function() {
+                    sidebar.classList.toggle('active');
+                });
+                
+                // Close sidebar when clicking on a link
+                document.querySelectorAll('.sidebar-menu a').forEach(link => {
+                    link.addEventListener('click', () => {
+                        sidebar.classList.remove('active');
+                    });
+                });
+            }
+        }
+
+        // Setup tabs
+        function setupTabs() {
+            const tabs = document.querySelectorAll('.tab');
+            const tabContents = document.querySelectorAll('.tab-content');
+            
+            tabs.forEach(tab => {
+                tab.addEventListener('click', function() {
+                    // Remove active class from all tabs and tab contents
+                    tabs.forEach(t => t.classList.remove('active'));
+                    tabContents.forEach(c => c.classList.remove('active'));
+                    
+                    // Add active class to clicked tab
+                    this.classList.add('active');
+                    
+                    // Show corresponding tab content
+                    const tabId = this.getAttribute('data-tab');
+                    const tabContent = document.getElementById(tabId);
+                    if (tabContent) {
+                        tabContent.classList.add('active');
+                    }
+                });
+            });
+        }
+
+        // Setup club type filter
+        function setupClubTypeFilter() {
+            const filterButtons = document.querySelectorAll('.type-filter-btn');
+            
+            filterButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    // Remove active class from all buttons
+                    filterButtons.forEach(btn => {
+                        btn.classList.remove('active');
+                    });
+                    
+                    // Add active class to clicked button
+                    this.classList.add('active');
+                    
+                    // Filter clubs by type
+                    const selectedType = this.getAttribute('data-type');
+                    filterClubsByType(selectedType);
+                });
+            });
+        }
+
+        // Filter clubs by type
+        async function filterClubsByType(type) {
+            try {
+                // Get user's clubs to filter them out
+                const userClubs = await fetchUserClubs();
+                const userClubIds = userClubs.map(club => club._id);
+                
+                // Get pending requests to filter them out
+                const pendingRequests = await fetchPendingRequests();
+                const pendingClubIds = pendingRequests.map(club => club._id);
+                
+                // Filter clubs by type
+                let filteredClubs = allAvailableClubs;
+                
+                if (type !== 'all') {
+                    filteredClubs = allAvailableClubs.filter(club => club.type === type);
+                }
+                
+                // Filter out clubs the user is already a member of or has pending requests
+                filteredClubs = filteredClubs.filter(club => 
+                    !userClubIds.includes(club._id) && !pendingClubIds.includes(club._id)
+                );
+                
+                // Update the grid with filtered clubs
+                updateAvailableClubsGrid(filteredClubs);
+            } catch (error) {
+                console.error('Error filtering clubs by type:', error);
+                showError('Failed to filter clubs. Please try again later.');
+            }
+        }
+
+        // Logout function
+        function logout() {
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            window.location.href = '/login';
+        }
+    </script>
+</body>
+</html>

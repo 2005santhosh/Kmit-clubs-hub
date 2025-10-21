@@ -208,6 +208,12 @@
         .dashboard-actions {
             display: flex;
             gap: 1rem;
+            align-items: center;
+        }
+
+        /* Notification Dropdown Styles */
+        .notification-container {
+            position: relative;
         }
 
         .notification-icon {
@@ -230,6 +236,200 @@
             display: flex;
             align-items: center;
             justify-content: center;
+        }
+
+        .notification-dropdown {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background-color: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            width: 350px;
+            max-height: 400px;
+            overflow-y: auto;
+            z-index: 1001;
+            display: none;
+            margin-top: 10px;
+        }
+
+        .notification-dropdown.active {
+            display: block;
+        }
+
+        .notification-header {
+            padding: 1rem;
+            border-bottom: 1px solid #eee;
+            font-weight: 600;
+            color: var(--primary);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .notification-clear {
+            font-size: 0.8rem;
+            color: var(--accent);
+            cursor: pointer;
+        }
+
+        .notification-list {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .notification-item {
+            padding: 1rem;
+            border-bottom: 1px solid #eee;
+            transition: var(--transition);
+            cursor: pointer;
+        }
+
+        .notification-item:hover {
+            background-color: #f8f9fa;
+        }
+
+        .notification-item.unread {
+            background-color: #f0f7ff;
+            border-left: 3px solid var(--primary);
+        }
+
+        .notification-title {
+            font-weight: 600;
+            margin-bottom: 0.3rem;
+            color: var(--primary);
+        }
+
+        .notification-message {
+            font-size: 0.9rem;
+            color: var(--light-text);
+            margin-bottom: 0.3rem;
+        }
+
+        .notification-time {
+            font-size: 0.8rem;
+            color: var(--light-text);
+            display: flex;
+            align-items: center;
+        }
+
+        .notification-time i {
+            margin-right: 0.3rem;
+            font-size: 0.7rem;
+        }
+
+        .notification-empty {
+            padding: 2rem 1rem;
+            text-align: center;
+            color: var(--light-text);
+        }
+
+        /* Send Notification Button */
+        .btn-send-notification {
+            background-color: var(--accent);
+            color: var(--primary-dark);
+            border: none;
+            padding: 10px 20px;
+            border-radius: 50px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-send-notification:hover {
+            background-color: var(--accent-light);
+            transform: translateY(-2px);
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background-color: white;
+            border-radius: var(--border-radius);
+            width: 90%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+            padding: 2rem;
+            position: relative;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--light-text);
+        }
+
+        .modal-close:hover {
+            color: var(--text);
+        }
+
+        .modal-header {
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-body {
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 10px 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            outline: none;
+            transition: var(--transition);
+        }
+
+        .form-control:focus {
+            border-color: var(--primary);
+        }
+
+        textarea.form-control {
+            min-height: 120px;
+            resize: vertical;
         }
 
         /* Stats Cards */
@@ -294,6 +494,7 @@
             margin: 0;
         }
 
+        /* Buttons */
         .btn {
             display: inline-block;
             padding: 10px 20px;
@@ -482,6 +683,42 @@
             box-shadow: var(--box-shadow);
         }
 
+        /* Loading Spinner */
+        .spinner {
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            border-radius: 50%;
+            border-top: 4px solid var(--primary);
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Error Message */
+        .error-message {
+            background-color: #f8d7da;
+            color: #721c24;
+            padding: 10px 15px;
+            border-radius: 5px;
+            margin: 10px 0;
+            text-align: center;
+        }
+
+        /* Success Message */
+        .success-message {
+            background-color: #d4edda;
+            color: #155724;
+            padding: 10px 15px;
+            border-radius: 5px;
+            margin: 10px 0;
+            text-align: center;
+        }
+
         /* Responsive Styles */
         @media (max-width: 992px) {
             .sidebar {
@@ -514,6 +751,11 @@
                 gap: 1rem;
             }
             
+            .dashboard-actions {
+                width: 100%;
+                justify-content: space-between;
+            }
+            
             .event-item {
                 flex-direction: column;
                 text-align: center;
@@ -543,6 +785,10 @@
                 margin-left: 0;
                 margin-top: 0.5rem;
             }
+            
+            .notification-dropdown {
+                width: 300px;
+            }
         }
 
         @media (max-width: 576px) {
@@ -552,6 +798,10 @@
             
             .main-content {
                 padding: 1rem;
+            }
+            
+            .notification-dropdown {
+                width: 250px;
             }
         }
     </style>
@@ -564,18 +814,18 @@
                 <h2><i class="fas fa-university"></i> KMIT Clubs Hub</h2>
             </div>
             <ul class="sidebar-menu">
-                <li><a href="#" class="active"><i class="fas fa-home"></i> Dashboard</a></li>
-                <li><a href="#"><i class="fas fa-users"></i> Manage Members</a></li>
-                <li><a href="#"><i class="fas fa-calendar-alt"></i> Events</a></li>
-                <li><a href="#"><i class="fas fa-file-alt"></i> Reports</a></li>
-                <li><a href="#"><i class="fas fa-chart-line"></i> Analytics</a></li>
-                <li><a href="#"><i class="fas fa-cog"></i> Settings</a></li>
+                <li><a href="/club_leader_dashboard" class="active"><i class="fas fa-home"></i> Dashboard</a></li>
+                <li><a href="/leader-user-management"><i class="fas fa-users"></i> Manage Members</a></li>
+                <li><a href="/leader-events"><i class="fas fa-calendar-alt"></i> Events</a></li>
+                <li><a href="/leader-reports"><i class="fas fa-file-alt"></i> Reports</a></li>
+                <li><a href="/leader-analytics"><i class="fas fa-chart-line"></i> Analytics</a></li>
+                <li><a href="/leader-settings"><i class="fas fa-cog"></i> Settings</a></li>
             </ul>
             <div class="user-profile">
-                <div class="user-avatar">RK</div>
+                <div class="user-avatar" id="userAvatar">RK</div>
                 <div class="user-info">
-                    <h4>Rahul Kumar</h4>
-                    <p>Club Leader - Recurse</p>
+                    <h4 id="userName">Rahul Kumar</h4>
+                    <p id="userRole">Club Leader - Recurse</p>
                 </div>
             </div>
         </nav>
@@ -590,39 +840,62 @@
             <div class="dashboard-header">
                 <div class="dashboard-title">
                     <h1>Club Leader Dashboard</h1>
-                    <p>Welcome back, Rahul! Manage your club activities here.</p>
+                    <p id="welcomeMessage">Welcome back, Rahul! Manage your club activities here.</p>
                 </div>
                 <div class="dashboard-actions">
-                    <div class="notification-icon">
-                        <i class="fas fa-bell"></i>
-                        <span class="notification-badge">2</span>
+                    <button class="btn-send-notification" onclick="openSendNotificationModal()">
+                        <i class="fas fa-bell"></i> Send Notification
+                    </button>
+                    <div class="notification-container">
+                        <div class="notification-icon" id="notificationIcon">
+                            <i class="fas fa-bell"></i>
+                            <span class="notification-badge" id="notificationBadge">0</span>
+                        </div>
+                        <div class="notification-dropdown" id="notificationDropdown">
+                            <div class="notification-header">
+                                <span>Notifications</span>
+                                <span class="notification-clear" id="markAllRead">Mark all as read</span>
+                            </div>
+                            <div class="notification-list" id="notificationList">
+                                <div class="notification-empty">No notifications</div>
+                            </div>
+                        </div>
                     </div>
-                    <button class="btn btn-secondary">
+                    <button class="btn btn-secondary" onclick="logout()">
                         <i class="fas fa-sign-out-alt"></i> Logout
                     </button>
                 </div>
             </div>
 
+            <!-- Success Message -->
+            <div id="successMessage" class="success-message" style="display: none;"></div>
+            
+            <!-- Loading Spinner -->
+            <div id="loadingSpinner" class="spinner" style="display: none;"></div>
+
+            <!-- Error Message -->
+            <div id="errorMessage" class="error-message" style="display: none;"></div>
+
             <!-- Stats Cards -->
             <div class="stats-grid">
                 <div class="stat-card">
                     <i class="fas fa-users"></i>
-                    <h3>130</h3>
+                    <h3 id="totalMembers">-</h3>
                     <p>Total Members</p>
                 </div>
                 <div class="stat-card">
                     <i class="fas fa-calendar-check"></i>
-                    <h3>12</h3>
+                    <h3 id="totalEvents">-</h3>
                     <p>Events Organized</p>
                 </div>
                 <div class="stat-card">
                     <i class="fas fa-clock"></i>
-                    <h3>3</h3>
+                    <h3 id="pendingApprovals">-</h3>
                     <p>Pending Approvals</p>
                 </div>
                 <div class="stat-card">
                     <i class="fas fa-star"></i>
-                    <h3>4.5</h3>
+                    <h3 id="clubRating">-</h3>
                     <p>Club Rating</p>
                 </div>
             </div>
@@ -633,13 +906,13 @@
                     <h3 class="section-title">Quick Actions</h3>
                 </div>
                 <div style="display: flex; gap: 1rem;">
-                    <button class="btn btn-primary">
+                    <button class="btn btn-primary" onclick="window.location.href='/add-event'">
                         <i class="fas fa-plus"></i> Create Event
                     </button>
-                    <button class="btn btn-success">
+                    <button class="btn btn-success" onclick="window.location.href='/leader-user-management'">
                         <i class="fas fa-user-plus"></i> Add Member
                     </button>
-                    <button class="btn btn-warning">
+                    <button class="btn btn-warning" onclick="window.location.href='/leader-reports'">
                         <i class="fas fa-file-alt"></i> Generate Report
                     </button>
                 </div>
@@ -649,48 +922,10 @@
             <div class="content-section">
                 <div class="section-header">
                     <h3 class="section-title">Pending Approvals</h3>
-                    <a href="#" class="btn btn-secondary">View All</a>
+                    <a href="/leader-events" class="btn btn-secondary">View All</a>
                 </div>
-                <div class="events-list">
-                    <div class="event-item">
-                        <div class="event-date">
-                            <div class="event-day">20</div>
-                            <div class="event-month">Mar</div>
-                        </div>
-                        <div class="event-info">
-                            <div class="event-name">AI Workshop</div>
-                            <div class="event-status pending">Pending Faculty Approval</div>
-                        </div>
-                        <div class="event-actions">
-                            <button class="btn btn-primary">View Details</button>
-                        </div>
-                    </div>
-                    <div class="event-item">
-                        <div class="event-date">
-                            <div class="event-day">05</div>
-                            <div class="event-month">Apr</div>
-                        </div>
-                        <div class="event-info">
-                            <div class="event-name">Tech Talk Series</div>
-                            <div class="event-status pending">Pending Admin Approval</div>
-                        </div>
-                        <div class="event-actions">
-                            <button class="btn btn-primary">View Details</button>
-                        </div>
-                    </div>
-                    <div class="event-item">
-                        <div class="event-date">
-                            <div class="event-day">15</div>
-                            <div class="event-month">Apr</div>
-                        </div>
-                        <div class="event-info">
-                            <div class="event-name">Coding Competition</div>
-                            <div class="event-status pending">New Member Requests</div>
-                        </div>
-                        <div class="event-actions">
-                            <button class="btn btn-primary">View Details</button>
-                        </div>
-                    </div>
+                <div class="events-list" id="pendingApprovalsList">
+                    <div class="spinner"></div>
                 </div>
             </div>
 
@@ -698,35 +933,10 @@
             <div class="content-section">
                 <div class="section-header">
                     <h3 class="section-title">Recent Events</h3>
-                    <a href="#" class="btn btn-secondary">View All</a>
+                    <a href="/leader-events" class="btn btn-secondary">View All</a>
                 </div>
-                <div class="events-list">
-                    <div class="event-item">
-                        <div class="event-date">
-                            <div class="event-day">15</div>
-                            <div class="event-month">Mar</div>
-                        </div>
-                        <div class="event-info">
-                            <div class="event-name">Hackathon 2024</div>
-                            <div class="event-status approved">Approved</div>
-                        </div>
-                        <div class="event-actions">
-                            <button class="btn btn-primary">View Report</button>
-                        </div>
-                    </div>
-                    <div class="event-item">
-                        <div class="event-date">
-                            <div class="event-day">28</div>
-                            <div class="event-month">Feb</div>
-                        </div>
-                        <div class="event-info">
-                            <div class="event-name">Web Development Workshop</div>
-                            <div class="event-status approved">Completed</div>
-                        </div>
-                        <div class="event-actions">
-                            <button class="btn btn-primary">View Report</button>
-                        </div>
-                    </div>
+                <div class="events-list" id="recentEventsList">
+                    <div class="spinner"></div>
                 </div>
             </div>
 
@@ -734,88 +944,604 @@
             <div class="content-section">
                 <div class="section-header">
                     <h3 class="section-title">Club Members</h3>
-                    <a href="#" class="btn btn-secondary">Manage All</a>
+                    <a href="/leader-user-management" class="btn btn-secondary">Manage All</a>
                 </div>
-                <div class="members-list">
-                    <div class="member-item">
-                        <div class="member-avatar">AM</div>
-                        <div class="member-info">
-                            <div class="member-name">Arjun Mehta</div>
-                            <div class="member-role">President</div>
-                        </div>
-                        <div class="member-actions">
-                            <button class="btn btn-primary">Message</button>
-                        </div>
-                    </div>
-                    <div class="member-item">
-                        <div class="member-avatar">KN</div>
-                        <div class="member-info">
-                            <div class="member-name">Kavita Nair</div>
-                            <div class="member-role">Secretary</div>
-                        </div>
-                        <div class="member-actions">
-                            <button class="btn btn-primary">Message</button>
-                        </div>
-                    </div>
-                    <div class="member-item">
-                        <div class="member-avatar">RJ</div>
-                        <div class="member-info">
-                            <div class="member-name">Rohan Joshi</div>
-                            <div class="member-role">Member</div>
-                        </div>
-                        <div class="member-actions">
-                            <button class="btn btn-primary">Message</button>
-                        </div>
-                    </div>
+                <div class="members-list" id="clubMembersList">
+                    <div class="spinner"></div>
                 </div>
             </div>
         </main>
     </div>
 
+    <!-- Send Notification Modal -->
+    <div class="modal" id="sendNotificationModal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeSendNotificationModal()">&times;</button>
+            <div class="modal-header">
+                <h2>Send Notification to Club Members</h2>
+            </div>
+            <div class="modal-body">
+                <form id="sendNotificationForm">
+                    <div class="form-group">
+                        <label for="notificationTitle">Notification Title</label>
+                        <input type="text" id="notificationTitle" class="form-control" placeholder="Enter notification title" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="notificationMessage">Message</label>
+                        <textarea id="notificationMessage" class="form-control" placeholder="Enter your message here" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Recipients</label>
+                        <div class="form-control" style="background-color: #f8f9fa;">
+                            All club members will receive this notification
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeSendNotificationModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="sendNotification()">Send Notification</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script>
-        // Mobile menu toggle
+        // API base URL
+        const API_URL = '/api';
+        let clubId = '';
+        let userData = {};
+
+        // Check if user is logged in
         document.addEventListener('DOMContentLoaded', function() {
+            // Check for token in localStorage
+            const token = localStorage.getItem('token');
+            if (!token) {
+                window.location.href = '/login';
+                return;
+            }
+            
+            // Set up axios default headers
+            axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+            
+            // Initialize dashboard
+            initializeDashboard();
+            
+            // Set up mobile menu toggle
+            setupMobileMenu();
+            
+            // Set up notification dropdown
+            setupNotificationDropdown();
+        });
+
+        // Initialize dashboard with data fetching
+        async function initializeDashboard() {
+            try {
+                showLoading(true);
+                hideError();
+                
+                // Fetch user data
+                userData = await fetchUserData();
+                updateUserInterface(userData);
+                
+                // Get club ID from user data
+                if (userData.club && userData.club._id) {
+                    clubId = userData.club._id;
+                    
+                    // Fetch dashboard stats
+                    const statsData = await fetchDashboardStats();
+                    updateStatsCards(statsData);
+                    
+                    // Fetch pending approvals
+                    const approvalsData = await fetchPendingApprovals();
+                    updatePendingApprovals(approvalsData);
+                    
+                    // Fetch recent events
+                    const eventsData = await fetchRecentEvents();
+                    updateRecentEvents(eventsData);
+                    
+                    // Fetch club members
+                    const membersData = await fetchClubMembers(clubId);
+                    updateClubMembers(membersData);
+                } else {
+                    // User is not associated with a club
+                    showError('You are not associated with any club. Please contact administrator.');
+                    
+                    // Show empty states for all sections
+                    updateStatsCards({
+                        totalMembers: 0,
+                        totalEvents: 0,
+                        pendingApprovals: 0,
+                        clubRating: 0
+                    });
+                    
+                    updatePendingApprovals([]);
+                    updateRecentEvents([]);
+                    updateClubMembers([]);
+                    
+                    // Disable quick action buttons
+                    document.querySelectorAll('.btn-primary, .btn-success, .btn-warning').forEach(btn => {
+                        btn.disabled = true;
+                        btn.style.opacity = '0.5';
+                        btn.style.cursor = 'not-allowed';
+                    });
+                }
+                
+                // Fetch notifications
+                fetchNotifications();
+                
+            } catch (error) {
+                console.error('Error initializing dashboard:', error);
+                const errorMessage = error.response?.data?.message || 'Failed to load dashboard data. Please try again later.';
+                showError(errorMessage);
+                
+                // If unauthorized, redirect to login
+                if (error.response && error.response.status === 401) {
+                    localStorage.removeItem('token');
+                    window.location.href = '/login';
+                }
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        // Show/hide loading spinner
+        function showLoading(show) {
+            const spinner = document.getElementById('loadingSpinner');
+            if (spinner) {
+                spinner.style.display = show ? 'block' : 'none';
+            }
+        }
+
+        // Show/hide error message
+        function showError(message) {
+            const errorElement = document.getElementById('errorMessage');
+            if (errorElement) {
+                errorElement.textContent = message;
+                errorElement.style.display = 'block';
+            }
+        }
+
+        function hideError() {
+            const errorElement = document.getElementById('errorMessage');
+            if (errorElement) {
+                errorElement.style.display = 'none';
+            }
+        }
+
+        // Show success message
+        function showSuccess(message) {
+            const successElement = document.getElementById('successMessage');
+            if (successElement) {
+                successElement.textContent = message;
+                successElement.style.display = 'block';
+                
+                // Auto hide after 5 seconds
+                setTimeout(() => {
+                    successElement.style.display = 'none';
+                }, 5000);
+            }
+        }
+
+        // Fetch user data
+        async function fetchUserData() {
+            try {
+                const response = await axios.get(`${API_URL}/auth/me`);
+                return response.data;
+            } catch (error) {
+                throw error;
+            }
+        }
+
+        // Fetch dashboard statistics
+        async function fetchDashboardStats() {
+            try {
+                const response = await axios.get(`${API_URL}/dashboard/stats`);
+                return response.data;
+            } catch (error) {
+                console.error('Error fetching dashboard stats:', error);
+                // Return default values if there's an error
+                return {
+                    totalMembers: 0,
+                    totalEvents: 0,
+                    pendingApprovals: 0,
+                    clubRating: 0
+                };
+            }
+        }
+
+        // Fetch pending approvals
+        async function fetchPendingApprovals() {
+            try {
+                const response = await axios.get(`${API_URL}/dashboard/pending-approvals`);
+                return response.data;
+            } catch (error) {
+                console.error('Error fetching pending approvals:', error);
+                return [];
+            }
+        }
+
+        // Fetch recent events
+        async function fetchRecentEvents() {
+            try {
+                const response = await axios.get(`${API_URL}/dashboard/recent-events`);
+                return response.data;
+            } catch (error) {
+                console.error('Error fetching recent events:', error);
+                return [];
+            }
+        }
+
+       // Fetch club members
+async function fetchClubMembers(clubId) {
+    try {
+        const response = await axios.get(`${API_URL}/clubs/${clubId}`);
+        console.log('Club data:', response.data); // Debug log
+        console.log('Club members:', response.data.members); // Debug log
+        return response.data.members || [];
+    } catch (error) {
+        console.error('Error fetching club members:', error);
+        return [];
+    }
+}
+        // Fetch notifications
+        async function fetchNotifications() {
+            try {
+                const response = await axios.get(`${API_URL}/notifications`);
+                const notifications = response.data || [];
+                
+                updateNotificationList(notifications);
+                updateNotificationBadge(notifications);
+            } catch (error) {
+                updateNotificationList([]);
+                updateNotificationBadge([]);
+            }
+        }
+
+        // Update user interface with user data
+        function updateUserInterface(userData) {
+            // Update user name in dashboard header
+            const welcomeMessage = document.getElementById('welcomeMessage');
+            if (welcomeMessage) {
+                welcomeMessage.textContent = `Welcome back, ${userData.name}! Manage your club activities here.`;
+            }
+            
+            // Update user profile in sidebar
+            const userAvatar = document.getElementById('userAvatar');
+            const userName = document.getElementById('userName');
+            const userRole = document.getElementById('userRole');
+            
+            if (userAvatar) {
+                userAvatar.textContent = userData.name.split(' ').map(n => n[0]).join('');
+            }
+            
+            if (userName) {
+                userName.textContent = userData.name;
+            }
+            
+            if (userRole) {
+                const clubName = userData.club && userData.club.name ? userData.club.name : 'No Club';
+                userRole.textContent = `Club Leader - ${clubName}`;
+            }
+        }
+
+        // Update pending approvals section
+        function updatePendingApprovals(pendingItems) {
+            const container = document.getElementById('pendingApprovalsList');
+            
+            if (!container) return;
+            
+            // Clear loading spinner
+            container.innerHTML = '';
+            
+            if (pendingItems.length === 0) {
+                container.innerHTML = '<p>No pending approvals</p>';
+                return;
+            }
+            
+            // Add each pending item to the list
+            pendingItems.forEach(item => {
+                const eventDate = new Date(item.date);
+                const day = eventDate.getDate();
+                const month = eventDate.toLocaleString('default', { month: 'short' });
+                
+                const pendingItem = document.createElement('div');
+                pendingItem.className = 'event-item';
+                pendingItem.innerHTML = `
+                    <div class="event-date">
+                        <div class="event-day">${day}</div>
+                        <div class="event-month">${month}</div>
+                    </div>
+                    <div class="event-info">
+                        <div class="event-name">${item.title}</div>
+                        <div class="event-status pending">Pending Approval</div>
+                    </div>
+                    <div class="event-actions">
+                        <button class="btn btn-primary" onclick="viewEventDetails('${item._id}')">View Details</button>
+                    </div>
+                `;
+                
+                container.appendChild(pendingItem);
+            });
+        }
+
+        // Update recent events section
+        function updateRecentEvents(events) {
+            const container = document.getElementById('recentEventsList');
+            
+            if (!container) return;
+            
+            // Clear loading spinner
+            container.innerHTML = '';
+            
+            if (events.length === 0) {
+                container.innerHTML = '<p>No recent events</p>';
+                return;
+            }
+            
+            // Add each event to the list
+            events.forEach(event => {
+                const eventDate = new Date(event.date);
+                const day = eventDate.getDate();
+                const month = eventDate.toLocaleString('default', { month: 'short' });
+                
+                const eventItem = document.createElement('div');
+                eventItem.className = 'event-item';
+                eventItem.innerHTML = `
+                    <div class="event-date">
+                        <div class="event-day">${day}</div>
+                        <div class="event-month">${month}</div>
+                    </div>
+                    <div class="event-info">
+                        <div class="event-name">${event.title}</div>
+                        <div class="event-status approved">${event.status === 'completed' ? 'Completed' : 'Approved'}</div>
+                    </div>
+                    <div class="event-actions">
+                        <button class="btn btn-primary" onclick="viewEventDetails('${event._id}')">View Details</button>
+                    </div>
+                `;
+                
+                container.appendChild(eventItem);
+            });
+        }
+
+        // Update statistics cards
+        function updateStatsCards(stats) {
+            document.getElementById('totalMembers').textContent = stats.totalMembers || 0;
+            document.getElementById('totalEvents').textContent = stats.totalEvents || 0;
+            document.getElementById('pendingApprovals').textContent = stats.pendingApprovals || 0;
+            document.getElementById('clubRating').textContent = stats.clubRating || 0;
+        }
+
+       // Update club members section
+function updateClubMembers(members) {
+    const container = document.getElementById('clubMembersList');
+    
+    if (!container) return;
+    
+    // Clear loading spinner
+    container.innerHTML = '';
+    
+    if (members.length === 0) {
+        container.innerHTML = '<p>No club members</p>';
+        return;
+    }
+    
+    // Add each member to the list (limit to 3 for dashboard)
+    const displayMembers = members.slice(0, 3);
+    
+    displayMembers.forEach(member => {
+        // Check if member has user object and name
+        const memberName = member.user ? member.user.name : 'Unknown';
+        const initials = memberName.split(' ').map(n => n[0]).join('');
+        
+        const memberItem = document.createElement('div');
+        memberItem.className = 'member-item';
+        memberItem.innerHTML = `
+            <div class="member-avatar">${initials}</div>
+            <div class="member-info">
+                <div class="member-name">${memberName}</div>
+                <div class="member-role">${member.role || 'Member'}</div>
+            </div>
+            <div class="member-actions">
+                <button class="btn btn-primary" onclick="window.location.href='/leader-user-management'">View</button>
+            </div>
+        `;
+        
+        container.appendChild(memberItem);
+    });
+}
+        // Update notification list
+        function updateNotificationList(notifications) {
+            const notificationList = document.getElementById('notificationList');
+            
+            if (!notificationList) return;
+            
+            // Clear notification list
+            notificationList.innerHTML = '';
+            
+            if (notifications.length === 0) {
+                notificationList.innerHTML = '<div class="notification-empty">No notifications</div>';
+                return;
+            }
+            
+            // Add each notification to the list
+            notifications.forEach(notification => {
+                const notificationDate = new Date(notification.createdAt);
+                const formattedDate = notificationDate.toLocaleDateString();
+                const formattedTime = notificationDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                
+                const notificationItem = document.createElement('div');
+                notificationItem.className = `notification-item ${notification.isRead ? '' : 'unread'}`;
+                notificationItem.setAttribute('data-id', notification._id);
+                notificationItem.innerHTML = `
+                    <div class="notification-title">${notification.title}</div>
+                    <div class="notification-message">${notification.message}</div>
+                    <div class="notification-time">
+                        <i class="fas fa-clock"></i> ${formattedDate} at ${formattedTime}
+                    </div>
+                `;
+                
+                // Add click event to mark as read
+                notificationItem.addEventListener('click', function() {
+                    if (!notification.isRead) {
+                        markNotificationAsRead(notification._id);
+                    }
+                });
+                
+                notificationList.appendChild(notificationItem);
+            });
+        }
+
+        // Update notification badge
+        function updateNotificationBadge(notifications) {
+            const notificationBadge = document.getElementById('notificationBadge');
+            
+            if (!notificationBadge) return;
+            
+            // Count unread notifications
+            const unreadCount = notifications.filter(n => !n.isRead).length;
+            
+            if (unreadCount > 0) {
+                notificationBadge.textContent = unreadCount;
+                notificationBadge.style.display = 'flex';
+            } else {
+                notificationBadge.style.display = 'none';
+            }
+        }
+
+        // View event details
+        function viewEventDetails(eventId) {
+            window.location.href = `/leader-events?id=${eventId}`;
+        }
+
+        // Setup mobile menu toggle
+        function setupMobileMenu() {
             const mobileMenuToggle = document.getElementById('mobileMenuToggle');
             const sidebar = document.getElementById('sidebar');
             
-            mobileMenuToggle.addEventListener('click', function() {
-                sidebar.classList.toggle('active');
-            });
-            
-            // Close sidebar when clicking on a link
-            document.querySelectorAll('.sidebar-menu a').forEach(link => {
-                link.addEventListener('click', () => {
-                    sidebar.classList.remove('active');
+            if (mobileMenuToggle && sidebar) {
+                mobileMenuToggle.addEventListener('click', function() {
+                    sidebar.classList.toggle('active');
                 });
+                
+                // Close sidebar when clicking on a link
+                document.querySelectorAll('.sidebar-menu a').forEach(link => {
+                    link.addEventListener('click', () => {
+                        sidebar.classList.remove('active');
+                    });
+                });
+            }
+        }
+
+        // Setup notification dropdown
+        function setupNotificationDropdown() {
+            const notificationIcon = document.getElementById('notificationIcon');
+            const notificationDropdown = document.getElementById('notificationDropdown');
+            const markAllRead = document.getElementById('markAllRead');
+            
+            // Toggle notification dropdown
+            notificationIcon.addEventListener('click', function(e) {
+                e.stopPropagation();
+                notificationDropdown.classList.toggle('active');
+                
+                // Refresh notifications when dropdown is opened
+                fetchNotifications();
             });
             
-            // Simulate real-time notifications
-            const notificationIcon = document.querySelector('.notification-icon');
-            const notificationBadge = document.querySelector('.notification-badge');
+            // Close dropdown when clicking outside
+            document.addEventListener('click', function(e) {
+                if (!notificationDropdown.contains(e.target) && !notificationIcon.contains(e.target)) {
+                    notificationDropdown.classList.remove('active');
+                }
+            });
             
-            // Simulate receiving a new notification
-            setTimeout(() => {
-                const currentCount = parseInt(notificationBadge.textContent);
-                notificationBadge.textContent = currentCount + 1;
+            // Mark all as read
+            markAllRead.addEventListener('click', async function() {
+                try {
+                    await axios.put(`${API_URL}/notifications/mark-all-read`);
+                    
+                    // Refresh notifications
+                    fetchNotifications();
+                } catch (error) {
+                    console.error('Error marking all notifications as read:', error);
+                }
+            });
+        }
+
+        // Mark notification as read
+        async function markNotificationAsRead(notificationId) {
+            try {
+                await axios.put(`${API_URL}/notifications/${notificationId}/read`);
                 
-                // Add a pulse animation to the notification icon
-                notificationIcon.style.animation = 'pulse 1s';
-                setTimeout(() => {
-                    notificationIcon.style.animation = '';
-                }, 1000);
-            }, 5000);
-        });
-        
-        // Add pulse animation keyframes
-        const style = document.createElement('style');
-        style.textContent = `
-            @keyframes pulse {
-                0% { transform: scale(1); }
-                50% { transform: scale(1.2); }
-                100% { transform: scale(1); }
+                // Refresh notifications
+                fetchNotifications();
+            } catch (error) {
+                console.error('Error marking notification as read:', error);
             }
-        `;
-        document.head.appendChild(style);
+        }
+
+        // Open send notification modal
+        function openSendNotificationModal() {
+            const modal = document.getElementById('sendNotificationModal');
+            if (modal) {
+                modal.classList.add('active');
+                // Reset form
+                document.getElementById('sendNotificationForm').reset();
+            }
+        }
+
+        // Close send notification modal
+        function closeSendNotificationModal() {
+            const modal = document.getElementById('sendNotificationModal');
+            if (modal) {
+                modal.classList.remove('active');
+            }
+        }
+
+        // Send notification to club members
+        async function sendNotification() {
+            const title = document.getElementById('notificationTitle').value.trim();
+            const message = document.getElementById('notificationMessage').value.trim();
+            
+            if (!title || !message) {
+                showError('Please fill in all fields');
+                return;
+            }
+            
+            try {
+                showLoading(true);
+                
+                // Send notification to all club members
+                await axios.post(`${API_URL}/notifications/send-to-club`, {
+                    clubId: clubId,
+                    title: title,
+                    message: message
+                });
+                
+                // Close modal
+                closeSendNotificationModal();
+                
+                // Show success message
+                showSuccess('Notification sent successfully to all club members');
+                
+                // Refresh notifications
+                fetchNotifications();
+            } catch (error) {
+                console.error('Error sending notification:', error);
+                const errorMsg = error.response?.data?.message || 'Failed to send notification. Please try again.';
+                showError(errorMsg);
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        // Logout function
+        function logout() {
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            window.location.href = '/login';
+        }
     </script>
 </body>
 </html>

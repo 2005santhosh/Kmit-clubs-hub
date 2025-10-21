@@ -3,18 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Faculty Coordinator Dashboard - KMIT Clubs Hub</title>
+    <title>Faculty Dashboard - KMIT Clubs Hub</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
     <style>
         /* CSS Variables */
         :root {
-            --primary: #003366; /* Deep Navy */
+            --primary: #003366;
             --primary-dark: #002244;
-            --secondary: #f8fafc; /* Soft Gray */
-            --accent: #ffc107; /* Gold Accent */
+            --secondary: #f8fafc;
+            --accent: #ffc107;
             --accent-light: #ffcd39;
-            --text: #212529; /* Darker Text */
+            --text: #212529;
             --light-text: #6c757d;
             --border-radius: 12px;
             --box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
@@ -210,6 +210,11 @@
             gap: 1rem;
         }
 
+        /* Notification Dropdown Styles */
+        .notification-container {
+            position: relative;
+        }
+
         .notification-icon {
             position: relative;
             font-size: 1.5rem;
@@ -230,6 +235,114 @@
             display: flex;
             align-items: center;
             justify-content: center;
+        }
+
+        .notification-dropdown {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background-color: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            width: 350px;
+            max-height: 400px;
+            overflow-y: auto;
+            z-index: 1001;
+            display: none;
+            margin-top: 10px;
+        }
+
+        .notification-dropdown.active {
+            display: block;
+        }
+
+        .notification-header {
+            padding: 1rem;
+            border-bottom: 1px solid #eee;
+            font-weight: 600;
+            color: var(--primary);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .notification-clear {
+            font-size: 0.8rem;
+            color: var(--accent);
+            cursor: pointer;
+        }
+
+        .notification-list {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .notification-item {
+            padding: 1rem;
+            border-bottom: 1px solid #eee;
+            transition: var(--transition);
+            cursor: pointer;
+        }
+
+        .notification-item:hover {
+            background-color: #f8f9fa;
+        }
+
+        .notification-item.unread {
+            background-color: #f0f7ff;
+            border-left: 3px solid var(--primary);
+        }
+
+        .notification-title {
+            font-weight: 600;
+            margin-bottom: 0.3rem;
+            color: var(--primary);
+        }
+
+        .notification-message {
+            font-size: 0.9rem;
+            color: var(--light-text);
+            margin-bottom: 0.3rem;
+        }
+
+        .notification-time {
+            font-size: 0.8rem;
+            color: var(--light-text);
+            display: flex;
+            align-items: center;
+        }
+
+        .notification-time i {
+            margin-right: 0.3rem;
+            font-size: 0.7rem;
+        }
+
+        .notification-empty {
+            padding: 2rem 1rem;
+            text-align: center;
+            color: var(--light-text);
+        }
+
+        /* Content Sections */
+        .content-section {
+            background-color: white;
+            border-radius: var(--border-radius);
+            padding: 1.5rem;
+            box-shadow: var(--box-shadow);
+            margin-bottom: 2rem;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .section-title {
+            font-size: 1.3rem;
+            color: var(--primary);
+            margin: 0;
         }
 
         /* Stats Cards */
@@ -272,28 +385,7 @@
             opacity: 0.7;
         }
 
-        /* Content Sections */
-        .content-section {
-            background-color: white;
-            border-radius: var(--border-radius);
-            padding: 1.5rem;
-            box-shadow: var(--box-shadow);
-            margin-bottom: 2rem;
-        }
-
-        .section-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1.5rem;
-        }
-
-        .section-title {
-            font-size: 1.3rem;
-            color: var(--primary);
-            margin: 0;
-        }
-
+        /* Buttons */
         .btn {
             display: inline-block;
             padding: 10px 20px;
@@ -328,106 +420,31 @@
             color: white;
         }
 
-        .btn-success {
-            background-color: #28a745;
-            color: white;
+        /* Club Cards */
+        .clubs-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
         }
 
-        .btn-success:hover {
-            background-color: #218838;
-            transform: translateY(-2px);
-        }
-
-        .btn-warning {
-            background-color: #ffc107;
-            color: var(--primary-dark);
-        }
-
-        .btn-warning:hover {
-            background-color: #e0a800;
-            transform: translateY(-2px);
-        }
-
-        .btn-danger {
-            background-color: #dc3545;
-            color: white;
-        }
-
-        .btn-danger:hover {
-            background-color: #c82333;
-            transform: translateY(-2px);
-        }
-
-        /* Approvals List */
-        .approvals-list {
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
-        }
-
-        .approval-item {
-            display: flex;
-            align-items: center;
-            padding: 1rem;
+        .club-card {
             background-color: var(--secondary);
             border-radius: var(--border-radius);
+            padding: 1.5rem;
             transition: var(--transition);
-        }
-
-        .approval-item:hover {
-            background-color: #e9f2f9;
-        }
-
-        .approval-icon {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            background-color: var(--accent);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-right: 1rem;
-            font-size: 1.2rem;
-            color: white;
-        }
-
-        .approval-info {
-            flex: 1;
-        }
-
-        .approval-title {
-            font-weight: 600;
-            margin-bottom: 0.3rem;
-        }
-
-        .approval-details {
-            font-size: 0.9rem;
-            color: var(--light-text);
-        }
-
-        .approval-actions {
-            display: flex;
-            gap: 0.5rem;
-        }
-
-        /* Clubs List */
-        .clubs-list {
             display: flex;
             flex-direction: column;
-            gap: 1rem;
         }
 
-        .club-item {
+        .club-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--box-shadow);
+        }
+
+        .club-card-header {
             display: flex;
             align-items: center;
-            padding: 1rem;
-            background-color: var(--secondary);
-            border-radius: var(--border-radius);
-            transition: var(--transition);
-        }
-
-        .club-item:hover {
-            background-color: #e9f2f9;
+            margin-bottom: 1rem;
         }
 
         .club-logo {
@@ -441,75 +458,54 @@
             margin-right: 1rem;
             font-size: 1.2rem;
             color: white;
-        }
-
-        .club-info {
-            flex: 1;
+            flex-shrink: 0;
         }
 
         .club-name {
+            font-size: 1.2rem;
             font-weight: 600;
+            color: var(--primary);
             margin-bottom: 0.3rem;
         }
 
-        .club-leader {
-            font-size: 0.9rem;
+        .club-type {
+            display: inline-block;
+            padding: 3px 8px;
+            background-color: var(--accent);
+            color: var(--primary-dark);
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .club-description {
+            color: var(--light-text);
+            margin-bottom: 1rem;
+            flex-grow: 1;
+        }
+
+        .club-stats {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+        }
+
+        .club-stat {
+            text-align: center;
+        }
+
+        .club-stat-value {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .club-stat-label {
+            font-size: 0.8rem;
             color: var(--light-text);
         }
 
         .club-actions {
-            display: flex;
-            gap: 0.5rem;
-        }
-
-        /* Reports List */
-        .reports-list {
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
-        }
-
-        .report-item {
-            display: flex;
-            align-items: center;
-            padding: 1rem;
-            background-color: var(--secondary);
-            border-radius: var(--border-radius);
-            transition: var(--transition);
-        }
-
-        .report-item:hover {
-            background-color: #e9f2f9;
-        }
-
-        .report-icon {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            background-color: var(--primary);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-right: 1rem;
-            font-size: 1.2rem;
-            color: white;
-        }
-
-        .report-info {
-            flex: 1;
-        }
-
-        .report-title {
-            font-weight: 600;
-            margin-bottom: 0.3rem;
-        }
-
-        .report-details {
-            font-size: 0.9rem;
-            color: var(--light-text);
-        }
-
-        .report-actions {
             display: flex;
             gap: 0.5rem;
         }
@@ -532,6 +528,74 @@
             box-shadow: var(--box-shadow);
         }
 
+        /* Loading Spinner */
+        .spinner {
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            border-radius: 50%;
+            border-top: 4px solid var(--primary);
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Alert message styles */
+        .alert {
+            padding: 15px;
+            margin-bottom: 20px;
+            border: 1px solid transparent;
+            border-radius: 4px;
+        }
+
+        .alert-success {
+            color: #155724;
+            background-color: #d4edda;
+            border-color: #c3e6cb;
+        }
+
+        .alert-danger {
+            color: #721c24;
+            background-color: #f8d7da;
+            border-color: #f5c6cb;
+        }
+
+        .alert-info {
+            color: #0c5460;
+            background-color: #d1ecf1;
+            border-color: #bee5eb;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 3rem 1rem;
+        }
+
+        .empty-icon {
+            font-size: 3rem;
+            color: var(--accent);
+            margin-bottom: 1rem;
+        }
+
+        .empty-title {
+            font-size: 1.5rem;
+            color: var(--primary);
+            margin-bottom: 1rem;
+        }
+
+        .empty-message {
+            color: var(--light-text);
+            margin-bottom: 2rem;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
         /* Responsive Styles */
         @media (max-width: 992px) {
             .sidebar {
@@ -552,8 +616,8 @@
                 justify-content: center;
             }
             
-            .stats-grid {
-                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            .notification-dropdown {
+                width: 300px;
             }
         }
 
@@ -564,49 +628,17 @@
                 gap: 1rem;
             }
             
-            .approval-item {
-                flex-direction: column;
-                text-align: center;
+            .stats-grid {
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
             }
             
-            .approval-icon {
-                margin-right: 0;
-                margin-bottom: 0.5rem;
+            .clubs-grid {
+                grid-template-columns: 1fr;
             }
             
-            .approval-actions {
-                margin-left: 0;
-                margin-top: 0.5rem;
-            }
-            
-            .club-item {
-                flex-direction: column;
-                text-align: center;
-            }
-            
-            .club-logo {
-                margin-right: 0;
-                margin-bottom: 0.5rem;
-            }
-            
-            .club-actions {
-                margin-left: 0;
-                margin-top: 0.5rem;
-            }
-            
-            .report-item {
-                flex-direction: column;
-                text-align: center;
-            }
-            
-            .report-icon {
-                margin-right: 0;
-                margin-bottom: 0.5rem;
-            }
-            
-            .report-actions {
-                margin-left: 0;
-                margin-top: 0.5rem;
+            .notification-dropdown {
+                width: 280px;
+                right: -20px;
             }
         }
 
@@ -617,6 +649,10 @@
             
             .main-content {
                 padding: 1rem;
+            }
+            
+            .notification-dropdown {
+                width: 250px;
             }
         }
     </style>
@@ -629,18 +665,19 @@
                 <h2><i class="fas fa-university"></i> KMIT Clubs Hub</h2>
             </div>
             <ul class="sidebar-menu">
-                <li><a href="#" class="active"><i class="fas fa-home"></i> Dashboard</a></li>
-                <li><a href="#"><i class="fas fa-check-circle"></i> Approvals</a></li>
-                <li><a href="#"><i class="fas fa-users"></i> Monitored Clubs</a></li>
-                <li><a href="#"><i class="fas fa-file-alt"></i> Reports</a></li>
-                <li><a href="#"><i class="fas fa-chart-line"></i> Analytics</a></li>
-                <li><a href="#"><i class="fas fa-cog"></i> Settings</a></li>
+                <li><a href="faculty_dashboard.html" class="active"><i class="fas fa-home"></i> Dashboard</a></li>
+                <li><a href="approvals.html"><i class="fas fa-check-circle"></i> Approvals</a></li>
+                <li><a href="monitored-clubs.html"><i class="fas fa-users"></i> Monitored Clubs</a></li>
+                <li><a href="club-leaders.html"><i class="fas fa-user-tie"></i> Club Leaders</a></li>
+                <li><a href="faculty_reports.html"><i class="fas fa-file-alt"></i> Reports</a></li>
+                <li><a href="faculty_analytics.html"><i class="fas fa-chart-line"></i> Analytics</a></li>
+                <li><a href="faculty_settings.html"><i class="fas fa-cog"></i> Settings</a></li>
             </ul>
             <div class="user-profile">
-                <div class="user-avatar">RS</div>
+                <div class="user-avatar" id="userAvatar">RS</div>
                 <div class="user-info">
-                    <h4>Dr. Rajesh Singh</h4>
-                    <p>Faculty Coordinator</p>
+                    <h4 id="userName">Loading...</h4>
+                    <p id="userRole">Faculty Coordinator</p>
                 </div>
             </div>
         </nav>
@@ -654,190 +691,109 @@
             <!-- Dashboard Header -->
             <div class="dashboard-header">
                 <div class="dashboard-title">
-                    <h1>Faculty Coordinator Dashboard</h1>
-                    <p>Welcome back, Dr. Singh! Monitor and approve club activities.</p>
+                    <h1>Faculty Dashboard</h1>
+                    <p id="welcomeMessage">Welcome back! Here are the clubs you're monitoring.</p>
                 </div>
                 <div class="dashboard-actions">
-                    <div class="notification-icon">
-                        <i class="fas fa-bell"></i>
-                        <span class="notification-badge">5</span>
+                    <div class="notification-container">
+                        <div class="notification-icon" id="notificationIcon">
+                            <i class="fas fa-bell"></i>
+                            <span class="notification-badge" id="notificationCount">0</span>
+                        </div>
+                        <div class="notification-dropdown" id="notificationDropdown">
+                            <div class="notification-header">
+                                <span>Notifications</span>
+                                <span class="notification-clear" id="markAllRead">Mark all as read</span>
+                            </div>
+                            <div class="notification-list" id="notificationList">
+                                <div class="notification-empty">No notifications</div>
+                            </div>
+                        </div>
                     </div>
-                    <button class="btn btn-secondary">
+                    <button class="btn btn-secondary" id="logoutBtn">
                         <i class="fas fa-sign-out-alt"></i> Logout
                     </button>
                 </div>
             </div>
 
+            <!-- Alert Container -->
+            <div id="alertContainer"></div>
+
             <!-- Stats Cards -->
             <div class="stats-grid">
                 <div class="stat-card">
                     <i class="fas fa-users"></i>
-                    <h3>8</h3>
-                    <p>Monitored Clubs</p>
-                </div>
-                <div class="stat-card">
-                    <i class="fas fa-check-circle"></i>
-                    <h3>12</h3>
-                    <p>Pending Approvals</p>
+                    <h3 id="totalMembers">-</h3>
+                    <p>Total Members</p>
                 </div>
                 <div class="stat-card">
                     <i class="fas fa-calendar-check"></i>
-                    <h3>24</h3>
-                    <p>Events This Month</p>
+                    <h3 id="totalEvents">-</h3>
+                    <p>Total Events</p>
                 </div>
                 <div class="stat-card">
-                    <i class="fas fa-file-alt"></i>
-                    <h3>6</h3>
-                    <p>Reports to Review</p>
+                    <i class="fas fa-clock"></i>
+                    <h3 id="pendingApprovals">-</h3>
+                    <p>Pending Approvals</p>
+                </div>
+                <div class="stat-card">
+                    <i class="fas fa-building"></i>
+                    <h3 id="monitoredClubs">-</h3>
+                    <p>Monitored Clubs</p>
                 </div>
             </div>
 
-            <!-- Pending Approvals -->
+            <!-- Clubs Section -->
             <div class="content-section">
                 <div class="section-header">
-                    <h3 class="section-title">Pending Approvals</h3>
-                    <a href="#" class="btn btn-secondary">View All</a>
+                    <h3 class="section-title">Your Monitored Clubs</h3>
                 </div>
-                <div class="approvals-list">
-                    <div class="approval-item">
-                        <div class="approval-icon">
-                            <i class="fas fa-calendar-alt"></i>
-                        </div>
-                        <div class="approval-info">
-                            <div class="approval-title">AI Workshop - Recurse Club</div>
-                            <div class="approval-details">Proposed for March 20, 2024 • Budget: ₹15,000</div>
-                        </div>
-                        <div class="approval-actions">
-                            <button class="btn btn-success">Approve</button>
-                            <button class="btn btn-danger">Reject</button>
-                        </div>
-                    </div>
-                    <div class="approval-item">
-                        <div class="approval-icon">
-                            <i class="fas fa-users"></i>
-                        </div>
-                        <div class="approval-info">
-                            <div class="approval-title">New Club Leader - Mudra Club</div>
-                            <div class="approval-details">Sneha Rao proposed as new leader • 5 member endorsements</div>
-                        </div>
-                        <div class="approval-actions">
-                            <button class="btn btn-success">Approve</button>
-                            <button class="btn btn-danger">Reject</button>
-                        </div>
-                    </div>
-                    <div class="approval-item">
-                        <div class="approval-icon">
-                            <i class="fas fa-money-bill-wave"></i>
-                        </div>
-                        <div class="approval-info">
-                            <div class="approval-title">Budget Request - NSS Club</div>
-                            <div class="approval-details">Blood Donation Camp • Requested: ₹25,000</div>
-                        </div>
-                        <div class="approval-actions">
-                            <button class="btn btn-success">Approve</button>
-                            <button class="btn btn-danger">Reject</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Monitored Clubs -->
-            <div class="content-section">
-                <div class="section-header">
-                    <h3 class="section-title">Monitored Clubs</h3>
-                    <a href="#" class="btn btn-secondary">View All</a>
-                </div>
-                <div class="clubs-list">
-                    <div class="club-item">
-                        <div class="club-logo">
-                            <i class="fas fa-laptop-code"></i>
-                        </div>
-                        <div class="club-info">
-                            <div class="club-name">Recurse (Technical Club)</div>
-                            <div class="club-leader">Leader: Arjun Mehta • 130 members</div>
-                        </div>
-                        <div class="club-actions">
-                            <button class="btn btn-primary">View Details</button>
-                        </div>
-                    </div>
-                    <div class="club-item">
-                        <div class="club-logo">
-                            <i class="fas fa-music"></i>
-                        </div>
-                        <div class="club-info">
-                            <div class="club-name">Mudra (Dance Club)</div>
-                            <div class="club-leader">Leader: Sneha Rao • 125 members</div>
-                        </div>
-                        <div class="club-actions">
-                            <button class="btn btn-primary">View Details</button>
-                        </div>
-                    </div>
-                    <div class="club-item">
-                        <div class="club-logo">
-                            <i class="fas fa-hands-helping"></i>
-                        </div>
-                        <div class="club-info">
-                            <div class="club-name">NSS (Social Service Club)</div>
-                            <div class="club-leader">Leader: Deepak Kumar • 150 members</div>
-                        </div>
-                        <div class="club-actions">
-                            <button class="btn btn-primary">View Details</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Reports to Review -->
-            <div class="content-section">
-                <div class="section-header">
-                    <h3 class="section-title">Reports to Review</h3>
-                    <a href="#" class="btn btn-secondary">View All</a>
-                </div>
-                <div class="reports-list">
-                    <div class="report-item">
-                        <div class="report-icon">
-                            <i class="fas fa-file-alt"></i>
-                        </div>
-                        <div class="report-info">
-                            <div class="report-title">Hackathon 2024 Report</div>
-                            <div class="report-details">Recurse Club • Submitted: March 16, 2024</div>
-                        </div>
-                        <div class="report-actions">
-                            <button class="btn btn-primary">Review</button>
-                        </div>
-                    </div>
-                    <div class="report-item">
-                        <div class="report-icon">
-                            <i class="fas fa-file-alt"></i>
-                        </div>
-                        <div class="report-info">
-                            <div class="report-title">Annual Dance Show Report</div>
-                            <div class="report-details">Mudra Club • Submitted: March 10, 2024</div>
-                        </div>
-                        <div class="report-actions">
-                            <button class="btn btn-primary">Review</button>
-                        </div>
-                    </div>
-                    <div class="report-item">
-                        <div class="report-icon">
-                            <i class="fas fa-file-alt"></i>
-                        </div>
-                        <div class="report-info">
-                            <div class="report-title">Blood Donation Camp Report</div>
-                            <div class="report-details">NSS Club • Submitted: March 8, 2024</div>
-                        </div>
-                        <div class="report-actions">
-                            <button class="btn btn-primary">Review</button>
-                        </div>
-                    </div>
+                <div class="clubs-grid" id="clubsGrid">
+                    <div class="spinner"></div>
                 </div>
             </div>
         </main>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script>
-        // Mobile menu toggle
         document.addEventListener('DOMContentLoaded', function() {
+            // Check if user is logged in
+            const token = localStorage.getItem('token');
+            const user = JSON.parse(localStorage.getItem('user') || '{}');
+            
+            if (!token) {
+                window.location.href = 'login.html';
+                return;
+            }
+            
+            // Verify user role
+            if (user.role !== 'faculty') {
+                alert('You do not have permission to access this page.');
+                window.location.href = 'login.html';
+                return;
+            }
+            
+            // Update user profile in sidebar
+            const userAvatar = document.getElementById('userAvatar');
+            const userName = document.getElementById('userName');
+            const userRole = document.getElementById('userRole');
+            const welcomeMessage = document.getElementById('welcomeMessage');
+            
+            // Set user initials for avatar
+            if (user.name) {
+                const initials = user.name.split(' ').map(n => n[0]).join('').toUpperCase();
+                userAvatar.textContent = initials;
+                userName.textContent = user.name;
+                welcomeMessage.textContent = `Welcome back, ${user.name}! Here are the clubs you're monitoring.`;
+            }
+            
+            // Set user role
+            if (user.role) {
+                userRole.textContent = 'Faculty Coordinator';
+            }
+            
+            // Mobile menu toggle
             const mobileMenuToggle = document.getElementById('mobileMenuToggle');
             const sidebar = document.getElementById('sidebar');
             
@@ -852,33 +808,280 @@
                 });
             });
             
-            // Simulate real-time notifications
-            const notificationIcon = document.querySelector('.notification-icon');
-            const notificationBadge = document.querySelector('.notification-badge');
+            // Logout functionality
+            document.getElementById('logoutBtn').addEventListener('click', function() {
+                localStorage.removeItem('token');
+                localStorage.removeItem('user');
+                window.location.href = 'login.html';
+            });
             
-            // Simulate receiving a new notification
-            setTimeout(() => {
-                const currentCount = parseInt(notificationBadge.textContent);
-                notificationBadge.textContent = currentCount + 1;
+            // API base URL
+            const API_URL = '/api';
+            
+            // Set up axios default headers
+            axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+            
+            // Notification functionality
+            const notificationIcon = document.getElementById('notificationIcon');
+            const notificationDropdown = document.getElementById('notificationDropdown');
+            const notificationList = document.getElementById('notificationList');
+            const notificationCount = document.getElementById('notificationCount');
+            const markAllRead = document.getElementById('markAllRead');
+            
+            // Toggle notification dropdown
+            notificationIcon.addEventListener('click', function(e) {
+                e.stopPropagation();
+                notificationDropdown.classList.toggle('active');
                 
-                // Add a pulse animation to the notification icon
-                notificationIcon.style.animation = 'pulse 1s';
-                setTimeout(() => {
-                    notificationIcon.style.animation = '';
-                }, 1000);
-            }, 5000);
-        });
-        
-        // Add pulse animation keyframes
-        const style = document.createElement('style');
-        style.textContent = `
-            @keyframes pulse {
-                0% { transform: scale(1); }
-                50% { transform: scale(1.2); }
-                100% { transform: scale(1); }
+                // Refresh notifications when dropdown is opened
+                fetchNotifications();
+            });
+            
+            // Close dropdown when clicking outside
+            document.addEventListener('click', function(e) {
+                if (!notificationDropdown.contains(e.target) && !notificationIcon.contains(e.target)) {
+                    notificationDropdown.classList.remove('active');
+                }
+            });
+            
+            // Mark all as read
+            markAllRead.addEventListener('click', async function() {
+                try {
+                    const response = await fetch('/api/notifications/mark-all-read', {
+                        method: 'PUT',
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        }
+                    });
+                    
+                    if (response.ok) {
+                        // Refresh notifications
+                        fetchNotifications();
+                    }
+                } catch (error) {
+                    console.error('Error marking all notifications as read:', error);
+                }
+            });
+            
+            // Fetch notifications
+            async function fetchNotifications() {
+                try {
+                    const response = await fetch('/api/notifications', {
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        }
+                    });
+                    
+                    if (response.ok) {
+                        const notifications = await response.json();
+                        
+                        // Update notification list
+                        if (notifications.length === 0) {
+                            notificationList.innerHTML = '<div class="notification-empty">No notifications</div>';
+                        } else {
+                            notificationList.innerHTML = notifications.map(notification => `
+                                <div class="notification-item ${!notification.isRead ? 'unread' : ''}" data-id="${notification._id}">
+                                    <div class="notification-title">${notification.title}</div>
+                                    <div class="notification-message">${notification.message}</div>
+                                    <div class="notification-time">
+                                        <i class="fas fa-clock"></i> ${notification.time} • ${notification.date}
+                                    </div>
+                                </div>
+                            `).join('');
+                            
+                            // Add click event to mark as read
+                            document.querySelectorAll('.notification-item.unread').forEach(item => {
+                                item.addEventListener('click', async function() {
+                                    const notificationId = this.getAttribute('data-id');
+                                    
+                                    try {
+                                        const response = await fetch(`/api/notifications/${notificationId}/read`, {
+                                            method: 'PUT',
+                                            headers: {
+                                                'Authorization': `Bearer ${token}`
+                                            }
+                                        });
+                                        
+                                        if (response.ok) {
+                                            this.classList.remove('unread');
+                                            
+                                            // Update count
+                                            const currentCount = parseInt(notificationCount.textContent);
+                                            notificationCount.textContent = currentCount - 1;
+                                            
+                                            if (currentCount - 1 === 0) {
+                                                notificationCount.style.display = 'none';
+                                            }
+                                        }
+                                    } catch (error) {
+                                        console.error('Error marking notification as read:', error);
+                                    }
+                                });
+                            });
+                        }
+                        
+                        // Update notification count
+                        const unreadCount = notifications.filter(n => !n.isRead).length;
+                        notificationCount.textContent = unreadCount;
+                        notificationCount.style.display = unreadCount > 0 ? 'flex' : 'none';
+                    }
+                } catch (error) {
+                    console.error('Error fetching notifications:', error);
+                }
             }
-        `;
-        document.head.appendChild(style);
+            
+            // Fetch notifications count
+            async function fetchNotificationsCount() {
+                try {
+                    const response = await fetch('/api/notifications/unread-count', {
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        }
+                    });
+                    
+                    if (response.ok) {
+                        const data = await response.json();
+                        notificationCount.textContent = data.count;
+                        notificationCount.style.display = data.count > 0 ? 'flex' : 'none';
+                    }
+                } catch (error) {
+                    console.error('Error fetching notifications count:', error);
+                }
+            }
+            
+            // Fetch dashboard stats
+            async function fetchDashboardStats() {
+                try {
+                    const response = await axios.get(`${API_URL}/dashboard/faculty-stats`);
+                    const stats = response.data;
+                    
+                    // Update stats cards
+                    document.getElementById('totalMembers').textContent = stats.totalMembers || 0;
+                    document.getElementById('totalEvents').textContent = stats.totalEvents || 0;
+                    document.getElementById('pendingApprovals').textContent = stats.pendingApprovals || 0;
+                    document.getElementById('monitoredClubs').textContent = stats.monitoredClubs || 0;
+                } catch (error) {
+                    console.error('Error fetching dashboard stats:', error);
+                    // Set default values if API fails
+                    document.getElementById('totalMembers').textContent = '0';
+                    document.getElementById('totalEvents').textContent = '0';
+                    document.getElementById('pendingApprovals').textContent = '0';
+                    document.getElementById('monitoredClubs').textContent = '0';
+                }
+            }
+            
+            // Fetch clubs assigned to this faculty
+            async function fetchFacultyClubs() {
+                const clubsGrid = document.getElementById('clubsGrid');
+                clubsGrid.innerHTML = '<div class="spinner"></div>';
+                
+                try {
+                    // Fetch clubs assigned to this faculty using the endpoint
+                    const response = await axios.get(`${API_URL}/clubs/faculty-monitored`);
+                    
+                    if (!response.ok) {
+                        throw new Error(`Failed to fetch clubs: ${response.status}`);
+                    }
+                    
+                    const clubs = response.data;
+                    console.log('Clubs data:', clubs);
+                    
+                    if (clubs.length === 0) {
+                        clubsGrid.innerHTML = `
+                            <div class="empty-state">
+                                <div class="empty-icon">
+                                    <i class="fas fa-users-slash"></i>
+                                </div>
+                                <h3 class="empty-title">No Clubs Assigned</h3>
+                                <p class="empty-message">
+                                    You haven't been assigned to monitor any clubs yet. Please contact the administrator.
+                                </p>
+                            </div>
+                        `;
+                        return;
+                    }
+                    
+                    // Map club type to icon
+                    const getClubIcon = (type) => {
+                        switch(type) {
+                            case 'technical': return 'fas fa-laptop-code';
+                            case 'cultural': return 'fas fa-music';
+                            case 'sports': return 'fas fa-running';
+                            case 'social': return 'fas fa-hands-helping';
+                            case 'academic': return 'fas fa-book';
+                            case 'literary': return 'fas fa-pen-fancy';
+                            default: return 'fas fa-users';
+                        }
+                    };
+                    
+                    // Render clubs
+                    clubsGrid.innerHTML = clubs.map(club => {
+                        // Use a default type if not present
+                        const clubType = club.type || 'general';
+                        
+                        return `
+                            <div class="club-card">
+                                <div class="club-card-header">
+                                    <div class="club-logo">
+                                        <i class="${getClubIcon(clubType)}"></i>
+                                    </div>
+                                    <div>
+                                        <h3 class="club-name">${club.name}</h3>
+                                        <span class="club-type">${clubType.charAt(0).toUpperCase() + clubType.slice(1)}</span>
+                                    </div>
+                                </div>
+                                <p class="club-description">${club.description || 'No description available.'}</p>
+                                <div class="club-stats">
+                                    <div class="club-stat">
+                                        <div class="club-stat-value">${club.members ? club.members.length : 0}</div>
+                                        <div class="club-stat-label">Members</div>
+                                    </div>
+                                    <div class="club-stat">
+                                        <div class="club-stat-value">${club.events ? club.events.length : 0}</div>
+                                        <div class="club-stat-label">Events</div>
+                                    </div>
+                                </div>
+                                <div class="club-actions">
+                                    <a href="club-events.html?id=${club._id}" class="btn btn-primary">View Events</a>
+                                    <a href="club-details.html?id=${club._id}" class="btn btn-secondary">Details</a>
+                                </div>
+                            </div>
+                        `;
+                    }).join('');
+                } catch (error) {
+                    console.error('Error fetching clubs:', error);
+                    console.error('Error details:', error.message, error.stack);
+                    clubsGrid.innerHTML = `
+                        <div class="alert alert-danger">
+                            Failed to load clubs. Please try again later.
+                        </div>
+                    `;
+                }
+            }
+            
+            // Show alert message
+            function showAlert(message, type) {
+                const alertContainer = document.getElementById('alertContainer');
+                alertContainer.innerHTML = `
+                    <div class="alert alert-${type}">
+                        ${message}
+                    </div>
+                `;
+                
+                // Auto hide after 5 seconds
+                setTimeout(() => {
+                    alertContainer.innerHTML = '';
+                }, 5000);
+            }
+            
+            // Initialize the page
+            fetchDashboardStats();
+            fetchFacultyClubs();
+            fetchNotifications();
+            
+            // Set up periodic refresh for notification count
+            setInterval(fetchNotificationsCount, 30000); // Check every 30 seconds
+        });
     </script>
 </body>
 </html>

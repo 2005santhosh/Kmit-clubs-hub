@@ -1,0 +1,1524 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Members - KMIT Clubs Hub</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+    <style>
+        /* CSS Variables - Same as dashboard */
+        :root {
+            --primary: #003366;
+            --primary-dark: #002244;
+            --secondary: #f8fafc;
+            --accent: #ffc107;
+            --accent-light: #ffcd39;
+            --text: #212529;
+            --light-text: #6c757d;
+            --border-radius: 12px;
+            --box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+            --transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            --gradient-primary: linear-gradient(135deg, #003366 0%, #0055a4 100%);
+            --gradient-accent: linear-gradient(135deg, #ffc107 0%, #ffcd39 100%);
+        }
+
+        /* Global Styles - Same as dashboard */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Lato', sans-serif;
+            line-height: 1.7;
+            color: var(--text);
+            background-color: #fff;
+            overflow-x: hidden;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Typography - Same as dashboard */
+        h1, h2, h3, h4 {
+            font-family: 'Poppins', sans-serif;
+            margin-bottom: 1.2rem;
+            font-weight: 600;
+            line-height: 1.2;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        h2 {
+            font-size: 2rem;
+            color: var(--primary);
+            margin-bottom: 1.5rem;
+        }
+
+        h3 {
+            font-size: 1.5rem;
+            margin-bottom: 0.8rem;
+            color: var(--primary);
+        }
+
+        p {
+            margin-bottom: 1.2rem;
+            color: var(--light-text);
+            font-weight: 300;
+        }
+
+        a {
+            text-decoration: none;
+            color: var(--primary);
+            transition: var(--transition);
+        }
+
+        a:hover {
+            color: var(--accent);
+        }
+
+        /* Dashboard Layout - Same as dashboard */
+        .dashboard {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar - Same as dashboard */
+        .sidebar {
+            width: 260px;
+            background: var(--gradient-primary);
+            color: white;
+            padding: 2rem 0;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            z-index: 1000;
+            transition: var(--transition);
+        }
+
+        .sidebar-header {
+            padding: 0 1.5rem 2rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 1rem;
+        }
+
+        .sidebar-header h2 {
+            color: white;
+            font-size: 1.5rem;
+            background: none;
+            -webkit-text-fill-color: initial;
+        }
+
+        .sidebar-menu {
+            list-style: none;
+        }
+
+        .sidebar-menu li {
+            margin-bottom: 0.5rem;
+        }
+
+        .sidebar-menu a {
+            display: flex;
+            align-items: center;
+            padding: 0.8rem 1.5rem;
+            color: rgba(255, 255, 255, 0.8);
+            transition: var(--transition);
+        }
+
+        .sidebar-menu a:hover,
+        .sidebar-menu a.active {
+            background-color: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+
+        .sidebar-menu i {
+            margin-right: 0.8rem;
+            font-size: 1.2rem;
+        }
+
+        .user-profile {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 1.5rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1rem;
+            font-weight: 600;
+        }
+
+        .user-info h4 {
+            color: white;
+            font-size: 1rem;
+            margin-bottom: 0.2rem;
+        }
+
+        .user-info p {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.85rem;
+            margin: 0;
+        }
+
+        /* Main Content - Same as dashboard */
+        .main-content {
+            flex: 1;
+            margin-left: 260px;
+            padding: 2rem;
+            background-color: #f8fafc;
+        }
+
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .dashboard-title h1 {
+            margin-bottom: 0.5rem;
+        }
+
+        .dashboard-actions {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .notification-icon {
+            position: relative;
+            font-size: 1.5rem;
+            color: var(--primary);
+            cursor: pointer;
+        }
+
+        .notification-badge {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background-color: var(--accent);
+            color: white;
+            font-size: 0.7rem;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Buttons - Same as dashboard */
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            border-radius: 50px;
+            font-weight: 600;
+            text-align: center;
+            cursor: pointer;
+            transition: var(--transition);
+            border: none;
+            font-size: 0.9rem;
+        }
+
+        .btn-primary {
+            background: var(--gradient-primary);
+            color: white;
+            box-shadow: 0 4px 15px rgba(0, 51, 102, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 51, 102, 0.4);
+        }
+
+        .btn-secondary {
+            background-color: transparent;
+            color: var(--primary);
+            border: 2px solid var(--primary);
+        }
+
+        .btn-secondary:hover {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .btn-success {
+            background-color: #28a745;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background-color: #218838;
+            transform: translateY(-2px);
+        }
+
+        .btn-warning {
+            background-color: #ffc107;
+            color: var(--primary-dark);
+        }
+
+        .btn-warning:hover {
+            background-color: #e0a800;
+            transform: translateY(-2px);
+        }
+
+        .btn-danger {
+            background-color: #dc3545;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background-color: #c82333;
+            transform: translateY(-2px);
+        }
+
+        /* Content Sections - Same as dashboard */
+        .content-section {
+            background-color: white;
+            border-radius: var(--border-radius);
+            padding: 1.5rem;
+            box-shadow: var(--box-shadow);
+            margin-bottom: 2rem;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .section-title {
+            font-size: 1.3rem;
+            color: var(--primary);
+            margin: 0;
+        }
+
+        /* Mobile Menu Toggle - Same as dashboard */
+        .mobile-menu-toggle {
+            display: none;
+            position: fixed;
+            top: 1rem;
+            left: 1rem;
+            z-index: 1001;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            box-shadow: var(--box-shadow);
+        }
+
+        /* Loading Spinner - Same as dashboard */
+        .spinner {
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            border-radius: 50%;
+            border-top: 4px solid var(--primary);
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Error Message - Same as dashboard */
+        .error-message {
+            background-color: #f8d7da;
+            color: #721c24;
+            padding: 10px 15px;
+            border-radius: 5px;
+            margin: 10px 0;
+            text-align: center;
+        }
+
+        /* Success Message */
+        .success-message {
+            background-color: #d4edda;
+            color: #155724;
+            padding: 10px 15px;
+            border-radius: 5px;
+            margin: 10px 0;
+            text-align: center;
+        }
+
+        /* Members Management Specific Styles */
+        .search-bar {
+            display: flex;
+            margin-bottom: 1.5rem;
+        }
+
+        .search-input {
+            flex: 1;
+            padding: 12px 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 50px;
+            font-size: 0.9rem;
+            outline: none;
+            transition: var(--transition);
+        }
+
+        .search-input:focus {
+            border-color: var(--primary);
+        }
+
+        .search-btn {
+            margin-left: 10px;
+            padding: 12px 20px;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .search-btn:hover {
+            background-color: var(--primary-dark);
+        }
+
+        .members-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+
+        .members-table th,
+        .members-table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .members-table th {
+            background-color: var(--secondary);
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .members-table tr:hover {
+            background-color: #f8f9fa;
+        }
+
+        .member-avatar-small {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background-color: var(--accent);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 10px;
+            font-weight: 600;
+            color: white;
+            vertical-align: middle;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .status-badge.active {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .status-badge.inactive {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+
+        .status-badge.pending {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 5px;
+        }
+
+        .action-btn {
+            padding: 6px 10px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: var(--transition);
+        }
+
+        .action-btn.edit {
+            background-color: #e9ecef;
+            color: var(--primary);
+        }
+
+        .action-btn.edit:hover {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .action-btn.delete {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+
+        .action-btn.delete:hover {
+            background-color: #dc3545;
+            color: white;
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: center;
+            margin-top: 2rem;
+        }
+
+        .pagination button {
+            padding: 8px 12px;
+            margin: 0 5px;
+            border: 1px solid #e9ecef;
+            background-color: white;
+            color: var(--primary);
+            border-radius: 4px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .pagination button:hover {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .pagination button.active {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .add-member-form {
+            display: none;
+            background-color: var(--secondary);
+            padding: 1.5rem;
+            border-radius: var(--border-radius);
+            margin-bottom: 1.5rem;
+        }
+
+        .edit-member-form {
+            display: none;
+            background-color: var(--secondary);
+            padding: 1.5rem;
+            border-radius: var(--border-radius);
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 10px 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            outline: none;
+            transition: var(--transition);
+        }
+
+        .form-control:focus {
+            border-color: var(--primary);
+        }
+
+        .form-row {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .form-row .form-group {
+            flex: 1;
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background-color: white;
+            border-radius: var(--border-radius);
+            width: 90%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+            padding: 2rem;
+            position: relative;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--light-text);
+        }
+
+        .modal-close:hover {
+            color: var(--text);
+        }
+
+        .modal-header {
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-body {
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
+        }
+
+        /* Responsive Styles - Same as dashboard */
+        @media (max-width: 992px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            
+            .sidebar.active {
+                transform: translateX(0);
+            }
+            
+            .main-content {
+                margin-left: 0;
+            }
+            
+            .mobile-menu-toggle {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .dashboard-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+            
+            .form-row {
+                flex-direction: column;
+            }
+            
+            .members-table {
+                font-size: 0.9rem;
+            }
+            
+            .members-table th,
+            .members-table td {
+                padding: 8px 10px;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+            }
+        }
+
+        @media (max-width: 576px) {
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .main-content {
+                padding: 1rem;
+            }
+            
+            .search-bar {
+                flex-direction: column;
+            }
+            
+            .search-btn {
+                margin-left: 0;
+                margin-top: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard">
+        <!-- Sidebar -->
+        <nav class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <h2><i class="fas fa-university"></i> KMIT Clubs Hub</h2>
+            </div>
+            <ul class="sidebar-menu">
+                <li><a href="/club_leader_dashboard"><i class="fas fa-home"></i> Dashboard</a></li>
+                <li><a href="/leader-user-management" class="active"><i class="fas fa-users"></i> Manage Members</a></li>
+                <li><a href="/leader-events"><i class="fas fa-calendar-alt"></i> Events</a></li>
+                <li><a href="/leader-reports"><i class="fas fa-file-alt"></i> Reports</a></li>
+                <li><a href="/leader-analytics"><i class="fas fa-chart-line"></i> Analytics</a></li>
+                <li><a href="/leader-settings"><i class="fas fa-cog"></i> Settings</a></li>
+            </ul>
+            <div class="user-profile">
+                <div class="user-avatar" id="userAvatar">RK</div>
+                <div class="user-info">
+                    <h4 id="userName">Rahul Kumar</h4>
+                    <p id="userRole">Club Leader - Recurse</p>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <button class="mobile-menu-toggle" id="mobileMenuToggle">
+                <i class="fas fa-bars"></i>
+            </button>
+
+            <!-- Dashboard Header -->
+            <div class="dashboard-header">
+                <div class="dashboard-title">
+                    <h1>Manage Members</h1>
+                    <p>Manage your club members and their roles</p>
+                </div>
+                <div class="dashboard-actions">
+                    <!-- <div class="notification-icon">
+                        <i class="fas fa-bell"></i>
+                        <span class="notification-badge" id="notificationBadge">2</span>
+                    </div> -->
+                    <button class="btn btn-secondary" onclick="logout()">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </button>
+                </div>
+            </div>
+
+            <!-- Loading Spinner -->
+            <div id="loadingSpinner" class="spinner" style="display: none;"></div>
+
+            <!-- Error Message -->
+            <div id="errorMessage" class="error-message" style="display: none;"></div>
+            
+            <!-- Success Message -->
+            <div id="successMessage" class="success-message" style="display: none;"></div>
+
+            <!-- Add Member Form -->
+            <div class="add-member-form" id="addMemberForm">
+                <h3>Add New Member</h3>
+                <form id="newMemberForm">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="memberName">Full Name</label>
+                            <input type="text" id="memberName" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="memberUsername">Username</label>
+                            <input type="text" id="memberUsername" class="form-control" required>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="memberRole">Role</label>
+                            <select id="memberRole" class="form-control" required>
+                                <option value="">Select Role</option>
+                                <option value="president">President</option>
+                                <option value="vice-president">Vice President</option>
+                                <option value="associate-president">Associate President</option>
+                                <option value="public-relations">Public Relations</option>
+                                <option value="human-resources">Human Resources</option>
+                                <option value="secretary">Secretary</option>
+                                <option value="treasurer">Treasurer</option>
+                                <option value="documentation-head">Documentation Head</option>
+                                <option value="photography">Photography</option>
+                                <option value="content-creation">Content Creation</option>
+                                <option value="digital-head">Digital Head</option>
+                                <option value="coordinator-incharge">Coordinator Incharge</option>
+                                <option value="member">Member</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="memberStatus">Status</label>
+                            <select id="memberStatus" class="form-control" required>
+                                <option value="active">Active</option>
+                                <option value="pending">Pending</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div style="display: flex; gap: 1rem;">
+                        <button type="submit" class="btn btn-primary">Add Member</button>
+                        <button type="button" class="btn btn-secondary" onclick="toggleAddMemberForm()">Cancel</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Members Management Section -->
+            <div class="content-section">
+                <div class="section-header">
+                    <h3 class="section-title">Club Members</h3>
+                    <button class="btn btn-primary" onclick="toggleAddMemberForm()">
+                        <i class="fas fa-plus"></i> Add Member
+                    </button>
+                </div>
+
+                <!-- Search Bar -->
+                <div class="search-bar">
+                    <input type="text" id="searchInput" class="search-input" placeholder="Search members by name or username...">
+                    <button class="search-btn" onclick="searchMembers()">
+                        <i class="fas fa-search"></i> Search
+                    </button>
+                </div>
+
+                <!-- Members Table -->
+                <div class="table-responsive">
+                    <table class="members-table">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Username</th>
+                                <th>Role</th>
+                                <th>Status</th>
+                                <th>Join Date</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="membersTableBody">
+                            <tr>
+                                <td colspan="6" style="text-align: center;">
+                                    <div class="spinner"></div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pagination -->
+                <div class="pagination" id="pagination">
+                    <!-- Pagination buttons will be generated here -->
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Edit Member Modal -->
+    <div class="modal" id="editMemberModal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeEditMemberModal()">&times;</button>
+            <div class="modal-header">
+                <h2>Edit Member</h2>
+            </div>
+            <div class="modal-body">
+                <form id="editMemberForm">
+                    <input type="hidden" id="editMemberId">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="editMemberName">Full Name</label>
+                            <input type="text" id="editMemberName" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="editMemberUsername">Username</label>
+                            <input type="text" id="editMemberUsername" class="form-control" required>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="editMemberRole">Role</label>
+                            <select id="editMemberRole" class="form-control" required>
+                                <option value="">Select Role</option>
+                                <option value="president">President</option>
+                                <option value="vice-president">Vice President</option>
+                                <option value="associate-president">Associate President</option>
+                                <option value="public-relations">Public Relations</option>
+                                <option value="human-resources">Human Resources</option>
+                                <option value="secretary">Secretary</option>
+                                <option value="treasurer">Treasurer</option>
+                                <option value="documentation-head">Documentation Head</option>
+                                <option value="photography">Photography</option>
+                                <option value="content-creation">Content Creation</option>
+                                <option value="digital-head">Digital Head</option>
+                                <option value="coordinator-incharge">Coordinator Incharge</option>
+                                <option value="member">Member</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="editMemberStatus">Status</label>
+                            <select id="editMemberStatus" class="form-control" required>
+                                <option value="active">Active</option>
+                                <option value="pending">Pending</option>
+                            </select>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeEditMemberModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="saveEditedMember()">Save Changes</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script>
+        // API base URL
+        const API_URL = '/api';
+        let clubId = '';
+        let clubName = '';
+        let currentPage = 1;
+        const itemsPerPage = 10;
+        let allMembers = [];
+        let filteredMembers = [];
+
+        // Check if user is logged in
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check for token in localStorage
+            const token = localStorage.getItem('token');
+            if (!token) {
+                window.location.href = '/login';
+                return;
+            }
+            
+            // Check if user is active
+            const user = JSON.parse(localStorage.getItem('user') || '{}');
+            if (user.status !== 'active') {
+                localStorage.removeItem('token');
+                localStorage.removeItem('user');
+                window.location.href = '/login?error=inactive';
+                return;
+            }
+            
+            // Set up axios default headers
+            axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+            
+            // Initialize page
+            initializePage();
+            
+            // Set up mobile menu toggle
+            setupMobileMenu();
+            
+            // Set up form submission
+            document.getElementById('newMemberForm').addEventListener('submit', handleAddMember);
+        });
+
+        // Initialize page with data fetching
+        async function initializePage() {
+            try {
+                showLoading(true);
+                hideError();
+                hideSuccess();
+                
+                // Fetch user data
+                const userData = await fetchUserData();
+                updateUserInterface(userData);
+                clubId = userData.club._id;
+                clubName = userData.club.name;
+                
+                // Fetch club members
+                await fetchClubMembers(clubId);
+                
+            } catch (error) {
+                console.error('Error initializing page:', error);
+                showError('Failed to load members data. Please try again later.');
+                
+                // If unauthorized, redirect to login
+                if (error.response && error.response.status === 401) {
+                    localStorage.removeItem('token');
+                    window.location.href = '/login';
+                }
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        // Show/hide loading spinner
+        function showLoading(show) {
+            const spinner = document.getElementById('loadingSpinner');
+            if (spinner) {
+                spinner.style.display = show ? 'block' : 'none';
+            }
+        }
+
+        // Show/hide error message
+        function showError(message) {
+            const errorElement = document.getElementById('errorMessage');
+            if (errorElement) {
+                errorElement.textContent = message;
+                errorElement.style.display = 'block';
+            }
+        }
+
+        function hideError() {
+            const errorElement = document.getElementById('errorMessage');
+            if (errorElement) {
+                errorElement.style.display = 'none';
+            }
+        }
+
+        // Show/hide success message
+        function showSuccess(message) {
+            const successElement = document.getElementById('successMessage');
+            if (successElement) {
+                successElement.textContent = message;
+                successElement.style.display = 'block';
+                
+                // Auto hide after 5 seconds
+                setTimeout(() => {
+                    hideSuccess();
+                }, 5000);
+            }
+        }
+
+        function hideSuccess() {
+            const successElement = document.getElementById('successMessage');
+            if (successElement) {
+                successElement.style.display = 'none';
+            }
+        }
+
+        // Fetch user data
+        async function fetchUserData() {
+            const response = await axios.get(`${API_URL}/auth/me`);
+            return response.data;
+        }
+
+        async function fetchClubMembers(clubId) {
+            try {
+                console.log('Fetching club members for club:', clubId);
+                const response = await axios.get(`${API_URL}/clubs/${clubId}/members`);
+                
+                // Log the raw response to see its structure
+                console.log('Raw API response:', response.data);
+                
+                // The response now contains an array of transformed member objects
+                allMembers = response.data.members || [];
+                console.log('Received members data:', allMembers);
+                
+                // Transform the data to ensure it has the required fields
+                allMembers = allMembers.map(member => ({
+                    _id: member._id || '',
+                    name: member.name || 'Unknown',
+                    username: member.username || 'N/A',
+                    clubRole: member.clubRole || member.role || 'member',
+                    status: member.status || 'active',
+                    joinDate: member.joinDate || new Date()
+                }));
+                
+                console.log('Transformed members:', allMembers);
+                filteredMembers = [...allMembers];
+                renderMembersTable();
+                renderPagination();
+            } catch (error) {
+                console.error('Error fetching club members:', error);
+                showError('Failed to load club members. Please try again.');
+                allMembers = [];
+                filteredMembers = [];
+                renderMembersTable();
+                renderPagination();
+            }
+        }
+
+        function renderMembersTable() {
+            const tableBody = document.getElementById('membersTableBody');
+            if (!tableBody) return;
+            
+            // Clear table
+            tableBody.innerHTML = '';
+            
+            if (filteredMembers.length === 0) {
+                tableBody.innerHTML = '<tr><td colspan="6" style="text-align: center;">No members found</td></tr>';
+                return;
+            }
+            
+            // Calculate pagination
+            const startIndex = (currentPage - 1) * itemsPerPage;
+            const endIndex = Math.min(startIndex + itemsPerPage, filteredMembers.length);
+            const paginatedMembers = filteredMembers.slice(startIndex, endIndex);
+            
+            // Add each member to the table
+            paginatedMembers.forEach(member => {
+                console.log('Rendering member:', member); // Log for debugging
+                
+                const joinDate = formatDate(member.joinDate);
+                const memberInitials = member.name ? member.name.split(' ').map(n => n[0]).join('') : 'U';
+                
+                // Use clubRole if available, otherwise fall back to role
+                const displayRole = formatRole(member.clubRole || member.role || 'member');
+                
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>
+                        <div class="member-avatar-small">${memberInitials}</div>
+                        ${member.name || 'Unknown'}
+                    </td>
+                    <td>${member.username || 'N/A'}</td>
+                    <td>${displayRole}</td>
+                    <td><span class="status-badge ${member.status || 'active'}">${member.status || 'Active'}</span></td>
+                    <td>${joinDate}</td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="action-btn edit" onclick="editMember('${member._id}')">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="action-btn delete" onclick="deleteMember('${member._id}')">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </td>
+                `;
+                
+                tableBody.appendChild(row);
+            });
+        }
+
+        // Update user interface with user data
+        function updateUserInterface(userData) {
+            // Update user profile in sidebar
+            const userAvatar = document.getElementById('userAvatar');
+            const userName = document.getElementById('userName');
+            const userRole = document.getElementById('userRole');
+            
+            if (userAvatar) {
+                userAvatar.textContent = userData.name.split(' ').map(n => n[0]).join('');
+            }
+            
+            if (userName) {
+                userName.textContent = userData.name;
+            }
+            
+            if (userRole) {
+                userRole.textContent = `Club Leader - ${userData.club ? userData.club.name : 'No Club'}`;
+            }
+        }
+
+        // Format date safely
+        function formatDate(dateString) {
+            if (!dateString) return 'N/A';
+            
+            try {
+                const date = new Date(dateString);
+                if (isNaN(date.getTime())) return 'N/A';
+                
+                return date.toLocaleDateString();
+            } catch (error) {
+                console.error('Error formatting date:', error);
+                return 'N/A';
+            }
+        }
+
+        // Format role for display
+        function formatRole(role) {
+            if (!role) return 'Member';
+            
+            switch(role) {
+                case 'president':
+                    return 'President';
+                case 'vice-president':
+                    return 'Vice President';
+                case 'associate-president':
+                    return 'Associate President';
+                case 'public-relations':
+                    return 'Public Relations';
+                case 'human-resources':
+                    return 'Human Resources';
+                case 'secretary':
+                    return 'Secretary';
+                case 'treasurer':
+                    return 'Treasurer';
+                case 'documentation-head':
+                    return 'Documentation Head';
+                case 'photography':
+                    return 'Photography';
+                case 'content-creation':
+                    return 'Content Creation';
+                case 'digital-head':
+                    return 'Digital Head';
+                case 'coordinator-incharge':
+                    return 'Coordinator Incharge';
+                case 'member':
+                    return 'Member';
+                default:
+                    return role.charAt(0).toUpperCase() + role.slice(1);
+            }
+        }
+
+        // Render pagination
+        function renderPagination() {
+            const pagination = document.getElementById('pagination');
+            if (!pagination) return;
+            
+            // Clear pagination
+            pagination.innerHTML = '';
+            
+            if (filteredMembers.length === 0) return;
+            
+            // Calculate total pages
+            const totalPages = Math.ceil(filteredMembers.length / itemsPerPage);
+            
+            // Previous button
+            const prevBtn = document.createElement('button');
+            prevBtn.innerHTML = '<i class="fas fa-chevron-left"></i>';
+            prevBtn.disabled = currentPage === 1;
+            prevBtn.onclick = () => {
+                if (currentPage > 1) {
+                    currentPage--;
+                    renderMembersTable();
+                    renderPagination();
+                }
+            };
+            pagination.appendChild(prevBtn);
+            
+            // Page numbers
+            for (let i = 1; i <= totalPages; i++) {
+                const pageBtn = document.createElement('button');
+                pageBtn.textContent = i;
+                pageBtn.className = i === currentPage ? 'active' : '';
+                pageBtn.onclick = () => {
+                    currentPage = i;
+                    renderMembersTable();
+                    renderPagination();
+                };
+                pagination.appendChild(pageBtn);
+            }
+            
+            // Next button
+            const nextBtn = document.createElement('button');
+            nextBtn.innerHTML = '<i class="fas fa-chevron-right"></i>';
+            nextBtn.disabled = currentPage === totalPages;
+            nextBtn.onclick = () => {
+                if (currentPage < totalPages) {
+                    currentPage++;
+                    renderMembersTable();
+                    renderPagination();
+                }
+            };
+            pagination.appendChild(nextBtn);
+        }
+
+        // Toggle add member form
+        function toggleAddMemberForm() {
+            const form = document.getElementById('addMemberForm');
+            if (form.style.display === 'block') {
+                form.style.display = 'none';
+            } else {
+                form.style.display = 'block';
+                // Reset form
+                document.getElementById('newMemberForm').reset();
+            }
+        }
+
+        // Handle add member form submission
+        async function handleAddMember(event) {
+            event.preventDefault();
+            
+            try {
+                showLoading(true);
+                hideError();
+                hideSuccess();
+                
+                const memberData = {
+                    name: document.getElementById('memberName').value,
+                    username: document.getElementById('memberUsername').value,
+                    role: document.getElementById('memberRole').value, // Changed from clubRole to role
+                    status: document.getElementById('memberStatus').value,
+                    club: clubId // Automatically assign the club leader's club
+                };
+                
+                console.log('Adding member with data:', memberData);
+                
+                // Add the member to the club
+                const response = await axios.post(`${API_URL}/clubs/${clubId}/members`, memberData);
+                
+                console.log('Add member response:', response.data);
+                
+                // Refresh members list
+                await fetchClubMembers(clubId);
+                
+                // Hide form
+                toggleAddMemberForm();
+                
+                // Show success message
+                showSuccess(`Member added successfully to ${clubName}!`);
+                
+            } catch (error) {
+                console.error('Error adding member:', error);
+                let errorMessage = 'Failed to add member. Please try again.';
+                
+                // Handle specific error messages from the backend
+                if (error.response) {
+                    if (error.response.data && error.response.data.message) {
+                        errorMessage = error.response.data.message;
+                    }
+                    
+                    // Handle validation errors
+                    if (error.response.status === 400 && error.response.data.errors) {
+                        const validationErrors = Object.values(error.response.data.errors).map(err => err.message).join(', ');
+                        errorMessage = `Validation error: ${validationErrors}`;
+                    }
+                    
+                    // Handle duplicate username error
+                    if (error.response.status === 409) {
+                        errorMessage = 'Username already exists. Please choose a different username.';
+                    }
+                }
+                
+                showError(errorMessage);
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        // Search members
+        function searchMembers() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            
+            if (!searchTerm) {
+                filteredMembers = [...allMembers];
+            } else {
+                filteredMembers = allMembers.filter(member => 
+                    (member.name && member.name.toLowerCase().includes(searchTerm)) ||
+                    (member.username && member.username.toLowerCase().includes(searchTerm))
+                );
+            }
+            
+            // Reset to first page
+            currentPage = 1;
+            
+            // Re-render table and pagination
+            renderMembersTable();
+            renderPagination();
+        }
+
+        // Edit member
+        async function editMember(memberId) {
+            try {
+                // Find the member in the list
+                const member = allMembers.find(m => m._id === memberId);
+                if (!member) {
+                    showError('Member not found');
+                    return;
+                }
+                
+                // Populate the edit form with member data
+                document.getElementById('editMemberId').value = member._id;
+                document.getElementById('editMemberName').value = member.name || '';
+                document.getElementById('editMemberUsername').value = member.username || '';
+                document.getElementById('editMemberRole').value = member.clubRole || member.role || 'member'; // Use clubRole first, then role
+                document.getElementById('editMemberStatus').value = member.status || 'active';
+                
+                // Show the modal
+                const modal = document.getElementById('editMemberModal');
+                modal.classList.add('active');
+                
+            } catch (error) {
+                console.error('Error preparing edit form:', error);
+                showError('Failed to prepare edit form. Please try again.');
+            }
+        }
+
+        // Save edited member
+        async function saveEditedMember() {
+            try {
+                showLoading(true);
+                hideError();
+                hideSuccess();
+                
+                const memberId = document.getElementById('editMemberId').value;
+                const memberData = {
+                    name: document.getElementById('editMemberName').value,
+                    username: document.getElementById('editMemberUsername').value,
+                    role: document.getElementById('editMemberRole').value, // Changed from clubRole to role
+                    status: document.getElementById('editMemberStatus').value
+                };
+                
+                console.log('Updating member with ID:', memberId);
+                console.log('Member data:', memberData);
+                
+                // Update the member using the club-specific endpoint
+                const response = await axios.put(`${API_URL}/clubs/${clubId}/members/${memberId}`, memberData);
+                
+                console.log('Update response:', response.data);
+                
+                // Refresh members list
+                await fetchClubMembers(clubId);
+                
+                // Close the modal
+                closeEditMemberModal();
+                
+                // Show success message
+                showSuccess('Member updated successfully!');
+                
+            } catch (error) {
+                console.error('Error updating member:', error);
+                let errorMessage = 'Failed to update member. Please try again.';
+                
+                // Handle specific error messages from the backend
+                if (error.response) {
+                    if (error.response.data && error.response.data.message) {
+                        errorMessage = error.response.data.message;
+                    }
+                    
+                    // Handle authorization errors
+                    if (error.response.status === 401) {
+                        errorMessage = 'You are not authorized to perform this action.';
+                    }
+                    
+                    // Handle not found errors
+                    if (error.response.status === 404) {
+                        errorMessage = 'Member not found.';
+                    }
+                    
+                    // Handle duplicate username errors
+                    if (error.response.status === 400 && error.response.data.message.includes('Username already taken')) {
+                        errorMessage = 'This username is already taken. Please choose a different one.';
+                    }
+                    
+                    // Handle validation errors
+                    if (error.response.status === 400 && error.response.data.errors) {
+                        const validationErrors = Object.values(error.response.data.errors).map(err => err.message).join(', ');
+                        errorMessage = `Validation error: ${validationErrors}`;
+                    }
+                }
+                
+                showError(errorMessage);
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        // Close edit member modal
+        function closeEditMemberModal() {
+            const modal = document.getElementById('editMemberModal');
+            modal.classList.remove('active');
+        }
+
+        // Delete member
+        async function deleteMember(memberId) {
+            if (!confirm('Are you sure you want to remove this member from the club?')) {
+                return;
+            }
+            
+            try {
+                showLoading(true);
+                hideError();
+                hideSuccess();
+                
+                console.log('Deleting member with ID:', memberId, 'from club:', clubId);
+                
+                // Make sure clubId is properly set
+                if (!clubId) {
+                    showError('Club ID is missing. Please try again.');
+                    return;
+                }
+                
+                // Fix the API endpoint - ensure it matches your backend route
+                const response = await axios.delete(`${API_URL}/clubs/${clubId}/members/${memberId}`);
+                
+                console.log('Delete response:', response.data);
+                
+                // Refresh members list
+                await fetchClubMembers(clubId);
+                
+                // Show success message
+                showSuccess('Member removed successfully!');
+                
+            } catch (error) {
+                console.error('Error deleting member:', error);
+                
+                // More detailed error logging
+                if (error.response) {
+                    console.error('Error response data:', error.response.data);
+                    console.error('Error response status:', error.response.status);
+                    // Show the actual error message from the backend
+                    showError(error.response.data.message || error.response.data.error || 'Failed to remove member. Please try again.');
+                } else if (error.request) {
+                    // The request was made but no response was received
+                    showError('No response from server. Please check your internet connection.');
+                } else {
+                    // Something happened in setting up the request that triggered an Error
+                    showError('Failed to remove member. Please try again.');
+                }
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        // Setup mobile menu toggle
+        function setupMobileMenu() {
+            const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+            const sidebar = document.getElementById('sidebar');
+            
+            if (mobileMenuToggle && sidebar) {
+                mobileMenuToggle.addEventListener('click', function() {
+                    sidebar.classList.toggle('active');
+                });
+                
+                // Close sidebar when clicking on a link
+                document.querySelectorAll('.sidebar-menu a').forEach(link => {
+                    link.addEventListener('click', () => {
+                        sidebar.classList.remove('active');
+                    });
+                });
+            }
+        }
+
+        // Logout function
+        function logout() {
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            window.location.href = '/login';
+        }
+    </script>
+</body>
+</html>

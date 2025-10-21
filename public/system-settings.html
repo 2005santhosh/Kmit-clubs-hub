@@ -404,6 +404,27 @@
             margin-top: 1.5rem;
         }
 
+        /* Password field with toggle */
+        .password-field {
+            position: relative;
+        }
+
+        .password-toggle {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            color: var(--light-text);
+            background: none;
+            border: none;
+            font-size: 1rem;
+        }
+
+        .password-toggle:hover {
+            color: var(--primary);
+        }
+
         /* Profile Section */
         .profile-header {
             display: flex;
@@ -589,6 +610,26 @@
             gap: 1rem;
         }
 
+        /* Alert message styles */
+        .alert {
+            padding: 15px;
+            margin-bottom: 20px;
+            border: 1px solid transparent;
+            border-radius: 4px;
+        }
+
+        .alert-success {
+            color: #155724;
+            background-color: #d4edda;
+            border-color: #c3e6cb;
+        }
+
+        .alert-danger {
+            color: #721c24;
+            background-color: #f8d7da;
+            border-color: #f5c6cb;
+        }
+
         /* Responsive Styles */
         @media (max-width: 992px) {
             .sidebar {
@@ -728,37 +769,43 @@
 
                 <!-- Account Settings -->
                 <div class="settings-form" id="account-settings">
+                    <div id="passwordAlert"></div>
                     <form id="accountSettingsForm">
                         <div class="form-group">
                             <label for="currentPassword">Current Password</label>
-                            <input type="password" id="currentPassword" class="form-control" required>
+                            <div class="password-field">
+                                <input type="password" id="currentPassword" class="form-control" required>
+                                <button type="button" class="password-toggle" data-target="currentPassword">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </div>
                         </div>
                         <div class="form-row">
                             <div class="form-col">
                                 <div class="form-group">
                                     <label for="newPassword">New Password</label>
-                                    <input type="password" id="newPassword" class="form-control" required>
+                                    <div class="password-field">
+                                        <input type="password" id="newPassword" class="form-control" required>
+                                        <button type="button" class="password-toggle" data-target="newPassword">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                             <div class="form-col">
                                 <div class="form-group">
                                     <label for="confirmPassword">Confirm New Password</label>
-                                    <input type="password" id="confirmPassword" class="form-control" required>
+                                    <div class="password-field">
+                                        <input type="password" id="confirmPassword" class="form-control" required>
+                                        <button type="button" class="password-toggle" data-target="confirmPassword">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                        <div class="form-group">
-                            <label>
-                                <input type="checkbox" id="emailNotifications" checked> Receive email notifications
-                            </label>
-                        </div>
-                        <div class="form-group">
-                            <label>
-                                <input type="checkbox" id="smsNotifications"> Receive SMS notifications
-                            </label>
-                        </div>
                         <div class="form-actions">
-                            <button type="button" class="btn btn-secondary">Cancel</button>
+                            <button type="button" class="btn btn-secondary" id="cancelPasswordChange">Cancel</button>
                             <button type="submit" class="btn btn-primary">Update Password</button>
                         </div>
                     </form>
@@ -983,6 +1030,25 @@
                 });
             });
             
+            // Password visibility toggle
+            document.querySelectorAll('.password-toggle').forEach(button => {
+                button.addEventListener('click', function() {
+                    const targetId = this.getAttribute('data-target');
+                    const passwordInput = document.getElementById(targetId);
+                    const icon = this.querySelector('i');
+                    
+                    if (passwordInput.type === 'password') {
+                        passwordInput.type = 'text';
+                        icon.classList.remove('fa-eye');
+                        icon.classList.add('fa-eye-slash');
+                    } else {
+                        passwordInput.type = 'password';
+                        icon.classList.remove('fa-eye-slash');
+                        icon.classList.add('fa-eye');
+                    }
+                });
+            });
+            
             // Fetch user profile data
             async function fetchUserProfile() {
                 try {
@@ -1016,10 +1082,6 @@
                         const profileAvatar = document.getElementById('profileAvatar');
                         profileAvatar.innerHTML = `<img src="${userProfile.avatar}" alt="Profile Avatar">`;
                     }
-                    
-                    // Populate account settings
-                    document.getElementById('emailNotifications').checked = userProfile.emailNotifications !== false;
-                    document.getElementById('smsNotifications').checked = userProfile.smsNotifications || false;
                 } catch (error) {
                     console.error('Error fetching user profile:', error);
                     // Show error message in profile section
@@ -1037,12 +1099,17 @@
                 const confirmPassword = document.getElementById('confirmPassword').value;
                 
                 if (newPassword !== confirmPassword) {
-                    alert('New password and confirm password do not match.');
+                    showAlert('New password and confirm password do not match.', 'danger');
+                    return;
+                }
+                
+                if (newPassword.length < 6) {
+                    showAlert('Password must be at least 6 characters long.', 'danger');
                     return;
                 }
                 
                 try {
-                    const response = await fetch('/api/users/change-password', {
+                    const response = await fetch('/api/auth/change-password', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
@@ -1054,18 +1121,38 @@
                         })
                     });
                     
+                    const data = await response.json();
+                    
                     if (response.ok) {
-                        alert('Password updated successfully!');
+                        showAlert('Password updated successfully!', 'success');
                         document.getElementById('accountSettingsForm').reset();
                     } else {
-                        const error = await response.json();
-                        alert(`Error: ${error.message}`);
+                        showAlert(data.message || 'Failed to update password. Please try again.', 'danger');
                     }
                 } catch (error) {
                     console.error('Error updating password:', error);
-                    alert('Error updating password. Please try again.');
+                    showAlert('Error updating password. Please try again.', 'danger');
                 }
             });
+            
+            // Cancel password change
+            document.getElementById('cancelPasswordChange').addEventListener('click', function() {
+                document.getElementById('accountSettingsForm').reset();
+                document.getElementById('passwordAlert').innerHTML = '';
+            });
+            
+            // Function to show alert messages
+            function showAlert(message, type) {
+                const alertDiv = document.getElementById('passwordAlert');
+                alertDiv.innerHTML = `<div class="alert alert-${type}">${message}</div>`;
+                
+                // Auto-hide success messages after 5 seconds
+                if (type === 'success') {
+                    setTimeout(() => {
+                        alertDiv.innerHTML = '';
+                    }, 5000);
+                }
+            }
             
             // Privacy Policy Modal
             const privacyPolicyModal = document.getElementById('privacyPolicyModal');

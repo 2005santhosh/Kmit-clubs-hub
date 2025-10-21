@@ -1,0 +1,1753 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Events - KMIT Clubs Hub</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+    <style>
+        /* CSS Variables - Same as dashboard */
+        :root {
+            --primary: #003366;
+            --primary-dark: #002244;
+            --secondary: #f8fafc;
+            --accent: #ffc107;
+            --accent-light: #ffcd39;
+            --text: #212529;
+            --light-text: #6c757d;
+            --border-radius: 12px;
+            --box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+            --transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            --gradient-primary: linear-gradient(135deg, #003366 0%, #0055a4 100%);
+            --gradient-accent: linear-gradient(135deg, #ffc107 0%, #ffcd39 100%);
+        }
+
+        /* Global Styles - Same as dashboard */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Lato', sans-serif;
+            line-height: 1.7;
+            color: var(--text);
+            background-color: #fff;
+            overflow-x: hidden;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Typography - Same as dashboard */
+        h1, h2, h3, h4 {
+            font-family: 'Poppins', sans-serif;
+            margin-bottom: 1.2rem;
+            font-weight: 600;
+            line-height: 1.2;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        h2 {
+            font-size: 2rem;
+            color: var(--primary);
+            margin-bottom: 1.5rem;
+        }
+
+        h3 {
+            font-size: 1.5rem;
+            margin-bottom: 0.8rem;
+            color: var(--primary);
+        }
+
+        p {
+            margin-bottom: 1.2rem;
+            color: var(--light-text);
+            font-weight: 300;
+        }
+
+        a {
+            text-decoration: none;
+            color: var(--primary);
+            transition: var(--transition);
+        }
+
+        a:hover {
+            color: var(--accent);
+        }
+
+        /* Dashboard Layout - Same as dashboard */
+        .dashboard {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar - Same as dashboard */
+        .sidebar {
+            width: 260px;
+            background: var(--gradient-primary);
+            color: white;
+            padding: 2rem 0;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            z-index: 1000;
+            transition: var(--transition);
+        }
+
+        .sidebar-header {
+            padding: 0 1.5rem 2rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 1rem;
+        }
+
+        .sidebar-header h2 {
+            color: white;
+            font-size: 1.5rem;
+            background: none;
+            -webkit-text-fill-color: initial;
+        }
+
+        .sidebar-menu {
+            list-style: none;
+        }
+
+        .sidebar-menu li {
+            margin-bottom: 0.5rem;
+        }
+
+        .sidebar-menu a {
+            display: flex;
+            align-items: center;
+            padding: 0.8rem 1.5rem;
+            color: rgba(255, 255, 255, 0.8);
+            transition: var(--transition);
+        }
+
+        .sidebar-menu a:hover,
+        .sidebar-menu a.active {
+            background-color: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+
+        .sidebar-menu i {
+            margin-right: 0.8rem;
+            font-size: 1.2rem;
+        }
+
+        .user-profile {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 1.5rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1rem;
+            font-weight: 600;
+        }
+
+        .user-info h4 {
+            color: white;
+            font-size: 1rem;
+            margin-bottom: 0.2rem;
+        }
+
+        .user-info p {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.85rem;
+            margin: 0;
+        }
+
+        /* Main Content - Same as dashboard */
+        .main-content {
+            flex: 1;
+            margin-left: 260px;
+            padding: 2rem;
+            background-color: #f8fafc;
+        }
+
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .dashboard-title h1 {
+            margin-bottom: 0.5rem;
+        }
+
+        .dashboard-actions {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .notification-icon {
+            position: relative;
+            font-size: 1.5rem;
+            color: var(--primary);
+            cursor: pointer;
+        }
+
+        .notification-badge {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background-color: var(--accent);
+            color: white;
+            font-size: 0.7rem;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Buttons - Same as dashboard */
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            border-radius: 50px;
+            font-weight: 600;
+            text-align: center;
+            cursor: pointer;
+            transition: var(--transition);
+            border: none;
+            font-size: 0.9rem;
+        }
+
+        .btn-primary {
+            background: var(--gradient-primary);
+            color: white;
+            box-shadow: 0 4px 15px rgba(0, 51, 102, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 51, 102, 0.4);
+        }
+
+        .btn-secondary {
+            background-color: transparent;
+            color: var(--primary);
+            border: 2px solid var(--primary);
+        }
+
+        .btn-secondary:hover {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .btn-success {
+            background-color: #28a745;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background-color: #218838;
+            transform: translateY(-2px);
+        }
+
+        .btn-warning {
+            background-color: #ffc107;
+            color: var(--primary-dark);
+        }
+
+        .btn-warning:hover {
+            background-color: #e0a800;
+            transform: translateY(-2px);
+        }
+
+        .btn-danger {
+            background-color: #dc3545;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background-color: #c82333;
+            transform: translateY(-2px);
+        }
+
+        /* Content Sections - Same as dashboard */
+        .content-section {
+            background-color: white;
+            border-radius: var(--border-radius);
+            padding: 1.5rem;
+            box-shadow: var(--box-shadow);
+            margin-bottom: 2rem;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .section-title {
+            font-size: 1.3rem;
+            color: var(--primary);
+            margin: 0;
+        }
+
+        /* Mobile Menu Toggle - Same as dashboard */
+        .mobile-menu-toggle {
+            display: none;
+            position: fixed;
+            top: 1rem;
+            left: 1rem;
+            z-index: 1001;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            box-shadow: var(--box-shadow);
+        }
+
+        /* Loading Spinner - Same as dashboard */
+        .spinner {
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            border-radius: 50%;
+            border-top: 4px solid var(--primary);
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Error Message - Same as dashboard */
+        .error-message {
+            background-color: #f8d7da;
+            color: #721c24;
+            padding: 10px 15px;
+            border-radius: 5px;
+            margin: 10px 0;
+            text-align: center;
+        }
+
+        /* Success Message */
+        .success-message {
+            background-color: #d4edda;
+            color: #155724;
+            padding: 10px 15px;
+            border-radius: 5px;
+            margin: 10px 0;
+            text-align: center;
+        }
+
+        /* Events Specific Styles */
+        .events-filters {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .filter-group {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .filter-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .filter-control {
+            width: 100%;
+            padding: 10px 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            outline: none;
+            transition: var(--transition);
+        }
+
+        .filter-control:focus {
+            border-color: var(--primary);
+        }
+
+        .events-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .event-card {
+            background-color: white;
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            box-shadow: var(--box-shadow);
+            transition: var(--transition);
+            border-left: 4px solid var(--primary);
+        }
+
+        .event-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+        }
+
+        .event-image {
+            height: 180px;
+            background-color: var(--secondary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--light-text);
+            font-size: 3rem;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .event-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .event-image .fallback-icon {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 3rem;
+            color: var(--light-text);
+        }
+
+        .event-content {
+            padding: 1.5rem;
+        }
+
+        .event-date {
+            display: flex;
+            align-items: center;
+            margin-bottom: 0.8rem;
+            color: var(--light-text);
+            font-size: 0.9rem;
+        }
+
+        .event-date i {
+            margin-right: 0.5rem;
+            color: var(--accent);
+        }
+
+        .event-title {
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
+            color: var(--primary);
+        }
+
+        .event-description {
+            color: var(--light-text);
+            margin-bottom: 1rem;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .event-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid #e9ecef;
+        }
+
+        .event-status {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .event-status.upcoming {
+            background-color: #d1ecf1;
+            color: #0c5460;
+        }
+
+        .event-status.ongoing {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .event-status.completed {
+            background-color: #e2e3e5;
+            color: #383d41;
+        }
+
+        .event-status.pending {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+
+        .event-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .event-actions .btn {
+            padding: 6px 12px;
+            font-size: 0.8rem;
+        }
+
+        .event-calendar {
+            margin-top: 2rem;
+        }
+
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .calendar-nav {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .calendar-nav button {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 5px 10px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .calendar-nav button:hover {
+            background-color: var(--primary-dark);
+        }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 1px;
+            background-color: #e9ecef;
+            border-radius: var(--border-radius);
+            overflow: hidden;
+        }
+
+        .calendar-day-header {
+            background-color: var(--primary);
+            color: white;
+            padding: 10px;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        .calendar-day {
+            background-color: white;
+            min-height: 100px;
+            padding: 8px;
+            position: relative;
+        }
+
+        .calendar-day.other-month {
+            background-color: #f8f9fa;
+            color: var(--light-text);
+        }
+
+        .calendar-day-number {
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .calendar-day.has-event {
+            background-color: #f0f7ff;
+        }
+
+        .calendar-event {
+            font-size: 0.7rem;
+            padding: 2px 5px;
+            margin-bottom: 2px;
+            background-color: var(--accent);
+            color: var(--primary-dark);
+            border-radius: 3px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            cursor: pointer;
+        }
+
+        .calendar-event:hover {
+            background-color: var(--accent-light);
+        }
+
+        .event-details-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background-color: white;
+            border-radius: var(--border-radius);
+            width: 90%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+            padding: 2rem;
+            position: relative;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--light-text);
+        }
+
+        .modal-close:hover {
+            color: var(--text);
+        }
+
+        .modal-header {
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-body {
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
+        }
+
+        .event-detail-item {
+            margin-bottom: 1rem;
+        }
+
+        .event-detail-label {
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: 0.3rem;
+        }
+
+        .event-detail-value {
+            color: var(--text);
+        }
+
+        .modal-event-image {
+            width: 100%;
+            max-height: 300px;
+            object-fit: cover;
+            border-radius: var(--border-radius);
+            margin-bottom: 1rem;
+        }
+
+        .event-photos-gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .event-photo-thumbnail {
+            width: 100%;
+            height: 100px;
+            object-fit: cover;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .event-photo-thumbnail:hover {
+            transform: scale(1.05);
+        }
+
+        .no-image-placeholder {
+            width: 100%;
+            height: 180px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.2rem;
+            text-align: center;
+            padding: 1rem;
+        }
+
+        /* Responsive Styles - Same as dashboard */
+        @media (max-width: 992px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            
+            .sidebar.active {
+                transform: translateX(0);
+            }
+            
+            .main-content {
+                margin-left: 0;
+            }
+            
+            .mobile-menu-toggle {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .dashboard-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+            
+            .events-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .calendar-day {
+                min-height: 60px;
+            }
+            
+            .modal-footer {
+                flex-direction: column;
+            }
+        }
+
+        @media (max-width: 576px) {
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .main-content {
+                padding: 1rem;
+            }
+            
+            .events-filters {
+                flex-direction: column;
+            }
+            
+            .modal-content {
+                padding: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard">
+        <!-- Sidebar -->
+        <nav class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <h2><i class="fas fa-university"></i> KMIT Clubs Hub</h2>
+            </div>
+            <ul class="sidebar-menu">
+                <li><a href="/club_leader_dashboard"><i class="fas fa-home"></i> Dashboard</a></li>
+                <li><a href="/leader-user-management"><i class="fas fa-users"></i> Manage Members</a></li>
+                <li><a href="/leader-events" class="active"><i class="fas fa-calendar-alt"></i> Events</a></li>
+                <li><a href="/leader-reports"><i class="fas fa-file-alt"></i> Reports</a></li>
+                <li><a href="/leader-analytics"><i class="fas fa-chart-line"></i> Analytics</a></li>
+                <li><a href="/leader-settings"><i class="fas fa-cog"></i> Settings</a></li>
+            </ul>
+            <div class="user-profile">
+                <div class="user-avatar" id="userAvatar">RK</div>
+                <div class="user-info">
+                    <h4 id="userName">Rahul Kumar</h4>
+                    <p id="userRole">Club Leader - Recurse</p>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <button class="mobile-menu-toggle" id="mobileMenuToggle">
+                <i class="fas fa-bars"></i>
+            </button>
+
+            <!-- Dashboard Header -->
+            <div class="dashboard-header">
+                <div class="dashboard-title">
+                    <h1>Club Events</h1>
+                    <p>Manage and view all club events</p>
+                </div>
+                <div class="dashboard-actions">
+                    <!-- <div class="notification-icon">
+                        <i class="fas fa-bell"></i>
+                        <span class="notification-badge" id="notificationBadge">2</span>
+                    </div> -->
+                    <button class="btn btn-secondary" onclick="logout()">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </button>
+                </div>
+            </div>
+
+            <!-- Success Message -->
+            <div id="successMessage" class="success-message" style="display: none;"></div>
+            
+            <!-- Loading Spinner -->
+            <div id="loadingSpinner" class="spinner" style="display: none;"></div>
+
+            <!-- Error Message -->
+            <div id="errorMessage" class="error-message" style="display: none;"></div>
+
+            <!-- Events Filters -->
+            <div class="content-section">
+                <div class="section-header">
+                    <h3 class="section-title">Filter Events</h3>
+                    <button class="btn btn-primary" onclick="window.location.href='/add-event'">
+                        <i class="fas fa-plus"></i> Create Event
+                    </button>
+                </div>
+                <div class="events-filters">
+                    <div class="filter-group">
+                        <label for="statusFilter">Status</label>
+                        <select id="statusFilter" class="filter-control" onchange="filterEvents()">
+                            <option value="all">All Events</option>
+                            <option value="upcoming">Upcoming</option>
+                            <option value="ongoing">Ongoing</option>
+                            <option value="completed">Completed</option>
+                            <option value="pending">Pending Approval</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label for="monthFilter">Month</label>
+                        <select id="monthFilter" class="filter-control" onchange="filterEvents()">
+                            <option value="all">All Months</option>
+                            <option value="0">January</option>
+                            <option value="1">February</option>
+                            <option value="2">March</option>
+                            <option value="3">April</option>
+                            <option value="4">May</option>
+                            <option value="5">June</option>
+                            <option value="6">July</option>
+                            <option value="7">August</option>
+                            <option value="8">September</option>
+                            <option value="9">October</option>
+                            <option value="10">November</option>
+                            <option value="11">December</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label for="searchFilter">Search</label>
+                        <input type="text" id="searchFilter" class="filter-control" placeholder="Search events..." onkeyup="filterEvents()">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Events Grid -->
+            <div class="content-section">
+                <div class="section-header">
+                    <h3 class="section-title">Club Events</h3>
+                    <div class="view-toggle">
+                        <button class="btn btn-secondary" id="gridViewBtn" onclick="toggleView('grid')">
+                            <i class="fas fa-th"></i>
+                        </button>
+                        <button class="btn btn-secondary" id="calendarViewBtn" onclick="toggleView('calendar')">
+                            <i class="fas fa-calendar"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Grid View -->
+                <div id="eventsGridView" class="events-grid">
+                    <div class="spinner"></div>
+                </div>
+                
+                <!-- Calendar View -->
+                <div id="eventsCalendarView" class="event-calendar" style="display: none;">
+                    <div class="calendar-header">
+                        <h3 id="currentMonth">June 2023</h3>
+                        <div class="calendar-nav">
+                            <button id="prevMonth"><i class="fas fa-chevron-left"></i></button>
+                            <button id="nextMonth"><i class="fas fa-chevron-right"></i></button>
+                        </div>
+                    </div>
+                    <div class="calendar-grid" id="calendarGrid">
+                        <!-- Calendar will be generated here -->
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Event Details Modal -->
+    <div class="event-details-modal" id="eventDetailsModal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeEventModal()">&times;</button>
+            <div class="modal-header">
+                <h2 id="modalEventTitle">Event Title</h2>
+            </div>
+            <div class="modal-body" id="modalEventBody">
+                <!-- Event details will be loaded here -->
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeEventModal()">Close</button>
+                <button class="btn btn-danger" id="deleteEventBtn" onclick="confirmDeleteEvent()">
+                    <i class="fas fa-trash"></i> Delete Event
+                </button>
+                <button class="btn btn-primary" id="editEventBtn">Edit Event</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div class="event-details-modal" id="deleteConfirmModal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeDeleteConfirmModal()">&times;</button>
+            <div class="modal-header">
+                <h2>Confirm Delete</h2>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete this event? This action cannot be undone.</p>
+                <p><strong id="deleteEventName"></strong></p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeDeleteConfirmModal()">Cancel</button>
+                <button class="btn btn-danger" id="confirmDeleteBtn" onclick="deleteEvent()">
+                    <i class="fas fa-trash"></i> Delete Event
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script>
+        // API base URL
+        const API_URL = '/api';
+        let clubId = '';
+        let allEvents = [];
+        let filteredEvents = [];
+        let currentView = 'grid';
+        let currentMonth = new Date().getMonth();
+        let currentYear = new Date().getFullYear();
+        let currentEventId = null; // Track the current event being viewed
+
+        // Check if user is logged in
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check for token in localStorage
+            const token = localStorage.getItem('token');
+            if (!token) {
+                window.location.href = '/login';
+                return;
+            }
+            
+            // Set up axios default headers
+            axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+            
+            // Check if there's a success message in the URL parameters
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('success') === 'true') {
+                showSuccess('Event created successfully!');
+            }
+            
+            // Initialize page
+            initializePage();
+            
+            // Set up mobile menu toggle
+            setupMobileMenu();
+            
+            // Set up calendar navigation
+            document.getElementById('prevMonth').addEventListener('click', () => changeMonth(-1));
+            document.getElementById('nextMonth').addEventListener('click', () => changeMonth(1));
+        });
+
+        // Initialize page with data fetching
+        async function initializePage() {
+            try {
+                showLoading(true);
+                hideError();
+                
+                // Fetch user data
+                const userData = await fetchUserData();
+                updateUserInterface(userData);
+                
+                // Get club ID from user data
+                if (userData.club && userData.club._id) {
+                    clubId = userData.club._id;
+                } else if (userData.clubs && userData.clubs.length > 0) {
+                    // If user has multiple clubs, use the first one
+                    clubId = userData.clubs[0]._id;
+                } else {
+                    showError('You are not associated with any club. Please contact administrator.');
+                    return;
+                }
+                
+                // Fetch club events
+                await fetchClubEvents(clubId);
+                
+                // Render events grid
+                renderEventsGrid();
+                
+                // Initialize calendar
+                renderCalendar();
+                
+            } catch (error) {
+                console.error('Error initializing page:', error);
+                showError('Failed to load events data. Please try again later.');
+                
+                // If unauthorized, redirect to login
+                if (error.response && error.response.status === 401) {
+                    localStorage.removeItem('token');
+                    window.location.href = '/login';
+                }
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        // Show/hide loading spinner
+        function showLoading(show) {
+            const spinner = document.getElementById('loadingSpinner');
+            if (spinner) {
+                spinner.style.display = show ? 'block' : 'none';
+            }
+        }
+
+        // Show/hide error message
+        function showError(message) {
+            const errorElement = document.getElementById('errorMessage');
+            if (errorElement) {
+                errorElement.textContent = message;
+                errorElement.style.display = 'block';
+            }
+        }
+
+        function hideError() {
+            const errorElement = document.getElementById('errorMessage');
+            if (errorElement) {
+                errorElement.style.display = 'none';
+            }
+        }
+
+        // Show success message
+        function showSuccess(message) {
+            const successElement = document.getElementById('successMessage');
+            if (successElement) {
+                successElement.textContent = message;
+                successElement.style.display = 'block';
+                
+                // Auto hide after 5 seconds
+                setTimeout(() => {
+                    successElement.style.display = 'none';
+                }, 5000);
+            }
+        }
+
+        // Fetch user data
+        async function fetchUserData() {
+            const response = await axios.get(`${API_URL}/auth/me`);
+            return response.data;
+        }
+
+        // Fetch club events
+        async function fetchClubEvents(clubId) {
+            try {
+                console.log('Fetching events for club:', clubId);
+                // Use the events endpoint with clubId filter
+                const response = await axios.get(`${API_URL}/events?clubId=${clubId}`);
+                allEvents = response.data || [];
+                filteredEvents = [...allEvents];
+                console.log('Fetched events:', allEvents);
+                
+                // Log photo information for each event
+                allEvents.forEach((event, index) => {
+                    console.log(`Event ${index} (${event.title}):`, {
+                        hasPhotos: !!(event.photos && event.photos.length > 0),
+                        photos: event.photos,
+                        photoCount: event.photos ? event.photos.length : 0
+                    });
+                });
+                
+            } catch (error) {
+                console.error('Error fetching club events:', error);
+                allEvents = [];
+                filteredEvents = [];
+            }
+        }
+
+        // Update user interface with user data
+        function updateUserInterface(userData) {
+            // Update user profile in sidebar
+            const userAvatar = document.getElementById('userAvatar');
+            const userName = document.getElementById('userName');
+            const userRole = document.getElementById('userRole');
+            
+            if (userAvatar) {
+                userAvatar.textContent = userData.name.split(' ').map(n => n[0]).join('');
+            }
+            
+            if (userName) {
+                userName.textContent = userData.name;
+            }
+            
+            if (userRole) {
+                if (userData.club) {
+                    userRole.textContent = `Club Leader - ${userData.club.name}`;
+                } else if (userData.clubs && userData.clubs.length > 0) {
+                    userRole.textContent = `Club Leader - ${userData.clubs[0].name}`;
+                } else {
+                    userRole.textContent = 'Club Leader';
+                }
+            }
+        }
+
+        // Render events grid
+        function renderEventsGrid() {
+            const eventsGrid = document.getElementById('eventsGridView');
+            if (!eventsGrid) return;
+            
+            // Clear grid
+            eventsGrid.innerHTML = '';
+            
+            if (filteredEvents.length === 0) {
+                eventsGrid.innerHTML = '<p style="grid-column: 1/-1; text-align: center;">No events found</p>';
+                return;
+            }
+            
+            // Add each event to the grid
+            filteredEvents.forEach((event, index) => {
+                console.log(`Rendering event ${index}:`, event.title, event.photos);
+                
+                const eventDate = new Date(event.date);
+                const formattedDate = eventDate.toLocaleDateString('en-US', { 
+                    weekday: 'short', 
+                    month: 'short', 
+                    day: 'numeric' 
+                });
+                
+                const eventCard = document.createElement('div');
+                eventCard.className = 'event-card';
+                
+                // Check if event has photos
+                let eventImageHtml = '';
+                if (event.photos && event.photos.length > 0) {
+                    console.log(`Event ${event.title} has ${event.photos.length} photos`);
+                    // Use the first photo
+                    const photo = event.photos[0];
+                    console.log('First photo:', photo);
+                    
+                    // Make sure the image URL is properly formatted
+                    let imageUrl = photo.url;
+                    if (!imageUrl.startsWith('http')) {
+                        imageUrl = `${window.location.origin}${imageUrl}`;
+                    }
+                    console.log('Final image URL:', imageUrl);
+                    
+                    eventImageHtml = `
+                        <img src="${imageUrl}" 
+                             alt="${event.title || 'Event Image'}" 
+                             onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                        <i class="fas fa-calendar-alt fallback-icon" style="display: none;"></i>
+                    `;
+                } else if (event.thumbnail) {
+                    // Use thumbnail if no photos
+                    let imageUrl = event.thumbnail;
+                    if (!imageUrl.startsWith('http')) {
+                        imageUrl = `${window.location.origin}${imageUrl}`;
+                    }
+                    console.log('Using thumbnail:', imageUrl);
+                    
+                    eventImageHtml = `
+                        <img src="${imageUrl}" 
+                             alt="${event.title || 'Event Image'}" 
+                             onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                        <i class="fas fa-calendar-alt fallback-icon" style="display: none;"></i>
+                    `;
+                } else {
+                    console.log(`Event ${event.title} has no photos, using placeholder`);
+                    // Use a placeholder with event type icon
+                    const eventTypeIcons = {
+                        'workshop': 'fa-chalkboard-teacher',
+                        'seminar': 'fa-users',
+                        'competition': 'fa-trophy',
+                        'social': 'fa-glass-cheers',
+                        'cultural': 'fa-theater-masks',
+                        'other': 'fa-calendar-alt'
+                    };
+                    const iconClass = eventTypeIcons[event.eventType] || 'fa-calendar-alt';
+                    
+                    eventImageHtml = `
+                        <div class="no-image-placeholder">
+                            <div>
+                                <i class="fas ${iconClass}"></i>
+                                <p>${event.eventType || 'Event'}</p>
+                            </div>
+                        </div>
+                    `;
+                }
+                
+                eventCard.innerHTML = `
+                    <div class="event-image">
+                        ${eventImageHtml}
+                    </div>
+                    <div class="event-content">
+                        <div class="event-date">
+                            <i class="fas fa-clock"></i> ${formattedDate}
+                        </div>
+                        <h3 class="event-title">${event.title || 'Untitled Event'}</h3>
+                        <p class="event-description">${event.description || 'No description available'}</p>
+                        <div class="event-footer">
+                            <span class="event-status ${event.status || 'upcoming'}">${formatStatus(event.status)}</span>
+                            <div class="event-actions">
+                                <button class="btn btn-primary" onclick="viewEventDetails('${event._id}')">View</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                eventsGrid.appendChild(eventCard);
+            });
+        }
+
+        // Render calendar
+        function renderCalendar() {
+            const calendarGrid = document.getElementById('calendarGrid');
+            if (!calendarGrid) return;
+            
+            // Clear calendar
+            calendarGrid.innerHTML = '';
+            
+            // Update current month display
+            const monthNames = ["January", "February", "March", "April", "May", "June",
+                "July", "August", "September", "October", "November", "December"
+            ];
+            document.getElementById('currentMonth').textContent = `${monthNames[currentMonth]} ${currentYear}`;
+            
+            // Add day headers
+            const dayHeaders = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+            dayHeaders.forEach(day => {
+                const dayHeader = document.createElement('div');
+                dayHeader.className = 'calendar-day-header';
+                dayHeader.textContent = day;
+                calendarGrid.appendChild(dayHeader);
+            });
+            
+            // Get first day of month and number of days
+            const firstDay = new Date(currentYear, currentMonth, 1).getDay();
+            const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+            const daysInPrevMonth = new Date(currentYear, currentMonth, 0).getDate();
+            
+            // Add empty cells for days before the first day of the month
+            for (let i = firstDay; i > 0; i--) {
+                const day = document.createElement('div');
+                day.className = 'calendar-day other-month';
+                const dayNumber = document.createElement('div');
+                dayNumber.className = 'calendar-day-number';
+                dayNumber.textContent = daysInPrevMonth - i + 1;
+                day.appendChild(dayNumber);
+                calendarGrid.appendChild(day);
+            }
+            
+            // Add cells for each day of the month
+            for (let day = 1; day <= daysInMonth; day++) {
+                const dayElement = document.createElement('div');
+                dayElement.className = 'calendar-day';
+                
+                const dayNumber = document.createElement('div');
+                dayNumber.className = 'calendar-day-number';
+                dayNumber.textContent = day;
+                dayElement.appendChild(dayNumber);
+                
+                // Check if there are events on this day
+                const dayEvents = getEventsForDay(day, currentMonth, currentYear);
+                if (dayEvents.length > 0) {
+                    dayElement.classList.add('has-event');
+                    
+                    // Add event indicators (max 2)
+                    dayEvents.slice(0, 2).forEach(event => {
+                        const eventElement = document.createElement('div');
+                        eventElement.className = 'calendar-event';
+                        eventElement.textContent = event.title;
+                        eventElement.onclick = () => viewEventDetails(event._id);
+                        dayElement.appendChild(eventElement);
+                    });
+                    
+                    // Add "more" indicator if there are more than 2 events
+                    if (dayEvents.length > 2) {
+                        const moreElement = document.createElement('div');
+                        moreElement.className = 'calendar-event';
+                        moreElement.textContent = `+${dayEvents.length - 2} more`;
+                        moreElement.style.fontStyle = 'italic';
+                        dayElement.appendChild(moreElement);
+                    }
+                }
+                
+                calendarGrid.appendChild(dayElement);
+            }
+            
+            // Add empty cells for days after the last day of the month
+            const totalCells = calendarGrid.children.length - 7; // Subtract day headers
+            const remainingCells = 42 - totalCells; // 6 rows x 7 days = 42 cells
+            
+            for (let day = 1; day <= remainingCells; day++) {
+                const dayElement = document.createElement('div');
+                dayElement.className = 'calendar-day other-month';
+                
+                const dayNumber = document.createElement('div');
+                dayNumber.className = 'calendar-day-number';
+                dayNumber.textContent = day;
+                dayElement.appendChild(dayNumber);
+                
+                calendarGrid.appendChild(dayElement);
+            }
+        }
+
+        // Get events for a specific day
+        function getEventsForDay(day, month, year) {
+            return allEvents.filter(event => {
+                const eventDate = new Date(event.date);
+                return eventDate.getDate() === day && 
+                       eventDate.getMonth() === month && 
+                       eventDate.getFullYear() === year;
+            });
+        }
+
+        // Format status text
+        function formatStatus(status) {
+            switch(status) {
+                case 'upcoming': return 'Upcoming';
+                case 'ongoing': return 'Ongoing';
+                case 'completed': return 'Completed';
+                case 'pending': return 'Pending Approval';
+                default: return 'Unknown';
+            }
+        }
+
+        // Filter events based on selected criteria
+        function filterEvents() {
+            const statusFilter = document.getElementById('statusFilter').value;
+            const monthFilter = document.getElementById('monthFilter').value;
+            const searchFilter = document.getElementById('searchFilter').value.toLowerCase();
+            
+            filteredEvents = allEvents.filter(event => {
+                // Status filter
+                if (statusFilter !== 'all' && event.status !== statusFilter) {
+                    return false;
+                }
+                
+                // Month filter
+                if (monthFilter !== 'all') {
+                    const eventMonth = new Date(event.date).getMonth();
+                    if (parseInt(monthFilter) !== eventMonth) {
+                        return false;
+                    }
+                }
+                
+                // Search filter
+                if (searchFilter && !event.title.toLowerCase().includes(searchFilter) && 
+                    !event.description.toLowerCase().includes(searchFilter)) {
+                    return false;
+                }
+                
+                return true;
+            });
+            
+            // Re-render based on current view
+            if (currentView === 'grid') {
+                renderEventsGrid();
+            } else {
+                renderCalendar();
+            }
+        }
+
+        // Toggle between grid and calendar view
+        function toggleView(view) {
+            currentView = view;
+            
+            const gridView = document.getElementById('eventsGridView');
+            const calendarView = document.getElementById('eventsCalendarView');
+            const gridBtn = document.getElementById('gridViewBtn');
+            const calendarBtn = document.getElementById('calendarViewBtn');
+            
+            if (view === 'grid') {
+                gridView.style.display = 'grid';
+                calendarView.style.display = 'none';
+                gridBtn.classList.add('active');
+                calendarBtn.classList.remove('active');
+            } else {
+                gridView.style.display = 'none';
+                calendarView.style.display = 'block';
+                gridBtn.classList.remove('active');
+                calendarBtn.classList.add('active');
+                renderCalendar();
+            }
+        }
+
+        // Change month in calendar view
+        function changeMonth(direction) {
+            currentMonth += direction;
+            
+            if (currentMonth < 0) {
+                currentMonth = 11;
+                currentYear--;
+            } else if (currentMonth > 11) {
+                currentMonth = 0;
+                currentYear++;
+            }
+            
+            renderCalendar();
+        }
+
+        // View event details in modal
+        async function viewEventDetails(eventId) {
+            try {
+                showLoading(true);
+                
+                // Fetch event details
+                const response = await axios.get(`${API_URL}/events/${eventId}`);
+                const event = response.data;
+                
+                // Store the current event ID for potential deletion
+                currentEventId = eventId;
+                
+                console.log('Event details for modal:', event);
+                
+                // Populate modal with event details
+                document.getElementById('modalEventTitle').textContent = event.title || 'Untitled Event';
+                
+                const eventDate = new Date(event.date);
+                const formattedDate = eventDate.toLocaleDateString('en-US', { 
+                    weekday: 'long', 
+                    year: 'numeric', 
+                    month: 'long', 
+                    day: 'numeric' 
+                });
+                
+                // Check if event has photos
+                let eventImageHtml = '';
+                if (event.photos && event.photos.length > 0) {
+                    console.log(`Event ${event.title} has ${event.photos.length} photos for modal`);
+                    
+                    // Create a gallery of photos
+                    let photosHtml = '<div class="event-photos-gallery">';
+                    event.photos.forEach((photo, index) => {
+                        console.log(`Photo ${index}:`, photo);
+                        // Make sure the image URL is properly formatted
+                        let imageUrl = photo.url;
+                        if (!imageUrl.startsWith('http')) {
+                            imageUrl = `${window.location.origin}${imageUrl}`;
+                        }
+                        console.log(`Final photo URL ${index}:`, imageUrl);
+                        photosHtml += `<img src="${imageUrl}" alt="${photo.caption || 'Event Photo'}" class="event-photo-thumbnail" onerror="this.style.display='none'">`;
+                    });
+                    photosHtml += '</div>';
+                    
+                    // Also add the first photo as the main image
+                    const firstPhoto = event.photos[0];
+                    let imageUrl = firstPhoto.url;
+                    if (!imageUrl.startsWith('http')) {
+                        imageUrl = `${window.location.origin}${imageUrl}`;
+                    }
+                    eventImageHtml = `<img src="${imageUrl}" alt="${event.title || 'Event Image'}" class="modal-event-image" onerror="this.style.display='none'">` + photosHtml;
+                } else if (event.thumbnail) {
+                    // Use thumbnail if no photos
+                    let imageUrl = event.thumbnail;
+                    if (!imageUrl.startsWith('http')) {
+                        imageUrl = `${window.location.origin}${imageUrl}`;
+                    }
+                    console.log('Using thumbnail for modal:', imageUrl);
+                    
+                    eventImageHtml = `<img src="${imageUrl}" alt="${event.title || 'Event Image'}" class="modal-event-image" onerror="this.style.display='none'">`;
+                } else {
+                    console.log(`Event ${event.title} has no photos for modal`);
+                    // Use a placeholder with event type icon
+                    const eventTypeIcons = {
+                        'workshop': 'fa-chalkboard-teacher',
+                        'seminar': 'fa-users',
+                        'competition': 'fa-trophy',
+                        'social': 'fa-glass-cheers',
+                        'cultural': 'fa-theater-masks',
+                        'other': 'fa-calendar-alt'
+                    };
+                    const iconClass = eventTypeIcons[event.eventType] || 'fa-calendar-alt';
+                    
+                    eventImageHtml = `
+                        <div class="no-image-placeholder">
+                            <div>
+                                <i class="fas ${iconClass}"></i>
+                                <p>${event.eventType || 'Event'}</p>
+                            </div>
+                        </div>
+                    `;
+                }
+                
+                const modalBody = document.getElementById('modalEventBody');
+                modalBody.innerHTML = `
+                    ${eventImageHtml}
+                    <div class="event-detail-item">
+                        <div class="event-detail-label">Date & Time</div>
+                        <div class="event-detail-value">${formattedDate} at ${event.startTime || 'TBD'} - ${event.endTime || 'TBD'}</div>
+                    </div>
+                    <div class="event-detail-item">
+                        <div class="event-detail-label">Location</div>
+                        <div class="event-detail-value">${event.venue || 'TBD'}</div>
+                    </div>
+                    <div class="event-detail-item">
+                        <div class="event-detail-label">Event Type</div>
+                        <div class="event-detail-value">${event.eventType || 'Not specified'}</div>
+                    </div>
+                    <div class="event-detail-item">
+                        <div class="event-detail-label">Max Participants</div>
+                        <div class="event-detail-value">${event.maxParticipants || 'Unlimited'}</div>
+                    </div>
+                    <div class="event-detail-item">
+                        <div class="event-detail-label">Entry Price</div>
+                        <div class="event-detail-value">₹${event.entryPrice || '0'}</div>
+                    </div>
+                    <div class="event-detail-item">
+                        <div class="event-detail-label">Requested Budget</div>
+                        <div class="event-detail-value">₹${event.budget?.requested || '0'}</div>
+                    </div>
+                    <div class="event-detail-item">
+                        <div class="event-detail-label">Status</div>
+                        <div class="event-detail-value">
+                            <span class="event-status ${event.status || 'upcoming'}">${formatStatus(event.status)}</span>
+                        </div>
+                    </div>
+                    <div class="event-detail-item">
+                        <div class="event-detail-label">Description</div>
+                        <div class="event-detail-value">${event.description || 'No description available'}</div>
+                    </div>
+                    <div class="event-detail-item">
+                        <div class="event-detail-label">Attendees</div>
+                        <div class="event-detail-value">${event.registeredParticipants ? event.registeredParticipants.length : 0} registered</div>
+                    </div>
+                `;
+                
+                // Set up edit button
+                const editBtn = document.getElementById('editEventBtn');
+                editBtn.onclick = () => {
+                    window.location.href = `/add-event?id=${eventId}`;
+                };
+                
+                // Show modal
+                document.getElementById('eventDetailsModal').style.display = 'flex';
+                
+            } catch (error) {
+                console.error('Error fetching event details:', error);
+                showError('Failed to load event details. Please try again.');
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        // Close event modal
+        function closeEventModal() {
+            document.getElementById('eventDetailsModal').style.display = 'none';
+            currentEventId = null; // Reset current event ID
+        }
+
+        // Confirm delete event
+        function confirmDeleteEvent() {
+            if (!currentEventId) return;
+            
+            // Get event name for confirmation
+            const event = allEvents.find(e => e._id === currentEventId);
+            if (event) {
+                document.getElementById('deleteEventName').textContent = event.title;
+            }
+            
+            // Hide event details modal and show delete confirmation modal
+            document.getElementById('eventDetailsModal').style.display = 'none';
+            document.getElementById('deleteConfirmModal').style.display = 'flex';
+        }
+
+        // Close delete confirmation modal
+        function closeDeleteConfirmModal() {
+            document.getElementById('deleteConfirmModal').style.display = 'none';
+            // If we came from the event details modal, show it again
+            if (currentEventId) {
+                document.getElementById('eventDetailsModal').style.display = 'flex';
+            }
+        }
+
+ // Delete event
+async function deleteEvent() {
+    if (!currentEventId) return;
+    
+    try {
+        showLoading(true);
+        hideError();
+        
+        console.log('Deleting event with ID:', currentEventId);
+        console.log('User info:', {
+            id: localStorage.getItem('userId'),
+            token: localStorage.getItem('token') ? 'Token exists' : 'No token'
+        });
+        
+        // Send DELETE request to the server
+        const response = await axios.delete(`${API_URL}/events/${currentEventId}`);
+        
+        console.log('Delete response:', response.data);
+        
+        // Close modals
+        closeDeleteConfirmModal();
+        closeEventModal();
+        
+        // Show success message
+        showSuccess('Event deleted successfully!');
+        
+        // Reset current event ID
+        currentEventId = null;
+        
+        // Refetch events from the server instead of reloading the page
+        await fetchClubEvents(clubId);
+        
+        // Re-render the events grid or calendar
+        if (currentView === 'grid') {
+            renderEventsGrid();
+        } else {
+            renderCalendar();
+        }
+        
+    } catch (error) {
+        console.error('Error deleting event:', error);
+        
+        // More detailed error logging
+        if (error.response) {
+            console.error('Error response data:', error.response.data);
+            console.error('Error response status:', error.response.status);
+            
+            // Show specific error message based on status code
+            if (error.response.status === 401) {
+                showError('Your session has expired. Please log in again.');
+                // Redirect to login after a short delay
+                setTimeout(() => {
+                    localStorage.removeItem('token');
+                    window.location.href = '/login';
+                }, 2000);
+            } else if (error.response.status === 403) {
+                showError('You are not authorized to delete this event. Only club leaders of this club can delete events.');
+            } else {
+                // Show the actual error message from the backend
+                showError(error.response.data.message || error.response.data.error || 'Failed to delete event. Please try again.');
+            }
+        } else if (error.request) {
+            // The request was made but no response was received
+            showError('No response from server. Please check your internet connection.');
+        } else {
+            // Something happened in setting up the request that triggered an Error
+            showError('Failed to delete event. Please try again.');
+        }
+    } finally {
+        showLoading(false);
+    }
+}
+
+// Debug event authorization
+async function debugEventAuth() {
+    if (!currentEventId) return;
+    
+    try {
+        showLoading(true);
+        
+        const response = await axios.get(`${API_URL}/events/${currentEventId}/debug-auth`);
+        
+        console.log('Debug auth response:', response.data);
+        
+        // Create a modal to display the debug information
+        const debugModal = document.createElement('div');
+        debugModal.className = 'event-details-modal';
+        debugModal.style.display = 'flex';
+        debugModal.innerHTML = `
+            <div class="modal-content">
+                <button class="modal-close" onclick="this.parentElement.parentElement.remove()">&times;</button>
+                <div class="modal-header">
+                    <h2>Authorization Debug</h2>
+                </div>
+                <div class="modal-body">
+                    <pre>${JSON.stringify(response.data, null, 2)}</pre>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" onclick="this.parentElement.parentElement.parentElement.remove()">Close</button>
+                </div>
+            </div>
+        `;
+        
+        document.body.appendChild(debugModal);
+        
+    } catch (error) {
+        console.error('Error debugging auth:', error);
+        showError('Failed to debug authorization. Please try again.');
+    } finally {
+        showLoading(false);
+    }
+}
+
+        // Setup mobile menu toggle
+        function setupMobileMenu() {
+            const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+            const sidebar = document.getElementById('sidebar');
+            
+            if (mobileMenuToggle && sidebar) {
+                mobileMenuToggle.addEventListener('click', function() {
+                    sidebar.classList.toggle('active');
+                });
+                
+                // Close sidebar when clicking on a link
+                document.querySelectorAll('.sidebar-menu a').forEach(link => {
+                    link.addEventListener('click', () => {
+                        sidebar.classList.remove('active');
+                    });
+                });
+            }
+        }
+
+        // Logout function
+        function logout() {
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            window.location.href = '/login';
+        }
+    </script>
+</body>
+</html>

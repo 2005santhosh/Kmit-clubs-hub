@@ -1,0 +1,1700 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rewards - KMIT Clubs Hub</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+    <style>
+        /* CSS Variables */
+        :root {
+            --primary: #003366; /* Deep Navy */
+            --primary-dark: #002244;
+            --secondary: #f8fafc; /* Soft Gray */
+            --accent: #ffc107; /* Gold Accent */
+            --accent-light: #ffcd39;
+            --text: #212529; /* Darker Text */
+            --light-text: #6c757d;
+            --border-radius: 12px;
+            --box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+            --transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            --section-padding: 100px 0;
+            --container-padding: 0 20px;
+            --gradient-primary: linear-gradient(135deg, #003366 0%, #0055a4 100%);
+            --gradient-accent: linear-gradient(135deg, #ffc107 0%, #ffcd39 100%);
+        }
+
+        /* Global Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Lato', sans-serif;
+            line-height: 1.7;
+            color: var(--text);
+            background-color: #fff;
+            overflow-x: hidden;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: var(--container-padding);
+        }
+
+        /* Typography */
+        h1, h2, h3, h4 {
+            font-family: 'Poppins', sans-serif;
+            margin-bottom: 1.2rem;
+            font-weight: 600;
+            line-height: 1.2;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        h2 {
+            font-size: 2rem;
+            color: var(--primary);
+            margin-bottom: 1.5rem;
+            position: relative;
+        }
+
+        h3 {
+            font-size: 1.5rem;
+            margin-bottom: 0.8rem;
+            color: var(--primary);
+        }
+
+        p {
+            margin-bottom: 1.2rem;
+            color: var(--light-text);
+            font-weight: 300;
+        }
+
+        a {
+            text-decoration: none;
+            color: var(--primary);
+            transition: var(--transition);
+        }
+
+        a:hover {
+            color: var(--accent);
+        }
+
+        /* Dashboard Layout */
+        .dashboard {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 260px;
+            background: var(--gradient-primary);
+            color: white;
+            padding: 2rem 0;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            z-index: 1000;
+            transition: var(--transition);
+        }
+
+        .sidebar-header {
+            padding: 0 1.5rem 2rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 1rem;
+        }
+
+        .sidebar-header h2 {
+            color: white;
+            font-size: 1.5rem;
+            background: none;
+            -webkit-text-fill-color: initial;
+        }
+
+        .sidebar-menu {
+            list-style: none;
+        }
+
+        .sidebar-menu li {
+            margin-bottom: 0.5rem;
+        }
+
+        .sidebar-menu a {
+            display: flex;
+            align-items: center;
+            padding: 0.8rem 1.5rem;
+            color: rgba(255, 255, 255, 0.8);
+            transition: var(--transition);
+        }
+
+        .sidebar-menu a:hover,
+        .sidebar-menu a.active {
+            background-color: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+
+        .sidebar-menu i {
+            margin-right: 0.8rem;
+            font-size: 1.2rem;
+        }
+
+        .user-profile {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 1.5rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1rem;
+            font-weight: 600;
+        }
+
+        .user-info h4 {
+            color: white;
+            font-size: 1rem;
+            margin-bottom: 0.2rem;
+        }
+
+        .user-info p {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.85rem;
+            margin: 0;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            margin-left: 260px;
+            padding: 2rem;
+            background-color: #f8fafc;
+        }
+
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .dashboard-title h1 {
+            margin-bottom: 0.5rem;
+        }
+
+        .dashboard-actions {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .notification-icon {
+            position: relative;
+            font-size: 1.5rem;
+            color: var(--primary);
+            cursor: pointer;
+        }
+
+        .notification-badge {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background-color: var(--accent);
+            color: white;
+            font-size: 0.7rem;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Content Sections */
+        .content-section {
+            background-color: white;
+            border-radius: var(--border-radius);
+            padding: 1.5rem;
+            box-shadow: var(--box-shadow);
+            margin-bottom: 2rem;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .section-title {
+            font-size: 1.3rem;
+            color: var(--primary);
+            margin: 0;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            border-radius: 50px;
+            font-weight: 600;
+            text-align: center;
+            cursor: pointer;
+            transition: var(--transition);
+            border: none;
+            font-size: 0.9rem;
+        }
+
+        .btn-primary {
+            background: var(--gradient-primary);
+            color: white;
+            box-shadow: 0 4px 15px rgba(0, 51, 102, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 51, 102, 0.4);
+        }
+
+        .btn-secondary {
+            background-color: transparent;
+            color: var(--primary);
+            border: 2px solid var(--primary);
+        }
+
+        .btn-secondary:hover {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        /* Points Summary */
+        .points-summary {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--gradient-primary);
+            color: white;
+            border-radius: var(--border-radius);
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .points-info h2 {
+            color: white;
+            margin-bottom: 0.5rem;
+        }
+
+        .points-value {
+            font-size: 3rem;
+            font-weight: 700;
+        }
+
+        .points-chart {
+            width: 150px;
+            height: 150px;
+            position: relative;
+        }
+
+        .chart-circle {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: conic-gradient(
+                var(--accent) 0% 75%,
+                rgba(255, 255, 255, 0.2) 75% 100%
+            );
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .chart-inner {
+            width: 70%;
+            height: 70%;
+            border-radius: 50%;
+            background: var(--gradient-primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        /* Rewards Grid */
+        .rewards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .reward-card {
+            background-color: white;
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            box-shadow: var(--box-shadow);
+            transition: var(--transition);
+            border: 2px solid transparent;
+        }
+
+        .reward-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+        }
+
+        .reward-card.earned {
+            border-color: var(--accent);
+        }
+
+        .reward-card.locked {
+            opacity: 0.7;
+        }
+
+        .reward-header {
+            padding: 1.5rem;
+            text-align: center;
+            background-color: var(--secondary);
+        }
+
+        .reward-icon {
+            font-size: 3rem;
+            color: var(--accent);
+            margin-bottom: 1rem;
+        }
+
+        .reward-name {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .reward-points {
+            color: var(--light-text);
+            font-size: 0.9rem;
+        }
+
+        .reward-body {
+            padding: 1.5rem;
+        }
+
+        .reward-description {
+            color: var(--light-text);
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+        }
+
+        .reward-status {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 1rem;
+        }
+
+        .reward-status-text {
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .status-earned {
+            color: #28a745;
+        }
+
+        .status-locked {
+            color: var(--light-text);
+        }
+
+        .reward-action {
+            margin-top: 1rem;
+            text-align: center;
+        }
+
+        /* Leaderboard */
+        .leaderboard-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .leaderboard-item {
+            display: flex;
+            align-items: center;
+            padding: 1rem;
+            background-color: var(--secondary);
+            border-radius: var(--border-radius);
+            transition: var(--transition);
+        }
+
+        .leaderboard-item:hover {
+            background-color: #e9f2f9;
+        }
+
+        .leaderboard-rank {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--primary);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            margin-right: 1rem;
+        }
+
+        .leaderboard-rank.gold {
+            background-color: #FFD700;
+            color: var(--text);
+        }
+
+        .leaderboard-rank.silver {
+            background-color: #C0C0C0;
+            color: var(--text);
+        }
+
+        .leaderboard-rank.bronze {
+            background-color: #CD7F32;
+            color: white;
+        }
+
+        .leaderboard-info {
+            flex: 1;
+        }
+
+        .leaderboard-name {
+            font-weight: 600;
+            margin-bottom: 0.3rem;
+        }
+
+        .leaderboard-clubs {
+            font-size: 0.85rem;
+            color: var(--accent);
+            margin-bottom: 0.3rem;
+            display: flex;
+            align-items: center;
+        }
+
+        .leaderboard-clubs i {
+            margin-right: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .leaderboard-points {
+            font-size: 0.9rem;
+            color: var(--light-text);
+        }
+
+        .leaderboard-user {
+            background-color: rgba(255, 193, 7, 0.1);
+            border: 1px solid var(--accent);
+        }
+
+        /* Loading Spinner */
+        .spinner {
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            border-radius: 50%;
+            border-top: 4px solid var(--primary);
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Error Message */
+        .error-message {
+            background-color: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            text-align: center;
+            display: none;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 2rem;
+            color: var(--light-text);
+        }
+
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            color: #dee2e6;
+        }
+
+        /* Mobile Menu Toggle */
+        .mobile-menu-toggle {
+            display: none;
+            position: fixed;
+            top: 1rem;
+            left: 1rem;
+            z-index: 1001;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            box-shadow: var(--box-shadow);
+        }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            margin-bottom: 1.5rem;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .tab {
+            padding: 0.8rem 1.5rem;
+            cursor: pointer;
+            font-weight: 600;
+            color: var(--light-text);
+            position: relative;
+            transition: var(--transition);
+        }
+
+        .tab:hover {
+            color: var(--primary);
+        }
+
+        .tab.active {
+            color: var(--primary);
+        }
+
+        .tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background-color: var(--primary);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Notification Toast */
+        .notification-toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: var(--primary);
+            color: white;
+            padding: 15px 20px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            display: flex;
+            align-items: center;
+            z-index: 1000;
+            transform: translateX(150%);
+            transition: transform 0.3s ease;
+        }
+
+        .notification-toast.show {
+            transform: translateX(0);
+        }
+
+        .notification-toast i {
+            margin-right: 10px;
+            font-size: 1.2rem;
+        }
+
+        /* Club Member Indicator */
+        .club-member-indicator {
+            background-color: var(--accent);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            display: inline-block;
+            margin-left: 10px;
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            overflow: auto;
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 10% auto;
+            padding: 0;
+            border-radius: var(--border-radius);
+            width: 80%;
+            max-width: 600px;
+            box-shadow: var(--box-shadow);
+            animation: modalFadeIn 0.3s;
+        }
+
+        @keyframes modalFadeIn {
+            from { opacity: 0; transform: translateY(-50px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .modal-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid #e9ecef;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h3 {
+            margin: 0;
+            color: var(--primary);
+        }
+
+        .close {
+            color: #aaa;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .close:hover {
+            color: var(--primary);
+        }
+
+        .modal-body {
+            padding: 1.5rem;
+        }
+
+        .modal-reward-icon {
+            font-size: 3rem;
+            color: var(--accent);
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+
+        .modal-requirements {
+            margin: 1.5rem 0;
+        }
+
+        .modal-requirements h4 {
+            color: var(--primary);
+            margin-bottom: 1rem;
+        }
+
+        .modal-requirements ul {
+            padding-left: 1.5rem;
+        }
+
+        .modal-requirements li {
+            margin-bottom: 0.5rem;
+            color: var(--light-text);
+        }
+
+        .modal-points {
+            background-color: var(--secondary);
+            padding: 1rem;
+            border-radius: var(--border-radius);
+            margin-top: 1rem;
+        }
+
+        .modal-points p {
+            margin: 0.5rem 0;
+        }
+
+        .modal-footer {
+            padding: 1rem 1.5rem;
+            border-top: 1px solid #e9ecef;
+            text-align: right;
+        }
+
+        /* Responsive Styles */
+        @media (max-width: 992px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            
+            .sidebar.active {
+                transform: translateX(0);
+            }
+            
+            .main-content {
+                margin-left: 0;
+            }
+            
+            .mobile-menu-toggle {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+            
+            .points-summary {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .points-chart {
+                margin-top: 1rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .dashboard-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+            
+            .rewards-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .modal-content {
+                width: 95%;
+                margin: 15% auto;
+            }
+        }
+
+        @media (max-width: 576px) {
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .main-content {
+                padding: 1rem;
+            }
+            
+            .tabs {
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard">
+        <!-- Sidebar -->
+        <nav class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <h2><i class="fas fa-university"></i> KMIT Clubs Hub</h2>
+            </div>
+            <ul class="sidebar-menu">
+                <li><a href="/student_dashboard"><i class="fas fa-home"></i> Dashboard</a></li>
+                <li><a href="/student_clubs"><i class="fas fa-users"></i> My Clubs</a></li>
+                <li><a href="/student_events"><i class="fas fa-calendar-alt"></i> Events</a></li>
+                <li><a href="/student_rewards" class="active"><i class="fas fa-trophy"></i> Rewards</a></li>
+                <li><a href="/student_analytics"><i class="fas fa-chart-line"></i> Analytics</a></li>
+                <li><a href="/student_settings"><i class="fas fa-cog"></i> Settings</a></li>
+            </ul>
+            <div class="user-profile">
+                <div class="user-avatar" id="userAvatar">SK</div>
+                <div class="user-info">
+                    <h4 id="userName">Sai Kumar</h4>
+                    <p id="userRollNumber">KMIT401</p>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <button class="mobile-menu-toggle" id="mobileMenuToggle">
+                <i class="fas fa-bars"></i>
+            </button>
+
+            <!-- Dashboard Header -->
+            <div class="dashboard-header">
+                <div class="dashboard-title">
+                    <h1>Rewards</h1>
+                    <p>Track your achievements and earn rewards</p>
+                </div>
+                <div class="dashboard-actions">
+                    <div class="notification-icon">
+                        <i class="fas fa-bell"></i>
+                        <span class="notification-badge" id="notificationBadge">3</span>
+                    </div>
+                    <button class="btn btn-secondary" onclick="logout()">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </button>
+                </div>
+            </div>
+
+            <!-- Error Message -->
+            <div id="errorMessage" class="error-message"></div>
+
+            <!-- Loading Spinner -->
+            <div id="loadingSpinner" class="spinner" style="display: none;"></div>
+
+            <!-- Points Summary -->
+            <div class="points-summary">
+                <div class="points-info">
+                    <h2>Your Reward Points</h2>
+                    <div class="points-value" id="totalPoints">0</div>
+                    <p id="clubMemberStatus">Join a club to get 10 default points!</p>
+                </div>
+                <div class="points-chart">
+                    <div class="chart-circle">
+                        <div class="chart-inner" id="progressPercentage">0%</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Rewards Tabs -->
+            <div class="content-section">
+                <div class="tabs">
+                    <div class="tab active" data-tab="my-rewards">My Rewards</div>
+                    <div class="tab" data-tab="available-rewards">Available Rewards</div>
+                    <div class="tab" data-tab="leaderboard">Leaderboard</div>
+                </div>
+
+                <!-- My Rewards Tab -->
+                <div class="tab-content active" id="my-rewards">
+                    <div class="rewards-grid" id="myRewardsGrid">
+                        <!-- Rewards will be dynamically loaded here -->
+                        <div class="empty-state" id="myRewardsEmptyState" style="display: none;">
+                            <i class="fas fa-trophy"></i>
+                            <p>No rewards earned yet</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Available Rewards Tab -->
+                <div class="tab-content" id="available-rewards">
+                    <div class="rewards-grid" id="availableRewardsGrid">
+                        <!-- Rewards will be dynamically loaded here -->
+                        <div class="empty-state" id="availableRewardsEmptyState" style="display: none;">
+                            <i class="fas fa-gift"></i>
+                            <p>No available rewards</p>
+                        </div>
+                    </div>
+                </div>
+
+               
+<div class="tab-content" id="leaderboard">
+    <div class="leaderboard-list" id="leaderboardList">
+        <!-- Leaderboard will be dynamically loaded here -->
+        <div class="empty-state" id="leaderboardEmptyState" style="display: none;">
+            <i class="fas fa-medal"></i>
+            <p>Leaderboard not available</p>
+        </div>
+    </div>
+</div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Requirements Modal -->
+    <div class="modal" id="requirementsModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modalRewardName">Reward Requirements</h3>
+                <span class="close">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div id="modalRewardIcon" class="modal-reward-icon"></div>
+                <div id="modalRewardDescription"></div>
+                <div class="modal-requirements">
+                    <h4>How to Earn This Reward:</h4>
+                    <ul id="modalRequirementsList"></ul>
+                </div>
+                <div class="modal-points">
+                    <p><strong>Points Required:</strong> <span id="modalRequiredPoints"></span></p>
+                    <p><strong>Your Current Points:</strong> <span id="modalCurrentPoints"></span></p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="closeModal">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification Toast -->
+    <div class="notification-toast" id="notificationToast">
+        <i class="fas fa-check-circle"></i>
+        <span id="notificationMessage">Notification message</span>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+<script>
+    // API base URL
+    const API_URL = '/api';
+    
+    // Current user ID (in a real app, this would come from authentication)
+    let currentUserId = null;
+    
+    // Socket.io connection
+    let socket = null;
+    
+    // Check if user is logged in
+    document.addEventListener('DOMContentLoaded', function() {
+        // Check for token in localStorage
+        const token = localStorage.getItem('token');
+        if (!token) {
+            window.location.href = '/login';
+            return;
+        }
+        
+        // Set up axios default headers
+        axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+        
+        // Initialize page
+        initializePage();
+        
+        // Set up mobile menu toggle
+        setupMobileMenu();
+        
+        // Set up tabs
+        setupTabs();
+        
+        // Setup modal
+        setupModal();
+    });
+
+    // Initialize page with data fetching
+    async function initializePage() {
+        try {
+            showLoading(true);
+            hideError();
+            
+            // Fetch user data
+            const userData = await fetchUserData();
+            updateUserInterface(userData);
+            currentUserId = userData._id;
+            
+            // Initialize Socket.IO
+            initializeSocket(currentUserId);
+            
+            // Fetch user points
+            const pointsData = await fetchUserPoints();
+            updatePointsSummary(pointsData);
+            
+            // Fetch user rewards
+            const myRewardsData = await fetchUserRewards();
+            updateMyRewardsGrid(myRewardsData);
+            
+            // Fetch available rewards
+            const availableRewardsData = await fetchAvailableRewards();
+            updateAvailableRewardsGrid(availableRewardsData);
+            
+            // Fetch leaderboard
+            const leaderboardData = await fetchLeaderboard();
+            updateLeaderboardList(leaderboardData);
+            
+        } catch (error) {
+            console.error('Error initializing page:', error);
+            
+            // Check if it's an authentication error
+            if (error.response && error.response.status === 401) {
+                localStorage.removeItem('token');
+                window.location.href = '/login';
+                return;
+            }
+            
+            // Show a more specific error message
+            let errorMessage = 'Failed to load rewards data. Please try again later.';
+            
+            if (error.message) {
+                errorMessage = `Error: ${error.message}`;
+            } else if (error.response && error.response.data && error.response.data.message) {
+                errorMessage = `Error: ${error.response.data.message}`;
+            }
+            
+            showError(errorMessage);
+        } finally {
+            showLoading(false);
+        }
+    }
+
+    // Initialize Socket.IO
+    function initializeSocket(userId) {
+        try {
+            socket = io('http://localhost:3000');
+            
+            socket.on('connect', () => {
+                console.log('Socket connected');
+                socket.emit('join-room', userId);
+            });
+            
+            socket.on('points-updated', (data) => {
+                if (data.userId === currentUserId) {
+                    // Update points display
+                    document.getElementById('totalPoints').textContent = data.points;
+                    document.getElementById('progressPercentage').textContent = `${data.progressPercentage}%`;
+                    
+                    // Update chart
+                    const chartCircle = document.querySelector('.chart-circle');
+                    if (chartCircle) {
+                        chartCircle.style.background = `conic-gradient(
+                            var(--accent) 0% ${data.progressPercentage}%,
+                            rgba(255, 255, 255, 0.2) ${data.progressPercentage}% 100%
+                        )`;
+                    }
+                    
+                    // Show notification
+                    showNotification(`You earned ${data.pointsEarned} points!`);
+                    
+                    // Refresh rewards and leaderboard
+                    setTimeout(() => {
+                        initializePage();
+                    }, 1000);
+                }
+            });
+            
+            socket.on('reward-claimed', (data) => {
+                if (data.userId === currentUserId) {
+                    showNotification(`You claimed the ${data.rewardName} reward!`);
+                    initializePage();
+                }
+            });
+            
+            socket.on('connect_error', (error) => {
+                console.error('Socket connection error:', error);
+            });
+            
+        } catch (error) {
+            console.error('Error initializing socket:', error);
+        }
+    }
+
+    // Show/hide loading spinner
+    function showLoading(show) {
+        const spinner = document.getElementById('loadingSpinner');
+        if (spinner) {
+            spinner.style.display = show ? 'block' : 'none';
+        }
+    }
+
+    // Show/hide error message
+    function showError(message) {
+        const errorElement = document.getElementById('errorMessage');
+        if (errorElement) {
+            errorElement.textContent = message;
+            errorElement.style.display = 'block';
+        }
+    }
+
+    function hideError() {
+        const errorElement = document.getElementById('errorMessage');
+        if (errorElement) {
+            errorElement.style.display = 'none';
+        }
+    }
+
+    // Show notification toast
+    function showNotification(message) {
+        const notificationToast = document.getElementById('notificationToast');
+        const notificationMessage = document.getElementById('notificationMessage');
+        
+        if (notificationToast && notificationMessage) {
+            notificationMessage.textContent = message;
+            notificationToast.classList.add('show');
+            
+            setTimeout(() => {
+                notificationToast.classList.remove('show');
+            }, 3000);
+        }
+    }
+
+    // Fetch user data
+    async function fetchUserData() {
+        try {
+            const response = await axios.get(`${API_URL}/auth/me`);
+            return response.data;
+        } catch (error) {
+            console.error('Error fetching user data:', error);
+            throw error;
+        }
+    }
+
+    // Update user interface with user data
+    function updateUserInterface(userData) {
+        // Update user profile in sidebar
+        const userAvatar = document.getElementById('userAvatar');
+        const userName = document.getElementById('userName');
+        const userRollNumber = document.getElementById('userRollNumber');
+        
+        if (userAvatar) {
+            userAvatar.textContent = userData.name.split(' ').map(n => n[0]).join('');
+        }
+        
+        if (userName) {
+            userName.textContent = userData.name;
+        }
+        
+        if (userRollNumber) {
+            userRollNumber.textContent = userData.username; // Using username as roll number
+        }
+        
+        // Check if user is a club member
+        const isClubMember = userData.clubs && userData.clubs.length > 0;
+        
+        // Update user role display
+        const userRoleElement = document.querySelector('.user-info p');
+        if (userRoleElement) {
+            if (isClubMember) {
+                userRoleElement.innerHTML = `
+                    ${userData.username}
+                    <span class="club-member-indicator">Club Member</span>
+                `;
+            } else {
+                userRoleElement.textContent = userData.username;
+            }
+        }
+    }
+
+    // Fetch user points
+    async function fetchUserPoints() {
+        try {
+            const response = await axios.get(`${API_URL}/users/points`);
+            return response.data;
+        } catch (error) {
+            console.error('Error fetching user points:', error);
+            // Return default data if endpoint fails
+            return {
+                totalPoints: 0,
+                nextLevelPoints: 100,
+                progressPercentage: 0
+            };
+        }
+    }
+
+    // Update points summary
+    function updatePointsSummary(pointsData) {
+        const totalPoints = document.getElementById('totalPoints');
+        const progressPercentage = document.getElementById('progressPercentage');
+        const clubMemberStatus = document.getElementById('clubMemberStatus');
+        
+        if (totalPoints) {
+            totalPoints.textContent = pointsData.totalPoints;
+        }
+        
+        if (progressPercentage) {
+            progressPercentage.textContent = `${pointsData.progressPercentage}%`;
+        }
+        
+        // Update club member status message
+        if (clubMemberStatus) {
+            if (pointsData.totalPoints >= 10) {
+                clubMemberStatus.textContent = 'You are a club member with 10 default points!';
+            } else {
+                clubMemberStatus.textContent = 'Join a club to get 10 default points!';
+            }
+        }
+        
+        // Update chart
+        const chartCircle = document.querySelector('.chart-circle');
+        if (chartCircle) {
+            chartCircle.style.background = `conic-gradient(
+                var(--accent) 0% ${pointsData.progressPercentage}%,
+                rgba(255, 255, 255, 0.2) ${pointsData.progressPercentage}% 100%
+            )`;
+        }
+    }
+
+    // Fetch user rewards
+    async function fetchUserRewards() {
+        try {
+            const response = await axios.get(`${API_URL}/rewards/earned`);
+            return response.data;
+        } catch (error) {
+            console.error('Error fetching user rewards:', error);
+            return [];
+        }
+    }
+
+    // Update my rewards grid
+    function updateMyRewardsGrid(rewardsData) {
+        const myRewardsGrid = document.getElementById('myRewardsGrid');
+        const myRewardsEmptyState = document.getElementById('myRewardsEmptyState');
+        
+        if (!myRewardsGrid) return;
+        
+        if (!rewardsData || rewardsData.length === 0) {
+            if (myRewardsEmptyState) {
+                myRewardsEmptyState.style.display = 'block';
+            }
+            return;
+        }
+        
+        if (myRewardsEmptyState) {
+            myRewardsEmptyState.style.display = 'none';
+        }
+        
+        // Clear existing rewards
+        myRewardsGrid.innerHTML = '';
+        
+        // Add rewards to the grid
+        rewardsData.forEach(reward => {
+            const rewardCard = createRewardCard(reward, 'earned');
+            myRewardsGrid.appendChild(rewardCard);
+        });
+    }
+
+    // Fetch available rewards
+    async function fetchAvailableRewards() {
+        try {
+            const response = await axios.get(`${API_URL}/rewards`);
+            return response.data;
+        } catch (error) {
+            console.error('Error fetching available rewards:', error);
+            return [];
+        }
+    }
+
+    // Update available rewards grid
+    function updateAvailableRewardsGrid(rewardsData) {
+        const availableRewardsGrid = document.getElementById('availableRewardsGrid');
+        const availableRewardsEmptyState = document.getElementById('availableRewardsEmptyState');
+        
+        if (!availableRewardsGrid) return;
+        
+        if (!rewardsData || rewardsData.length === 0) {
+            if (availableRewardsEmptyState) {
+                availableRewardsEmptyState.style.display = 'block';
+            }
+            return;
+        }
+        
+        if (availableRewardsEmptyState) {
+            availableRewardsEmptyState.style.display = 'none';
+        }
+        
+        // Clear existing rewards
+        availableRewardsGrid.innerHTML = '';
+        
+        // Get user points
+        const userPoints = parseInt(document.getElementById('totalPoints')?.textContent || 0);
+        
+        // Add rewards to the grid
+        rewardsData.forEach(reward => {
+            const status = userPoints >= reward.requiredPoints ? 'available' : 'locked';
+            const rewardCard = createRewardCard(reward, status);
+            availableRewardsGrid.appendChild(rewardCard);
+        });
+    }
+
+    // Create reward card element
+    function createRewardCard(reward, status) {
+        const rewardCard = document.createElement('div');
+        rewardCard.className = `reward-card ${status}`;
+        
+        // Create reward header
+        const rewardHeader = document.createElement('div');
+        rewardHeader.className = 'reward-header';
+        
+        const rewardIcon = document.createElement('div');
+        rewardIcon.className = 'reward-icon';
+        
+        const icon = document.createElement('i');
+        icon.className = reward.icon || 'fas fa-trophy';
+        
+        const rewardName = document.createElement('div');
+        rewardName.className = 'reward-name';
+        rewardName.textContent = reward.name;
+        
+        const rewardPoints = document.createElement('div');
+        rewardPoints.className = 'reward-points';
+        
+        if (status === 'earned') {
+            rewardPoints.textContent = `${reward.points} points earned`;
+        } else {
+            rewardPoints.textContent = `${reward.requiredPoints} points required`;
+        }
+        
+        rewardIcon.appendChild(icon);
+        rewardHeader.appendChild(rewardIcon);
+        rewardHeader.appendChild(rewardName);
+        rewardHeader.appendChild(rewardPoints);
+        
+        // Create reward body
+        const rewardBody = document.createElement('div');
+        rewardBody.className = 'reward-body';
+        
+        const rewardDescription = document.createElement('div');
+        rewardDescription.className = 'reward-description';
+        rewardDescription.textContent = reward.description || 'No description available';
+        
+        const rewardStatus = document.createElement('div');
+        rewardStatus.className = 'reward-status';
+        
+        const statusText = document.createElement('span');
+        statusText.className = 'reward-status-text';
+        
+        if (status === 'earned') {
+            statusText.classList.add('status-earned');
+            statusText.textContent = `Earned on ${new Date(reward.earnedDate).toLocaleDateString()}`;
+        } else if (status === 'available') {
+            statusText.classList.add('status-available');
+            statusText.textContent = 'Available to claim';
+        } else {
+            statusText.classList.add('status-locked');
+            statusText.textContent = 'Locked';
+        }
+        
+        rewardStatus.appendChild(statusText);
+        
+        // Create reward action
+        const rewardAction = document.createElement('div');
+        rewardAction.className = 'reward-action';
+        
+        let actionButton;
+        
+        if (status === 'earned') {
+            actionButton = document.createElement('button');
+            actionButton.className = 'btn btn-secondary';
+            actionButton.textContent = 'View Details';
+            actionButton.onclick = () => viewRewardDetails(reward._id);
+        } else if (status === 'available') {
+            actionButton = document.createElement('button');
+            actionButton.className = 'btn btn-primary';
+            actionButton.textContent = 'Claim Reward';
+            actionButton.onclick = () => claimReward(reward._id);
+        } else {
+            actionButton = document.createElement('button');
+            actionButton.className = 'btn btn-secondary';
+            actionButton.textContent = 'View Requirements';
+            actionButton.onclick = () => showRequirementsModal(reward);
+        }
+        
+        rewardAction.appendChild(actionButton);
+        
+        rewardBody.appendChild(rewardDescription);
+        rewardBody.appendChild(rewardStatus);
+        rewardBody.appendChild(rewardAction);
+        
+        rewardCard.appendChild(rewardHeader);
+        rewardCard.appendChild(rewardBody);
+        
+        return rewardCard;
+    }
+
+    // Fetch leaderboard
+    async function fetchLeaderboard() {
+        try {
+            const response = await axios.get(`${API_URL}/leaderboard`);
+            return response.data;
+        } catch (error) {
+            console.error('Error fetching leaderboard:', error);
+            return [];
+        }
+    }
+
+    // Update leaderboard list
+    function updateLeaderboardList(leaderboardData) {
+        const leaderboardList = document.getElementById('leaderboardList');
+        const leaderboardEmptyState = document.getElementById('leaderboardEmptyState');
+        
+        if (!leaderboardList) return;
+        
+        if (!leaderboardData || leaderboardData.length === 0) {
+            if (leaderboardEmptyState) {
+                leaderboardEmptyState.style.display = 'block';
+            }
+            return;
+        }
+        
+        if (leaderboardEmptyState) {
+            leaderboardEmptyState.style.display = 'none';
+        }
+        
+        // Clear existing leaderboard
+        leaderboardList.innerHTML = '';
+        
+        // Add leaderboard items
+        leaderboardData.forEach(user => {
+            const leaderboardItem = createLeaderboardItem(user);
+            leaderboardList.appendChild(leaderboardItem);
+        });
+    }
+
+    // Create leaderboard item element
+    function createLeaderboardItem(user) {
+        const leaderboardItem = document.createElement('div');
+        leaderboardItem.className = 'leaderboard-item';
+        
+        if (user.isCurrentUser) {
+            leaderboardItem.classList.add('leaderboard-user');
+        }
+        
+        // Create rank element
+        const leaderboardRank = document.createElement('div');
+        leaderboardRank.className = 'leaderboard-rank';
+        
+        if (user.rank === 1) {
+            leaderboardRank.classList.add('gold');
+        } else if (user.rank === 2) {
+            leaderboardRank.classList.add('silver');
+        } else if (user.rank === 3) {
+            leaderboardRank.classList.add('bronze');
+        }
+        
+        leaderboardRank.textContent = user.rank;
+        
+        // Create info element
+        const leaderboardInfo = document.createElement('div');
+        leaderboardInfo.className = 'leaderboard-info';
+        
+        const leaderboardName = document.createElement('div');
+        leaderboardName.className = 'leaderboard-name';
+        leaderboardName.textContent = user.name;
+        
+        if (user.isCurrentUser) {
+            leaderboardName.textContent += ' (You)';
+        }
+        
+        const leaderboardClubs = document.createElement('div');
+        leaderboardClubs.className = 'leaderboard-clubs';
+        
+        // Create club names string
+        if (user.clubs && user.clubs.length > 0) {
+            const clubNames = user.clubs.join(', ');
+            leaderboardClubs.innerHTML = `<i class="fas fa-users"></i> ${clubNames}`;
+        } else {
+            leaderboardClubs.innerHTML = '<i class="fas fa-users" style="color: #ccc;"></i> No clubs';
+        }
+        
+        const leaderboardPoints = document.createElement('div');
+        leaderboardPoints.className = 'leaderboard-points';
+        leaderboardPoints.textContent = `${user.points} points`;
+        
+        leaderboardInfo.appendChild(leaderboardName);
+        leaderboardInfo.appendChild(leaderboardClubs);
+        leaderboardInfo.appendChild(leaderboardPoints);
+        
+        leaderboardItem.appendChild(leaderboardRank);
+        leaderboardItem.appendChild(leaderboardInfo);
+        
+        return leaderboardItem;
+    }
+
+    // View reward details
+    function viewRewardDetails(rewardId) {
+        // In a real implementation, this would navigate to a reward details page
+        alert(`Viewing details for reward ${rewardId}`);
+    }
+
+    // Claim reward
+    async function claimReward(rewardId) {
+        try {
+            showLoading(true);
+            
+            const response = await axios.post(`${API_URL}/rewards/${rewardId}/claim`);
+            
+            // Show success message
+            showNotification(response.data.message);
+            
+            // Refresh data
+            initializePage();
+            
+        } catch (error) {
+            console.error('Error claiming reward:', error);
+            if (error.response && error.response.data && error.response.data.message) {
+                showError(error.response.data.message);
+            } else {
+                showError('Failed to claim reward. Please try again later.');
+            }
+        } finally {
+            showLoading(false);
+        }
+    }
+
+    // Show requirements modal
+    function showRequirementsModal(reward) {
+        const modal = document.getElementById('requirementsModal');
+        const modalRewardName = document.getElementById('modalRewardName');
+        const modalRewardIcon = document.getElementById('modalRewardIcon');
+        const modalRewardDescription = document.getElementById('modalRewardDescription');
+        const modalRequirementsList = document.getElementById('modalRequirementsList');
+        const modalRequiredPoints = document.getElementById('modalRequiredPoints');
+        const modalCurrentPoints = document.getElementById('modalCurrentPoints');
+        
+        // Set reward details
+        modalRewardName.textContent = reward.name;
+        modalRewardDescription.textContent = reward.description || 'No description available';
+        modalRequiredPoints.textContent = reward.requiredPoints;
+        
+        // Set user's current points
+        const userPoints = parseInt(document.getElementById('totalPoints')?.textContent || 0);
+        modalCurrentPoints.textContent = userPoints;
+        
+        // Set reward icon
+        modalRewardIcon.innerHTML = `<i class="${reward.icon || 'fas fa-trophy'}"></i>`;
+        
+        // Set requirements based on reward category
+        modalRequirementsList.innerHTML = '';
+        
+        const requirements = getRequirementsByReward(reward);
+        requirements.forEach(req => {
+            const li = document.createElement('li');
+            li.textContent = req;
+            modalRequirementsList.appendChild(li);
+        });
+        
+        // Show modal
+        modal.style.display = 'block';
+    }
+
+    // Get requirements for a reward
+    function getRequirementsByReward(reward) {
+        const requirements = [];
+        
+        // Common requirements
+        requirements.push('Be an active member of the KMIT Clubs Hub');
+        
+        // Category-specific requirements
+        switch (reward.category) {
+            case 'club':
+                requirements.push('Join at least one club');
+                requirements.push('Participate in club activities regularly');
+                if (reward.requiredPoints > 50) {
+                    requirements.push('Take on leadership responsibilities in the club');
+                }
+                break;
+            case 'event':
+                requirements.push('Register for club events');
+                requirements.push('Attend events regularly');
+                if (reward.requiredPoints > 50) {
+                    requirements.push('Organize or help organize club events');
+                }
+                break;
+            case 'achievement':
+                requirements.push('Contribute positively to the club community');
+                requirements.push('Complete club-related tasks or projects');
+                break;
+            case 'special':
+                requirements.push('Demonstrate exceptional dedication to the club');
+                requirements.push('Go above and beyond regular member duties');
+                break;
+        }
+        
+        // Points requirement
+        requirements.push(`Earn at least ${reward.requiredPoints} points`);
+        
+        return requirements;
+    }
+
+    // Close modal
+    function closeModal() {
+        const modal = document.getElementById('requirementsModal');
+        if (modal) {
+            modal.style.display = 'none';
+        }
+    }
+
+    // Setup modal close events
+    function setupModal() {
+        const modal = document.getElementById('requirementsModal');
+        const closeBtn = document.getElementsByClassName('close')[0];
+        const closeModalBtn = document.getElementById('closeModal');
+        
+        if (modal && closeBtn) {
+            // Close modal when clicking on X
+            closeBtn.onclick = closeModal;
+        }
+        
+        if (modal && closeModalBtn) {
+            // Close modal when clicking on Close button
+            closeModalBtn.onclick = closeModal;
+        }
+        
+        if (modal) {
+            // Close modal when clicking outside of it
+            window.onclick = function(event) {
+                if (event.target === modal) {
+                    closeModal();
+                }
+            };
+        }
+    }
+
+    // Setup mobile menu toggle
+    function setupMobileMenu() {
+        const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+        const sidebar = document.getElementById('sidebar');
+        
+        if (mobileMenuToggle && sidebar) {
+            mobileMenuToggle.addEventListener('click', function() {
+                sidebar.classList.toggle('active');
+            });
+            
+            // Close sidebar when clicking on a link
+            document.querySelectorAll('.sidebar-menu a').forEach(link => {
+                link.addEventListener('click', () => {
+                    sidebar.classList.remove('active');
+                });
+            });
+        }
+    }
+
+    // Setup tabs
+    function setupTabs() {
+        const tabs = document.querySelectorAll('.tab');
+        const tabContents = document.querySelectorAll('.tab-content');
+        
+        tabs.forEach(tab => {
+            tab.addEventListener('click', function() {
+                // Remove active class from all tabs and tab contents
+                tabs.forEach(t => t.classList.remove('active'));
+                tabContents.forEach(c => c.classList.remove('active'));
+                
+                // Add active class to clicked tab
+                this.classList.add('active');
+                
+                // Show corresponding tab content
+                const tabId = this.getAttribute('data-tab');
+                const tabContent = document.getElementById(tabId);
+                if (tabContent) {
+                    tabContent.classList.add('active');
+                }
+            });
+        });
+    }
+
+    // Logout function
+    function logout() {
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        window.location.href = '/login';
+    }
+</script>
+</body>
+</html>
