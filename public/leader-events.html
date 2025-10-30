@@ -1114,8 +1114,14 @@
             }
         }
 
-        // Update user interface with user data
+      // Update user interface with user data
         function updateUserInterface(userData) {
+            // Update user name in dashboard header
+            // const welcomeMessage = document.getElementById('welcomeMessage');
+            // if (welcomeMessage) {
+            //     welcomeMessage.textContent = `Welcome back, ${userData.name}! Manage your club activities here.`;
+            // }
+            
             // Update user profile in sidebar
             const userAvatar = document.getElementById('userAvatar');
             const userName = document.getElementById('userName');
@@ -1130,13 +1136,9 @@
             }
             
             if (userRole) {
-                if (userData.club) {
-                    userRole.textContent = `Club Leader - ${userData.club.name}`;
-                } else if (userData.clubs && userData.clubs.length > 0) {
-                    userRole.textContent = `Club Leader - ${userData.clubs[0].name}`;
-                } else {
-                    userRole.textContent = 'Club Leader';
-                }
+                // FIXED: Use clubs[0] for club name if populated
+                const clubName = (userData.clubs && userData.clubs[0] && userData.clubs[0]._id && userData.clubs[0]._id.name) ? userData.clubs[0]._id.name : 'No Club';
+                userRole.textContent = `Club Leader - ${clubName}`;
             }
         }
 

@@ -807,10 +807,6 @@
                     <p>Manage your account and club settings</p>
                 </div>
                 <div class="dashboard-actions">
-                    <div class="notification-icon">
-                        <i class="fas fa-bell"></i>
-                        <span class="notification-badge" id="notificationBadge">2</span>
-                    </div>
                     <button class="btn btn-secondary" onclick="logout()">
                         <i class="fas fa-sign-out-alt"></i> Logout
                     </button>
@@ -984,255 +980,212 @@
         </main>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-    <script>
-        // API base URL
-        const API_URL = '/api';
-        let userId = '';
-        let clubId = '';
-        let bannerImageData = null;
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<script>
+    // API base URL
+    const API_URL = '/api';
+    let userId = '';
+    let clubId = '';
+    let bannerImageData = null;
 
-        // Check if user is logged in
-        document.addEventListener('DOMContentLoaded', function() {
-            // Check for token in localStorage
-            const token = localStorage.getItem('token');
-            if (!token) {
-                window.location.href = '/login';
+    // Check if user is logged in
+    document.addEventListener('DOMContentLoaded', function() {
+        // Check for token in localStorage
+        const token = localStorage.getItem('token');
+        if (!token) {
+            window.location.href = '/login';
+            return;
+        }
+        
+        // Set up axios default headers
+        axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+        
+        // Initialize page
+        initializePage();
+        
+        // Set up mobile menu toggle
+        setupMobileMenu();
+        
+        // Set up register link preview
+        setupRegisterLinkPreview();
+    });
+
+    // Updated initializePage() - Fetch club separately for full details
+    async function initializePage() {
+        try {
+            showLoading(true);
+            hideError();
+            
+            // Fetch user data (for profile and club ID)
+            const userData = await fetchUserData();
+            console.log('Fetched user data:', userData);
+            
+            updateUserInterface(userData);
+            userId = userData._id;
+            
+            // Extract clubId robustly
+            let tempClubId = null;
+            if (userData.club && userData.club._id) {
+                tempClubId = extractClubId(userData.club._id);
+            } else if (userData.clubs && Array.isArray(userData.clubs) && userData.clubs[0] && userData.clubs[0]._id) {
+                tempClubId = extractClubId(userData.clubs[0]._id);
+            }
+            
+            if (!tempClubId || tempClubId === '[object Object]') {
+                console.error('Invalid club ID:', tempClubId);
+                showError('No club assigned or invalid club data. Please contact an administrator.');
                 return;
             }
             
-            // Set up axios default headers
-            axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+            clubId = tempClubId;
+            console.log('Extracted clubId:', clubId);
             
-            // Initialize page
-            initializePage();
+            // Populate profile from user data
+            populateProfileForm(userData);
             
-            // Set up mobile menu toggle
-            setupMobileMenu();
+            // Fetch full club details separately (ensures populated name/desc/etc.)
+            const clubResponse = await axios.get(`${API_URL}/clubs/${clubId}`);
+            populateClubForm(clubResponse.data);
             
-            // Set up register link preview
-            setupRegisterLinkPreview();
-        });
-
-        // Initialize page with data fetching
-        async function initializePage() {
-            try {
-                showLoading(true);
-                hideError();
-                
-                // Fetch user data
-                const userData = await fetchUserData();
-                updateUserInterface(userData);
-                userId = userData._id;
-                clubId = userData.club._id;
-                
-                // Populate form fields
-                populateProfileForm(userData);
-                populateClubForm(userData.club);
-                
-            } catch (error) {
-                console.error('Error initializing page:', error);
-                showError('Failed to load settings. Please try again later.');
-                
-                // If unauthorized, redirect to login
-                if (error.response && error.response.status === 401) {
-                    localStorage.removeItem('token');
-                    window.location.href = '/login';
-                }
-            } finally {
-                showLoading(false);
+        } catch (error) {
+            console.error('Error initializing page:', error);
+            showError('Failed to load settings. Please try again later.');
+            
+            // If unauthorized, redirect to login
+            if (error.response && error.response.status === 401) {
+                localStorage.removeItem('token');
+                window.location.href = '/login';
             }
+        } finally {
+            showLoading(false);
         }
+    }
 
-        // Show/hide loading spinner
-        function showLoading(show) {
-            const spinner = document.getElementById('loadingSpinner');
-            if (spinner) {
-                spinner.style.display = show ? 'block' : 'none';
-            }
+    // Helper function to robustly extract club ID
+    function extractClubId(clubIdField) {
+        if (typeof clubIdField === 'string') return clubIdField;
+        if (clubIdField && typeof clubIdField === 'object' && clubIdField._id) {
+            return clubIdField._id.toString();
         }
-
-        // Show/hide error message
-        function showError(message) {
-            const errorElement = document.getElementById('errorMessage');
-            if (errorElement) {
-                errorElement.textContent = message;
-                errorElement.style.display = 'block';
-            }
+        if (clubIdField && typeof clubIdField === 'object' && clubIdField.toString) {
+            return clubIdField.toString();
         }
+        return null;
+    }
 
-        function hideError() {
-            const errorElement = document.getElementById('errorMessage');
-            if (errorElement) {
-                errorElement.style.display = 'none';
-            }
+    // Updated updateUserInterface (handles populated club name)
+    function updateUserInterface(userData) {
+        const userAvatar = document.getElementById('userAvatar');
+        const userName = document.getElementById('userName');
+        const userRole = document.getElementById('userRole');
+        
+        if (userAvatar) {
+            userAvatar.textContent = userData.name.split(' ').map(n => n[0]).join('');
         }
-
-        // Fetch user data
-        async function fetchUserData() {
-            const response = await axios.get(`${API_URL}/auth/me`);
-            console.log('Fetched user data:', response.data); // Debug log
-            return response.data;
+        
+        if (userName) {
+            userName.textContent = userData.name;
         }
-
-        // Update user interface with user data
-        function updateUserInterface(userData) {
-            // Update user profile in sidebar
-            const userAvatar = document.getElementById('userAvatar');
-            const userName = document.getElementById('userName');
-            const userRole = document.getElementById('userRole');
-            
-            if (userAvatar) {
-                userAvatar.textContent = userData.name.split(' ').map(n => n[0]).join('');
+        
+        if (userRole) {
+            let clubName = 'No Club';
+            if (userData.club && userData.club.name) {
+                clubName = userData.club.name;
+            } else if (userData.clubs && userData.clubs[0] && userData.clubs[0]._id && userData.clubs[0]._id.name) {
+                clubName = userData.clubs[0]._id.name;
+            } else if (userData.clubs && userData.clubs[0] && userData.clubs[0].name) {
+                clubName = userData.clubs[0].name;
             }
-            
-            if (userName) {
-                userName.textContent = userData.name;
-            }
-            
-            if (userRole) {
-                userRole.textContent = `Club Leader - ${userData.club ? userData.club.name : 'No Club'}`;
-            }
+            userRole.textContent = `Club Leader - ${clubName}`;
         }
+    }
 
-        // Populate profile form with user data
-        function populateProfileForm(userData) {
-            const names = userData.name.split(' ');
-            const firstName = names[0] || '';
-            const lastName = names.slice(1).join('') || '';
-            
-            document.getElementById('firstName').value = firstName;
-            document.getElementById('lastName').value = lastName;
-            
-            // Make sure we're properly setting the bio field
-            const bioField = document.getElementById('bio');
-            if (bioField) {
-                bioField.value = userData.bio || '';
-                console.log('Bio field populated with:', userData.bio); // Debug log
-            }
-            
-            // Update profile avatar
-            const profileAvatar = document.getElementById('profileAvatar');
-            if (profileAvatar) {
-                profileAvatar.textContent = userData.name.split(' ').map(n => n[0]).join('');
-            }
+    // Show/hide loading spinner
+    function showLoading(show) {
+        const spinner = document.getElementById('loadingSpinner');
+        if (spinner) {
+            spinner.style.display = show ? 'block' : 'none';
         }
+    }
 
-        // Populate club form with club data
-        function populateClubForm(clubData) {
-            if (!clubData) return;
-            
-            document.getElementById('clubName').value = clubData.name || '';
-            document.getElementById('clubDescription').value = clubData.description || '';
-            document.getElementById('clubCategory').value = clubData.type || 'technology';
-            
-            // Populate register link
-            const registerLinkField = document.getElementById('registerLink');
-            if (registerLinkField) {
-                registerLinkField.value = clubData.registerLink || '';
-                console.log('Register link field populated with:', clubData.registerLink); // Debug log
-            }
-            
-            // Load banner thumbnail if exists
-            if (clubData.bannerImage) {
-                const bannerPreview = document.getElementById('clubBannerPreview');
-                bannerPreview.style.backgroundImage = `url(${clubData.bannerImage})`;
-                bannerPreview.classList.add('has-image');
-                
-                const placeholder = bannerPreview.querySelector('.club-banner-placeholder');
-                if (placeholder) {
-                    placeholder.style.display = 'none';
-                }
-                
-                const removeBtn = document.getElementById('removeBannerBtn');
-                if (removeBtn) {
-                    removeBtn.style.display = 'inline-block';
-                }
-            }
+    // Show/hide error message
+    function showError(message) {
+        const errorElement = document.getElementById('errorMessage');
+        if (errorElement) {
+            errorElement.textContent = message;
+            errorElement.style.display = 'block';
         }
+    }
 
-        // Switch between settings tabs
-        function switchTab(tabName) {
-            // Update tab buttons
-            const tabs = document.querySelectorAll('.settings-tab');
-            tabs.forEach(tab => {
-                tab.classList.remove('active');
-            });
-            event.target.classList.add('active');
-            
-            // Update tab content
-            const contents = document.querySelectorAll('.settings-content');
-            contents.forEach(content => {
-                content.classList.remove('active');
-            });
-            
-            const activeContent = document.getElementById(`${tabName}-settings`);
-            if (activeContent) {
-                activeContent.classList.add('active');
-            }
+    function hideError() {
+        const errorElement = document.getElementById('errorMessage');
+        if (errorElement) {
+            errorElement.style.display = 'none';
         }
+    }
 
-        // Setup register link preview
-        function setupRegisterLinkPreview() {
-            const registerLinkInput = document.getElementById('registerLink');
-            const registerLinkPreview = document.getElementById('registerLinkPreview');
-            const registerLinkDisplay = document.getElementById('registerLinkDisplay');
+    // Fetch user data
+    async function fetchUserData() {
+        const response = await axios.get(`${API_URL}/auth/me`);
+        console.log('Fetched user data:', response.data);
+        return response.data;
+    }
+
+    // Populate profile form with user data
+    function populateProfileForm(userData) {
+        const names = userData.name.split(' ');
+        const firstName = names[0] || '';
+        const lastName = names.slice(1).join('') || '';
+        
+        document.getElementById('firstName').value = firstName;
+        document.getElementById('lastName').value = lastName;
+        
+        const bioField = document.getElementById('bio');
+        if (bioField) {
+            bioField.value = userData.bio || '';
+            console.log('Bio field populated with:', userData.bio);
+        }
+        
+        // Update profile avatar
+        const profileAvatar = document.getElementById('profileAvatar');
+        if (profileAvatar) {
+            profileAvatar.textContent = userData.name.split(' ').map(n => n[0]).join('');
+        }
+    }
+
+    // Updated populateClubForm (handles direct club object from /clubs/:id)
+    function populateClubForm(clubData) {
+        if (!clubData) return;
+        
+        // clubData is now the full club object (e.g., from /clubs/:id)
+        document.getElementById('clubName').value = clubData.name || '';
+        document.getElementById('clubDescription').value = clubData.description || '';
+        document.getElementById('clubCategory').value = clubData.type || 'technology';
+        
+        // Populate register link
+        const registerLinkField = document.getElementById('registerLink');
+        if (registerLinkField) {
+            registerLinkField.value = clubData.registerLink || '';
+            console.log('Register link field populated with:', clubData.registerLink);
+        }
+        
+        // Load banner thumbnail if exists
+        if (clubData.bannerImage) {
+            const bannerPreview = document.getElementById('clubBannerPreview');
+            bannerPreview.style.backgroundImage = `url(${clubData.bannerImage})`;
+            bannerPreview.classList.add('has-image');
             
-            if (registerLinkInput && registerLinkPreview && registerLinkDisplay) {
-                registerLinkInput.addEventListener('input', function() {
-                    const link = this.value.trim();
-                    if (link) {
-                        registerLinkPreview.style.display = 'flex';
-                        registerLinkDisplay.href = link;
-                        registerLinkDisplay.textContent = link;
-                    } else {
-                        registerLinkPreview.style.display = 'none';
-                    }
-                });
+            const placeholder = bannerPreview.querySelector('.club-banner-placeholder');
+            if (placeholder) {
+                placeholder.style.display = 'none';
             }
-        }
-
-        // Preview banner image before upload - Updated for thumbnail
-        function previewBannerImage(event) {
-            const file = event.target.files[0];
-            if (file) {
-                // Check file size (limit to 2MB for thumbnail)
-                if (file.size > 2 * 1024 * 1024) {
-                    showError('Thumbnail image size must be less than 2MB');
-                    return;
-                }
-                
-                // Check file type
-                if (!file.type.match('image.*')) {
-                    showError('Please select an image file');
-                    return;
-                }
-                
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    const bannerPreview = document.getElementById('clubBannerPreview');
-                    bannerPreview.style.backgroundImage = `url(${e.target.result})`;
-                    bannerPreview.classList.add('has-image');
-                    
-                    const placeholder = bannerPreview.querySelector('.club-banner-placeholder');
-                    if (placeholder) {
-                        placeholder.style.display = 'none';
-                    }
-                    
-                    const removeBtn = document.getElementById('removeBannerBtn');
-                    if (removeBtn) {
-                        removeBtn.style.display = 'inline-block';
-                    }
-                    
-                    // Store image data for upload
-                    bannerImageData = file;
-                };
-                reader.readAsDataURL(file);
+            
+            const removeBtn = document.getElementById('removeBannerBtn');
+            if (removeBtn) {
+                removeBtn.style.display = 'inline-block';
             }
-        }
-
-        // Remove banner image - Updated for thumbnail
-        function removeBannerImage() {
+        } else {
+            // Reset preview if no image
             const bannerPreview = document.getElementById('clubBannerPreview');
             bannerPreview.style.backgroundImage = '';
             bannerPreview.classList.remove('has-image');
@@ -1246,232 +1199,334 @@
             if (removeBtn) {
                 removeBtn.style.display = 'none';
             }
+        }
+    }
+
+    // Updated switchTab (refetch and repopulate on switch to prevent empty fields)
+    function switchTab(tabName) {
+        // Update tab buttons
+        const tabs = document.querySelectorAll('.settings-tab');
+        tabs.forEach(tab => tab.classList.remove('active'));
+        event.target.classList.add('active');
+        
+        // Update tab content
+        const contents = document.querySelectorAll('.settings-content');
+        contents.forEach(content => content.classList.remove('active'));
+        
+        const activeContent = document.getElementById(`${tabName}-settings`);
+        if (activeContent) {
+            activeContent.classList.add('active');
+        }
+        
+        // Refetch and repopulate for active tab (only if needed)
+        if (tabName === 'profile') {
+            fetchUserData().then(userData => {
+                populateProfileForm(userData);
+                updateUserInterface(userData);
+                hideError();  // Clear any errors
+            }).catch(err => {
+                console.error('Error repopulating profile:', err);
+                showError('Failed to refresh profile data');
+            });
+        } else if (tabName === 'club' && clubId) {
+            axios.get(`${API_URL}/clubs/${clubId}`).then(response => {
+                populateClubForm(response.data);
+                hideError();  // Clear any errors
+            }).catch(err => {
+                console.error('Error repopulating club:', err);
+                showError('Failed to refresh club data');
+            });
+        }
+        // Security tab: No refetch needed (transient fields)
+    }
+
+    // Setup register link preview
+    function setupRegisterLinkPreview() {
+        const registerLinkInput = document.getElementById('registerLink');
+        const registerLinkPreview = document.getElementById('registerLinkPreview');
+        const registerLinkDisplay = document.getElementById('registerLinkDisplay');
+        
+        if (registerLinkInput && registerLinkPreview && registerLinkDisplay) {
+            const updatePreview = () => {
+                const link = registerLinkInput.value.trim();
+                if (link) {
+                    registerLinkPreview.style.display = 'flex';
+                    registerLinkDisplay.href = link;
+                    registerLinkDisplay.textContent = link;
+                } else {
+                    registerLinkPreview.style.display = 'none';
+                }
+            };
             
-            // Clear file input
-            const fileInput = document.getElementById('clubBannerUpload');
-            if (fileInput) {
-                fileInput.value = '';
+            registerLinkInput.addEventListener('input', updatePreview);
+            updatePreview();  // Initial call
+        }
+    }
+
+    // Preview banner image before upload
+    function previewBannerImage(event) {
+        const file = event.target.files[0];
+        if (file) {
+            // Check file size (limit to 2MB for thumbnail)
+            if (file.size > 2 * 1024 * 1024) {
+                showError('Thumbnail image size must be less than 2MB');
+                return;
             }
             
-            // Set flag to remove banner image
-            bannerImageData = null;
-            document.getElementById('removeBannerFlag').value = 'true';
-        }
-
-        // Toggle password visibility
-        function togglePasswordVisibility(fieldId) {
-            const passwordField = document.getElementById(fieldId);
-            const icon = document.getElementById(`${fieldId}-icon`);
+            // Check file type
+            if (!file.type.match('image.*')) {
+                showError('Please select an image file');
+                return;
+            }
             
-            if (passwordField.type === 'password') {
-                passwordField.type = 'text';
-                icon.classList.remove('fa-eye');
-                icon.classList.add('fa-eye-slash');
-            } else {
-                passwordField.type = 'password';
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const bannerPreview = document.getElementById('clubBannerPreview');
+                bannerPreview.style.backgroundImage = `url(${e.target.result})`;
+                bannerPreview.classList.add('has-image');
+                
+                const placeholder = bannerPreview.querySelector('.club-banner-placeholder');
+                if (placeholder) {
+                    placeholder.style.display = 'none';
+                }
+                
+                const removeBtn = document.getElementById('removeBannerBtn');
+                if (removeBtn) {
+                    removeBtn.style.display = 'inline-block';
+                }
+                
+                // Store image data for upload
+                bannerImageData = file;
+            };
+            reader.readAsDataURL(file);
+        }
+    }
+
+    // Remove banner image
+    function removeBannerImage() {
+        const bannerPreview = document.getElementById('clubBannerPreview');
+        bannerPreview.style.backgroundImage = '';
+        bannerPreview.classList.remove('has-image');
+        
+        const placeholder = bannerPreview.querySelector('.club-banner-placeholder');
+        if (placeholder) {
+            placeholder.style.display = 'block';
+        }
+        
+        const removeBtn = document.getElementById('removeBannerBtn');
+        if (removeBtn) {
+            removeBtn.style.display = 'none';
+        }
+        
+        // Clear file input
+        const fileInput = document.getElementById('clubBannerUpload');
+        if (fileInput) {
+            fileInput.value = '';
+        }
+        
+        // Set flag to remove banner image
+        bannerImageData = null;
+        document.getElementById('removeBannerFlag').value = 'true';
+    }
+
+    // Toggle password visibility
+    function togglePasswordVisibility(fieldId) {
+        const passwordField = document.getElementById(fieldId);
+        const icon = document.getElementById(`${fieldId}-icon`);
+        
+        if (passwordField.type === 'password') {
+            passwordField.type = 'text';
+            icon.classList.remove('fa-eye');
+            icon.classList.add('fa-eye-slash');
+        } else {
+            passwordField.type = 'password';
+            icon.classList.remove('fa-eye-slash');
+            icon.classList.add('fa-eye');
+        }
+    }
+
+    // Updated saveProfile (refetch and repopulate after save)
+    async function saveProfile() {
+        try {
+            showLoading(true);
+            hideError();
+            
+            const firstName = document.getElementById('firstName').value;
+            const lastName = document.getElementById('lastName').value;
+            const bio = document.getElementById('bio').value;
+            
+            console.log('Saving profile data:', { name: `${firstName} ${lastName}`, bio });
+            
+            const profileData = {
+                name: `${firstName} ${lastName}`,
+                bio: bio
+            };
+            
+            const response = await axios.put(`${API_URL}/users/${userId}`, profileData);
+            console.log('Save response:', response.data);
+            
+            const updatedUserData = response.data;
+            
+            // Update UI with fresh data
+            updateUserInterface(updatedUserData);
+            
+            // Repopulate form fields
+            populateProfileForm(updatedUserData);
+            
+            alert('Profile updated successfully!');
+            hideError();  // Clear any errors
+            
+        } catch (error) {
+            console.error('Error updating profile:', error);
+            showError('Failed to update profile. Please try again.');
+        } finally {
+            showLoading(false);
+        }
+    }
+
+    // Updated saveClubSettings (fetch full club after save and repopulate)
+    async function saveClubSettings() {
+        try {
+            showLoading(true);
+            hideError();
+            
+            // Create form data for file upload
+            const formData = new FormData();
+            
+            // Add club data as individual form fields
+            formData.append('name', document.getElementById('clubName').value);
+            formData.append('description', document.getElementById('clubDescription').value);
+            formData.append('category', document.getElementById('clubCategory').value);
+            
+            // Add register link
+            const registerLink = document.getElementById('registerLink').value;
+            if (registerLink) {
+                formData.append('registerLink', registerLink);
+            }
+            
+            // Add banner image if selected
+            if (bannerImageData) {
+                formData.append('bannerImage', bannerImageData);
+            }
+            
+            // Add banner removal flag if needed
+            if (document.getElementById('removeBannerFlag').value === 'true') {
+                formData.append('removeBanner', 'true');
+            }
+            
+            await axios.put(`${API_URL}/clubs/${clubId}/settings`, formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data'
+                }
+            });
+            
+            // Fetch updated club details directly (full populated data)
+            const clubResponse = await axios.get(`${API_URL}/clubs/${clubId}`);
+            
+            // Update user interface (refetch user for sidebar)
+            const updatedUserData = await fetchUserData();
+            updateUserInterface(updatedUserData);
+            
+            // Repopulate club form with fresh data
+            populateClubForm(clubResponse.data);
+            
+            // Clear banner image data
+            bannerImageData = null;
+            
+            // Reset remove banner flag
+            document.getElementById('removeBannerFlag').value = 'false';
+            
+            alert('Club settings updated successfully!');
+            hideError();  // Clear any errors
+            
+        } catch (error) {
+            console.error('Error updating club settings:', error);
+            if (error.response) {
+                console.error('Error response data:', error.response.data);
+                console.error('Error response status:', error.response.status);
+            }
+            showError('Failed to update club settings. Please try again.');
+        } finally {
+            showLoading(false);
+        }
+    }
+
+    // Change password (unchanged)
+    async function changePassword() {
+        const currentPassword = document.getElementById('currentPassword').value;
+        const newPassword = document.getElementById('newPassword').value;
+        const confirmPassword = document.getElementById('confirmPassword').value;
+        
+        if (newPassword !== confirmPassword) {
+            showError('New passwords do not match');
+            return;
+        }
+        
+        if (newPassword.length < 8) {
+            showError('Password must be at least 8 characters long');
+            return;
+        }
+        
+        try {
+            showLoading(true);
+            hideError();
+            
+            const passwordData = {
+                currentPassword: currentPassword,
+                newPassword: newPassword
+            };
+            
+            await axios.put(`${API_URL}/users/${userId}/password`, passwordData);
+            
+            // Clear form
+            document.getElementById('passwordForm').reset();
+            
+            // Reset password visibility toggles
+            document.querySelectorAll('.password-toggle i').forEach(icon => {
                 icon.classList.remove('fa-eye-slash');
                 icon.classList.add('fa-eye');
-            }
-        }
-
-        // Save profile settings
-        async function saveProfile() {
-            try {
-                showLoading(true);
-                hideError();
-                
-                const firstName = document.getElementById('firstName').value;
-                const lastName = document.getElementById('lastName').value;
-                const bio = document.getElementById('bio').value;
-                
-                console.log('Saving profile data:', { name: `${firstName} ${lastName}`, bio }); // Debug log
-                
-                const profileData = {
-                    name: `${firstName} ${lastName}`,
-                    bio: bio
-                };
-                
-                const response = await axios.put(`${API_URL}/users/${userId}`, profileData);
-                console.log('Save response:', response.data); // Debug log
-                
-                // Use the response data which is the updated user
-                const updatedUserData = response.data;
-                
-                // Update user interface with fresh data
-                updateUserInterface(updatedUserData);
-                
-                // Update the name fields
-                const updatedNames = updatedUserData.name.split(' ');
-                document.getElementById('firstName').value = updatedNames[0] || '';
-                document.getElementById('lastName').value = updatedNames.slice(1).join('') || '';
-                
-                // Explicitly update the bio field
-                const bioField = document.getElementById('bio');
-                if (bioField) {
-                    bioField.value = updatedUserData.bio || '';
-                    console.log('Bio field updated to:', bioField.value); // Debug log
-                }
-                
-                // Update profile avatar
-                const profileAvatar = document.getElementById('profileAvatar');
-                if (profileAvatar) {
-                    profileAvatar.textContent = updatedUserData.name.split(' ').map(n => n[0]).join('');
-                }
-                
-                // Show success message
-                alert('Profile updated successfully!');
-                
-            } catch (error) {
-                console.error('Error updating profile:', error);
-                showError('Failed to update profile. Please try again.');
-            } finally {
-                showLoading(false);
-            }
-        }
-
-        // Save club settings
-        async function saveClubSettings() {
-            try {
-                showLoading(true);
-                hideError();
-                
-                // Create form data for file upload
-                const formData = new FormData();
-                
-                // Add club data as individual form fields
-                formData.append('name', document.getElementById('clubName').value);
-                formData.append('description', document.getElementById('clubDescription').value);
-                formData.append('category', document.getElementById('clubCategory').value);
-                
-                // Add register link
-                const registerLink = document.getElementById('registerLink').value;
-                if (registerLink) {
-                    formData.append('registerLink', registerLink);
-                }
-                
-                // Add banner image if selected
-                if (bannerImageData) {
-                    formData.append('bannerImage', bannerImageData);
-                }
-                
-                // Add banner removal flag if needed
-                if (document.getElementById('removeBannerFlag').value === 'true') {
-                    formData.append('removeBanner', 'true');
-                }
-                
-                await axios.put(`${API_URL}/clubs/${clubId}/settings`, formData, {
-                    headers: {
-                        'Content-Type': 'multipart/form-data'
-                    }
-                });
-                
-                // Fetch updated user data from server
-                const updatedUserData = await fetchUserData();
-                
-                // Update user interface with fresh data
-                updateUserInterface(updatedUserData);
-                
-                // Repopulate club form with updated data
-                populateClubForm(updatedUserData.club);
-                
-                // Clear banner image data
-                bannerImageData = null;
-                
-                // Reset remove banner flag
-                document.getElementById('removeBannerFlag').value = 'false';
-                
-                // Show success message
-                alert('Club settings updated successfully!');
-                
-            } catch (error) {
-                console.error('Error updating club settings:', error);
-                // Log more detailed error information
-                if (error.response) {
-                    console.error('Error response data:', error.response.data);
-                    console.error('Error response status:', error.response.status);
-                }
-                showError('Failed to update club settings. Please try again.');
-            } finally {
-                showLoading(false);
-            }
-        }
-
-        // Change password
-        async function changePassword() {
-            const currentPassword = document.getElementById('currentPassword').value;
-            const newPassword = document.getElementById('newPassword').value;
-            const confirmPassword = document.getElementById('confirmPassword').value;
+            });
             
-            if (newPassword !== confirmPassword) {
-                showError('New passwords do not match');
-                return;
-            }
+            alert('Password changed successfully!');
+            hideError();  // Clear any errors
             
-            if (newPassword.length < 8) {
-                showError('Password must be at least 8 characters long');
-                return;
+        } catch (error) {
+            console.error('Error changing password:', error);
+            if (error.response && error.response.status === 400) {
+                showError(error.response.data.message || 'Current password is incorrect');
+            } else {
+                showError('Failed to change password. Please try again.');
             }
-            
-            try {
-                showLoading(true);
-                hideError();
-                
-                const passwordData = {
-                    currentPassword: currentPassword,
-                    newPassword: newPassword
-                };
-                
-                await axios.put(`${API_URL}/users/${userId}/password`, passwordData);
-                
-                // Clear form
-                document.getElementById('passwordForm').reset();
-                
-                // Reset password visibility toggles
-                document.querySelectorAll('.password-toggle i').forEach(icon => {
-                    icon.classList.remove('fa-eye-slash');
-                    icon.classList.add('fa-eye');
-                });
-                
-                // Show success message
-                alert('Password changed successfully!');
-                
-            } catch (error) {
-                console.error('Error changing password:', error);
-                if (error.response && error.response.status === 400) {
-                    showError(error.response.data.message || 'Current password is incorrect');
-                } else {
-                    showError('Failed to change password. Please try again.');
-                }
-            } finally {
-                showLoading(false);
-            }
+        } finally {
+            showLoading(false);
         }
+    }
 
-        // Setup mobile menu toggle
-        function setupMobileMenu() {
-            const mobileMenuToggle = document.getElementById('mobileMenuToggle');
-            const sidebar = document.getElementById('sidebar');
+    // Setup mobile menu toggle (unchanged)
+    function setupMobileMenu() {
+        const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+        const sidebar = document.getElementById('sidebar');
+        
+        if (mobileMenuToggle && sidebar) {
+            mobileMenuToggle.addEventListener('click', function() {
+                sidebar.classList.toggle('active');
+            });
             
-            if (mobileMenuToggle && sidebar) {
-                mobileMenuToggle.addEventListener('click', function() {
-                    sidebar.classList.toggle('active');
+            // Close sidebar when clicking on a link
+            document.querySelectorAll('.sidebar-menu a').forEach(link => {
+                link.addEventListener('click', () => {
+                    sidebar.classList.remove('active');
                 });
-                
-                // Close sidebar when clicking on a link
-                document.querySelectorAll('.sidebar-menu a').forEach(link => {
-                    link.addEventListener('click', () => {
-                        sidebar.classList.remove('active');
-                    });
-                });
-            }
+            });
         }
+    }
 
-        // Logout function
-        function logout() {
-            localStorage.removeItem('token');
-            localStorage.removeItem('user');
-            window.location.href = '/login';
-        }
-    </script>
+    // Logout function (unchanged)
+    function logout() {
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        window.location.href = '/login';
+    }
+</script>
 </body>
 </html>

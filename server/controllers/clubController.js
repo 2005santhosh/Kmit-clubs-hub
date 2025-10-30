@@ -26,12 +26,10 @@ const getClubs = async (req, res) => {
 // @access  Faculty
 const getFacultyMonitoredClubs = async (req, res) => {
   try {
-    // Get faculty ID from the authenticated user
     const facultyId = req.user._id;
     
     console.log('Fetching clubs for faculty ID:', facultyId);
     
-    // Find all clubs where this faculty is assigned
     const clubs = await Club.find({ faculty: facultyId })
       .populate('faculty', 'name username systemRole email')
       .populate('leader', 'name username systemRole email')
@@ -52,42 +50,40 @@ const getFacultyMonitoredClubs = async (req, res) => {
 // @access  Public
 const getClubById = async (req, res) => {
   try {
-    console.log('Fetching club with ID:', req.params.id);
+    let clubIdStr = req.params.id.toString();
+    console.log('Fetching club with ID:', clubIdStr, '(original type:', typeof req.params.id, ')');
     
-    // First check if the ID is valid
-    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+    if (!mongoose.Types.ObjectId.isValid(clubIdStr)) {
       return res.status(400).json({ message: 'Invalid club ID format' });
     }
     
-    let club;
-    
-    try {
-      // Try to populate with events
-      club = await Club.findById(req.params.id)
-        .populate('faculty', 'name username systemRole email')
-        .populate('leader', 'name username systemRole email')
-        .populate({
-          path: 'members.user',
-          select: 'name username systemRole clubRole email joinDate status'
-        })
-        .populate('events', 'title date venue status description');
-    } catch (error) {
-      // If populating events fails, try without it
-      console.warn('Could not populate events:', error.message);
-      club = await Club.findById(req.params.id)
-        .populate('faculty', 'name username systemRole email')
-        .populate('leader', 'name username systemRole email')
-        .populate({
-          path: 'members.user',
-          select: 'name username systemRole clubRole email joinDate status'
-        });
-    }
+    // Get club with basic populate
+    let club = await Club.findById(clubIdStr)
+      .populate('faculty', 'name username systemRole')
+      .populate('leader', 'name username systemRole')
+      .populate('events', 'title date venue status description');
     
     if (!club) {
       return res.status(404).json({ message: 'Club not found' });
     }
+
+    // FIXED: Manual populate for members (bypass Mongoose bug for new/recent docs)
+    if (club.members && club.members.length > 0) {
+      const userIds = club.members.map(m => m.user).filter(id => id);
+      if (userIds.length > 0) {
+        const users = await User.find({ _id: { $in: userIds } }, 'name username systemRole clubRole email joinDate status').lean();
+        club.members = club.members.map(member => {
+          const user = users.find(u => u._id.toString() === member.user.toString());
+          return {
+            ...member,
+            user: user || null  // Real or null for orphans
+          };
+        });
+      }
+    }
     
-    console.log('Club found:', club.name);
+    console.log('Manual populated members:', club.members.map(m => ({ id: m.user?._id, name: m.user?.name })));
+    
     res.json(club);
   } catch (error) {
     console.error('Error fetching club by ID:', error);
@@ -100,8 +96,20 @@ const getClubById = async (req, res) => {
 // @access  Admin
 const getClubByIdFull = async (req, res) => {
   try {
+    const clubIdStr = req.params.id;
+    console.log('Fetching full club with ID:', clubIdStr, 'Type:', typeof clubIdStr);
+
+    if (!clubIdStr || typeof clubIdStr !== 'string') {
+      return res.status(400).json({ message: 'Club ID must be a non-empty string' });
+    }
+
+    if (!mongoose.Types.ObjectId.isValid(clubIdStr)) {
+      console.error('Invalid club ID format:', clubIdStr);
+      return res.status(400).json({ message: 'Invalid club ID format (must be 24-hex chars)' });
+    }
+
     // First get the club without population to ensure we get the raw IDs
-    const club = await Club.findById(req.params.id).lean();
+    const club = await Club.findById(clubIdStr).lean();
     
     if (!club) {
       return res.status(404).json({ message: 'Club not found' });
@@ -174,8 +182,20 @@ const getClubByIdFull = async (req, res) => {
 // @access  Private
 const getClubMembers = async (req, res) => {
   try {
+    const clubIdStr = req.params.id;
+    console.log('Fetching members for club ID:', clubIdStr, 'Type:', typeof clubIdStr);
+
+    if (!clubIdStr || typeof clubIdStr !== 'string') {
+      return res.status(400).json({ message: 'Club ID must be a non-empty string' });
+    }
+
+    if (!mongoose.Types.ObjectId.isValid(clubIdStr)) {
+      console.error('Invalid club ID format:', clubIdStr);
+      return res.status(400).json({ message: 'Invalid club ID format (must be 24-hex chars)' });
+    }
+
     // First, get the club without population to see the raw member references
-    const club = await Club.findById(req.params.id).lean();
+    const club = await Club.findById(clubIdStr).lean();
     
     if (!club) {
       return res.status(404).json({ message: 'Club not found' });
@@ -183,7 +203,7 @@ const getClubMembers = async (req, res) => {
     
     console.log('Raw club members array:', club.members);
     
-    // Now, get user data for each member
+    // FIXED: Manual populate for members
     const transformedMembers = [];
     for (const member of club.members) {
       console.log('Processing member:', member);
@@ -235,13 +255,25 @@ const getClubMembers = async (req, res) => {
 // @access  Private
 const debugClubData = async (req, res) => {
   try {
-    const club = await Club.findById(req.params.id).lean();
+    const clubIdStr = req.params.id;
+    console.log('Debugging club ID:', clubIdStr, 'Type:', typeof clubIdStr);
+
+    if (!clubIdStr || typeof clubIdStr !== 'string') {
+      return res.status(400).json({ message: 'Club ID must be a non-empty string' });
+    }
+
+    if (!mongoose.Types.ObjectId.isValid(clubIdStr)) {
+      console.error('Invalid club ID format:', clubIdStr);
+      return res.status(400).json({ message: 'Invalid club ID format (must be 24-hex chars)' });
+    }
+
+    const club = await Club.findById(clubIdStr).lean();
     
     if (!club) {
       return res.status(404).json({ message: 'Club not found' });
     }
     
-    // Get user data for each member
+    // FIXED: Manual populate for debug too
     const membersWithUserData = [];
     for (const member of club.members) {
       const user = await User.findById(member.user).lean();
@@ -266,7 +298,18 @@ const debugClubData = async (req, res) => {
 // @access  Private (Club Leader)
 const addClubMember = async (req, res) => {
   try {
-    const club = await Club.findById(req.params.id);
+    const clubIdStr = req.params.id;
+    console.log('Adding member to club ID:', clubIdStr, 'Type:', typeof clubIdStr);
+
+    if (!clubIdStr || typeof clubIdStr !== 'string') {
+      return res.status(400).json({ message: 'Club ID must be a non-empty string' });
+    }
+
+    if (!mongoose.Types.ObjectId.isValid(clubIdStr)) {
+      return res.status(400).json({ message: 'Invalid club ID format (must be 24-hex chars)' });
+    }
+
+    const club = await Club.findById(clubIdStr);
     
     if (!club) {
       return res.status(404).json({ message: 'Club not found' });
@@ -300,12 +343,13 @@ const addClubMember = async (req, res) => {
         name: req.body.name,
         systemRole: 'student', // Default system role for new users
         clubRole: req.body.role || 'member', // Club-specific role
-        password: 'defaultPassword123', // You should implement a better way to set initial passwords
+        password: 'Kmit123@', // You should implement a better way to set initial passwords
         club: club._id,
-        status: req.body.status || 'active'
+        status: 'active'  // Explicit status
       });
       
       await user.save();
+      console.log('New user created with ID:', user._id);
     }
     
     // Verify the user was created/exists
@@ -322,18 +366,24 @@ const addClubMember = async (req, res) => {
     });
     
     await club.save();
+    console.log('Member added to club, saved.');
     
-    // Return updated club with populated members
-    const updatedClub = await Club.findById(club._id)
-      .populate({
-        path: 'members.user',
-        select: 'name username systemRole clubRole email joinDate status'
-      });
+    // FIXED: Manual re-populate for response (force hydrate new user)
+    const userIds = club.members.map(m => m.user).filter(id => id);
+    const users = await User.find({ _id: { $in: userIds } }, 'name username systemRole clubRole email joinDate status').lean();
     
-    // Transform the members array for consistent response
-    const transformedMembers = updatedClub.members.map(member => {
+    const updatedMembers = club.members.map(member => {
+      const user = users.find(u => u._id.toString() === member.user.toString());
+      return {
+        ...member,
+        user: user || null
+      };
+    });
+    
+    // Transform for response
+    const transformedMembers = updatedMembers.map(member => {
       if (member.user) {
-        const userObj = member.user.toObject();
+        const userObj = member.user;
         return {
           _id: userObj._id.toString(),
           name: userObj.name || 'Unknown',
@@ -354,6 +404,8 @@ const addClubMember = async (req, res) => {
         status: 'active'
       };
     });
+    
+    console.log('Manual populated members in response:', transformedMembers);
     
     res.json({ 
       message: 'Member added successfully',
@@ -382,18 +434,38 @@ const addClubMember = async (req, res) => {
 // @access  Private (Club Leader)
 const removeClubMember = async (req, res) => {
   try {
-    console.log('Attempting to remove member:', req.params.memberId, 'from club:', req.params.id);
+    const clubIdStr = req.params.id;
+    const memberIdStr = req.params.memberId;
+    console.log('Removing member ID:', memberIdStr, 'from club ID:', clubIdStr, 'Types:', typeof memberIdStr, typeof clubIdStr);
+
+    if (!clubIdStr || typeof clubIdStr !== 'string') {
+      return res.status(400).json({ message: 'Club ID must be a non-empty string' });
+    }
+
+    if (!mongoose.Types.ObjectId.isValid(clubIdStr)) {
+      console.error('Invalid club ID format:', clubIdStr);
+      return res.status(400).json({ message: 'Invalid club ID format (must be 24-hex chars)' });
+    }
+
+    if (!memberIdStr || typeof memberIdStr !== 'string') {
+      return res.status(400).json({ message: 'Member ID must be a non-empty string' });
+    }
+
+    if (!mongoose.Types.ObjectId.isValid(memberIdStr)) {
+      console.error('Invalid member ID format:', memberIdStr);
+      return res.status(400).json({ message: 'Invalid member ID format (must be 24-hex chars)' });
+    }
     
-    const club = await Club.findById(req.params.id);
+    const club = await Club.findById(clubIdStr);
     
     if (!club) {
-      console.error('Club not found:', req.params.id);
+      console.error('Club not found:', clubIdStr);
       return res.status(404).json({ message: 'Club not found' });
     }
     
     // Check if the current user is the leader of this club
     if (!club.leader) {
-      console.error('Club has no leader assigned:', req.params.id);
+      console.error('Club has no leader assigned:', clubIdStr);
       return res.status(400).json({ message: 'Club has no leader assigned' });
     }
     
@@ -402,24 +474,18 @@ const removeClubMember = async (req, res) => {
       return res.status(401).json({ message: 'Not authorized to remove members from this club' });
     }
     
-    // Check if memberId is valid
-    if (!req.params.memberId || !mongoose.Types.ObjectId.isValid(req.params.memberId)) {
-      console.error('Invalid member ID:', req.params.memberId);
-      return res.status(400).json({ message: 'Invalid member ID' });
-    }
-    
     // Find the member in the club's members array
     const memberIndex = club.members.findIndex(member => 
-      member.user && member.user.toString() === req.params.memberId.toString()
+      member.user && member.user.toString() === memberIdStr.toString()
     );
     
     if (memberIndex === -1) {
-      console.error('Member not found in club. Member ID:', req.params.memberId, 'Club members:', 
+      console.error('Member not found in club. Member ID:', memberIdStr, 'Club members:', 
         club.members.map(m => ({ id: m.user ? m.user.toString() : 'null', role: m.role })));
       return res.status(404).json({ 
         message: 'Member not found in this club',
         debug: {
-          memberId: req.params.memberId,
+          memberId: memberIdStr,
           clubMembers: club.members.map(m => m.user ? m.user.toString() : 'null')
         }
       });
@@ -435,7 +501,7 @@ const removeClubMember = async (req, res) => {
     console.log('Member removed from club successfully');
     
     // Also update the user to remove club reference if this was their only club
-    const user = await User.findById(req.params.memberId);
+    const user = await User.findById(memberIdStr);
     if (user) {
       console.log('Found user to update:', user._id);
       if (user.club && user.club.toString() === club._id.toString()) {
@@ -444,20 +510,24 @@ const removeClubMember = async (req, res) => {
         console.log('User club reference removed');
       }
     } else {
-      console.warn('User not found for ID:', req.params.memberId);
+      console.warn('User not found for ID:', memberIdStr);
     }
     
-    // Return updated club with populated members
-    const updatedClub = await Club.findById(club._id)
-      .populate({
-        path: 'members.user',
-        select: 'name username systemRole clubRole email joinDate status'
-      });
+    // FIXED: Manual re-populate for response
+    const userIds = club.members.map(m => m.user).filter(id => id);
+    const users = await User.find({ _id: { $in: userIds } }, 'name username systemRole clubRole email joinDate status').lean();
     
-    // Transform the members array for consistent response
-    const transformedMembers = updatedClub.members.map(member => {
+    const updatedMembers = club.members.map(member => {
+      const user = users.find(u => u._id.toString() === member.user.toString());
+      return {
+        ...member,
+        user: user || null
+      };
+    });
+    
+    const transformedMembers = updatedMembers.map(member => {
       if (member.user) {
-        const userObj = member.user.toObject();
+        const userObj = member.user;
         return {
           _id: userObj._id.toString(),
           name: userObj.name || 'Unknown',
@@ -479,7 +549,7 @@ const removeClubMember = async (req, res) => {
       };
     });
     
-    console.log('Returning updated club with', transformedMembers.length, 'members');
+    console.log('Manual populated members after remove:', transformedMembers);
     
     res.json({ 
       message: 'Member removed successfully',
@@ -500,7 +570,29 @@ const removeClubMember = async (req, res) => {
 // @access  Private (Club Leader)
 const updateClubMember = async (req, res) => {
   try {
-    const club = await Club.findById(req.params.id);
+    const clubIdStr = req.params.id;
+    const memberIdStr = req.params.memberId;
+    console.log('Updating member ID:', memberIdStr, 'in club ID:', clubIdStr, 'Types:', typeof memberIdStr, typeof clubIdStr);
+
+    if (!clubIdStr || typeof clubIdStr !== 'string') {
+      return res.status(400).json({ message: 'Club ID must be a non-empty string' });
+    }
+
+    if (!mongoose.Types.ObjectId.isValid(clubIdStr)) {
+      console.error('Invalid club ID format:', clubIdStr);
+      return res.status(400).json({ message: 'Invalid club ID format (must be 24-hex chars)' });
+    }
+
+    if (!memberIdStr || typeof memberIdStr !== 'string') {
+      return res.status(400).json({ message: 'Member ID must be a non-empty string' });
+    }
+
+    if (!mongoose.Types.ObjectId.isValid(memberIdStr)) {
+      console.error('Invalid member ID format:', memberIdStr);
+      return res.status(400).json({ message: 'Invalid member ID format (must be 24-hex chars)' });
+    }
+
+    const club = await Club.findById(clubIdStr);
     
     if (!club) {
       return res.status(404).json({ message: 'Club not found' });
@@ -513,7 +605,7 @@ const updateClubMember = async (req, res) => {
     
     // Find the member in the club's members array
     const member = club.members.find(m => 
-      m.user && m.user.toString() === req.params.memberId.toString()
+      m.user && m.user.toString() === memberIdStr.toString()
     );
     
     if (!member) {
@@ -527,7 +619,7 @@ const updateClubMember = async (req, res) => {
     
     // Also update the user's name and username if provided
     if (req.body.name || req.body.username) {
-      const user = await User.findById(req.params.memberId);
+      const user = await User.findById(memberIdStr);
       if (!user) {
         return res.status(404).json({ message: 'User not found' });
       }
@@ -540,7 +632,7 @@ const updateClubMember = async (req, res) => {
         // Check if username is already taken by another user
         const existingUser = await User.findOne({ 
           username: req.body.username,
-          _id: { $ne: req.params.memberId }
+          _id: { $ne: memberIdStr }
         });
         
         if (existingUser) {
@@ -560,34 +652,38 @@ const updateClubMember = async (req, res) => {
     // Save the club
     await club.save();
     
-    // Get the updated club with populated members
-    const updatedClub = await Club.findById(club._id)
-      .populate({
-        path: 'members.user',
-        select: 'name username systemRole clubRole email joinDate status'
-      });
+    // FIXED: Manual re-populate for response
+    const userIds = club.members.map(m => m.user).filter(id => id);
+    const users = await User.find({ _id: { $in: userIds } }, 'name username systemRole clubRole email joinDate status').lean();
     
-    // Transform the members array for consistent response
-    const transformedMembers = updatedClub.members.map(m => {
-      if (m.user) {
-        const userObj = m.user.toObject();
+    const updatedMembers = club.members.map(member => {
+      const user = users.find(u => u._id.toString() === member.user.toString());
+      return {
+        ...member,
+        user: user || null
+      };
+    });
+    
+    const transformedMembers = updatedMembers.map(member => {
+      if (member.user) {
+        const userObj = member.user;
         return {
           _id: userObj._id.toString(),
           name: userObj.name || 'Unknown',
           username: userObj.username || 'N/A',
           systemRole: userObj.systemRole,
-          clubRole: m.role,
+          clubRole: member.role,
           email: userObj.email,
-          joinDate: m.joinDate || userObj.joinDate,
+          joinDate: member.joinDate || userObj.joinDate,
           status: userObj.status || 'active'
         };
       }
       return {
-        _id: m.user ? m.user.toString() : null,
+        _id: member.user ? member.user.toString() : null,
         name: 'Unknown',
         username: 'N/A',
-        clubRole: m.role,
-        joinDate: m.joinDate,
+        clubRole: member.role,
+        joinDate: member.joinDate,
         status: 'active'
       };
     });
@@ -683,7 +779,7 @@ const createClub = async (req, res) => {
       });
     }
 
-    // Return the populated club
+    // FIXED: Manual populate for response
     const populatedClub = await Club.findById(club._id)
       .populate('faculty', 'name username systemRole email')
       .populate('leader', 'name username systemRole email');
@@ -708,7 +804,19 @@ const updateClub = async (req, res) => {
   } = req.body;
 
   try {
-    const club = await Club.findById(req.params.id);
+    const clubIdStr = req.params.id;
+    console.log('Updating club ID:', clubIdStr, 'Type:', typeof clubIdStr);
+
+    if (!clubIdStr || typeof clubIdStr !== 'string') {
+      return res.status(400).json({ message: 'Club ID must be a non-empty string' });
+    }
+
+    if (!mongoose.Types.ObjectId.isValid(clubIdStr)) {
+      console.error('Invalid club ID format:', clubIdStr);
+      return res.status(400).json({ message: 'Invalid club ID format (must be 24-hex chars)' });
+    }
+
+    const club = await Club.findById(clubIdStr);
 
     if (!club) {
       return res.status(404).json({ message: 'Club not found' });
@@ -789,7 +897,7 @@ const updateClub = async (req, res) => {
       });
     }
 
-    // Return the populated club
+    // FIXED: Manual populate for response
     const populatedClub = await Club.findById(updatedClub._id)
       .populate('faculty', 'name username systemRole email')
       .populate('leader', 'name username systemRole email');
@@ -806,7 +914,19 @@ const updateClub = async (req, res) => {
 // @access  Admin
 const deleteClub = async (req, res) => {
   try {
-    const club = await Club.findById(req.params.id);
+    const clubIdStr = req.params.id;
+    console.log('Deleting club ID:', clubIdStr, 'Type:', typeof clubIdStr);
+
+    if (!clubIdStr || typeof clubIdStr !== 'string') {
+      return res.status(400).json({ message: 'Club ID must be a non-empty string' });
+    }
+
+    if (!mongoose.Types.ObjectId.isValid(clubIdStr)) {
+      console.error('Invalid club ID format:', clubIdStr);
+      return res.status(400).json({ message: 'Invalid club ID format (must be 24-hex chars)' });
+    }
+
+    const club = await Club.findById(clubIdStr);
 
     if (!club) {
       return res.status(404).json({ message: 'Club not found' });
@@ -854,9 +974,19 @@ const assignFaculty = async (req, res) => {
   const { facultyId } = req.body;
 
   try {
-    console.log('Assigning faculty:', facultyId, 'to club:', req.params.id);
+    const clubIdStr = req.params.id;
+    console.log('Assigning faculty:', facultyId, 'to club:', clubIdStr, 'Type:', typeof clubIdStr);
 
-    const club = await Club.findById(req.params.id);
+    if (!clubIdStr || typeof clubIdStr !== 'string') {
+      return res.status(400).json({ message: 'Club ID must be a non-empty string' });
+    }
+
+    if (!mongoose.Types.ObjectId.isValid(clubIdStr)) {
+      console.error('Invalid club ID format:', clubIdStr);
+      return res.status(400).json({ message: 'Invalid club ID format (must be 24-hex chars)' });
+    }
+
+    const club = await Club.findById(clubIdStr);
 
     if (!club) {
       return res.status(404).json({ message: 'Club not found' });
@@ -890,7 +1020,7 @@ const assignFaculty = async (req, res) => {
     });
     console.log('Faculty updated with club reference');
 
-    // Return the populated club - ensure all fields are populated
+    // FIXED: Manual populate for response
     const populatedClub = await Club.findById(club._id)
       .populate('faculty', 'name username systemRole email')
       .populate('leader', 'name username systemRole email')
@@ -918,9 +1048,19 @@ const assignLeader = async (req, res) => {
   const { leaderId } = req.body;
 
   try {
-    console.log('Assigning leader:', leaderId, 'to club:', req.params.id);
+    const clubIdStr = req.params.id;
+    console.log('Assigning leader:', leaderId, 'to club:', clubIdStr, 'Type:', typeof clubIdStr);
 
-    const club = await Club.findById(req.params.id);
+    if (!clubIdStr || typeof clubIdStr !== 'string') {
+      return res.status(400).json({ message: 'Club ID must be a non-empty string' });
+    }
+
+    if (!mongoose.Types.ObjectId.isValid(clubIdStr)) {
+      console.error('Invalid club ID format:', clubIdStr);
+      return res.status(400).json({ message: 'Invalid club ID format (must be 24-hex chars)' });
+    }
+
+    const club = await Club.findById(clubIdStr);
 
     if (!club) {
       return res.status(404).json({ message: 'Club not found' });
@@ -954,7 +1094,7 @@ const assignLeader = async (req, res) => {
     });
     console.log('Leader updated with club reference');
 
-    // Return the populated club - ensure all fields are populated
+    // FIXED: Manual populate for response
     const populatedClub = await Club.findById(club._id)
       .populate('faculty', 'name username systemRole email')
       .populate('leader', 'name username systemRole email')
@@ -980,7 +1120,19 @@ const assignLeader = async (req, res) => {
 // @access  Admin
 const removeFaculty = async (req, res) => {
   try {
-    const club = await Club.findById(req.params.id);
+    const clubIdStr = req.params.id;
+    console.log('Removing faculty from club ID:', clubIdStr, 'Type:', typeof clubIdStr);
+
+    if (!clubIdStr || typeof clubIdStr !== 'string') {
+      return res.status(400).json({ message: 'Club ID must be a non-empty string' });
+    }
+
+    if (!mongoose.Types.ObjectId.isValid(clubIdStr)) {
+      console.error('Invalid club ID format:', clubIdStr);
+      return res.status(400).json({ message: 'Invalid club ID format (must be 24-hex chars)' });
+    }
+
+    const club = await Club.findById(clubIdStr);
 
     if (!club) {
       return res.status(404).json({ message: 'Club not found' });
@@ -996,7 +1148,7 @@ const removeFaculty = async (req, res) => {
     club.faculty = null;
     await club.save();
 
-    // Return the populated club
+    // FIXED: Manual populate for response
     const populatedClub = await Club.findById(club._id)
       .populate('faculty', 'name username systemRole')
       .populate('leader', 'name username systemRole');
@@ -1013,7 +1165,19 @@ const removeFaculty = async (req, res) => {
 // @access  Admin
 const removeLeader = async (req, res) => {
   try {
-    const club = await Club.findById(req.params.id);
+    const clubIdStr = req.params.id;
+    console.log('Removing leader from club ID:', clubIdStr, 'Type:', typeof clubIdStr);
+
+    if (!clubIdStr || typeof clubIdStr !== 'string') {
+      return res.status(400).json({ message: 'Club ID must be a non-empty string' });
+    }
+
+    if (!mongoose.Types.ObjectId.isValid(clubIdStr)) {
+      console.error('Invalid club ID format:', clubIdStr);
+      return res.status(400).json({ message: 'Invalid club ID format (must be 24-hex chars)' });
+    }
+
+    const club = await Club.findById(clubIdStr);
 
     if (!club) {
       return res.status(404).json({ message: 'Club not found' });
@@ -1029,7 +1193,7 @@ const removeLeader = async (req, res) => {
     club.leader = null;
     await club.save();
 
-    // Return the populated club
+    // FIXED: Manual populate for response
     const populatedClub = await Club.findById(club._id)
       .populate('faculty', 'name username systemRole')
       .populate('leader', 'name username systemRole');
@@ -1090,7 +1254,19 @@ const cleanupInvalidMembers = async (req, res) => {
 // @access  Private (Club Leader)
 const updateClubSettings = async (req, res) => {
     try {
-        const club = await Club.findById(req.params.id);
+        const clubIdStr = req.params.id;
+        console.log('Updating club settings for ID:', clubIdStr, 'Type:', typeof clubIdStr);
+
+        if (!clubIdStr || typeof clubIdStr !== 'string') {
+          return res.status(400).json({ message: 'Club ID must be a non-empty string' });
+        }
+
+        if (!mongoose.Types.ObjectId.isValid(clubIdStr)) {
+          console.error('Invalid club ID format:', clubIdStr);
+          return res.status(400).json({ message: 'Invalid club ID format (must be 24-hex chars)' });
+        }
+        
+        const club = await Club.findById(clubIdStr);
         
         if (!club) {
             return res.status(404).json({ message: 'Club not found' });
@@ -1134,12 +1310,16 @@ const updateClubSettings = async (req, res) => {
         
         await club.save();
         
-        // Return updated club with populated fields
-        const updatedClub = await Club.findById(club._id)
+        // FIXED: Manual populate for response
+        const populatedClub = await Club.findById(club._id)
             .populate('faculty', 'name username email')
-            .populate('leader', 'name username email');
+            .populate('leader', 'name username email')
+            .populate({
+              path: 'members.user',
+              select: 'name username systemRole clubRole email joinDate status'
+            });
         
-        res.json(updatedClub);
+        res.json(populatedClub);
     } catch (error) {
         console.error('Error updating club settings:', error);
         res.status(500).json({ message: 'Server Error' });

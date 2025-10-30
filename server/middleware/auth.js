@@ -2,49 +2,50 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 
 const protect = async (req, res, next) => {
-    let token;
+  let token;
 
-    if (
-        req.headers.authorization &&
-        req.headers.authorization.startsWith('Bearer')
-    ) {
-        try {
-            // Get token from header
-            token = req.headers.authorization.split(' ')[1];
-            console.log('Token received:', token);
+  if (
+    req.headers.authorization &&
+    req.headers.authorization.startsWith('Bearer')
+  ) {
+    try {
+      token = req.headers.authorization.split(' ')[1];
+      console.log('Token received:', token ? 'present' : 'missing');
 
-            // Verify token
-            const decoded = jwt.verify(token, process.env.JWT_SECRET || 'your_jwt_secret');
-            console.log('Token decoded:', decoded);
+      const decoded = jwt.verify(token, process.env.JWT_SECRET || 'kmitclubshub');
+      console.log('Token decoded:', { id: decoded.id });
 
-            // Get user from the token
-            req.user = await User.findById(decoded.id).select('-password');
-            
-            if (!req.user) {
-                console.log('User not found for ID:', decoded.id);
-                return res.status(401).json({ message: 'User not found' });
-            }
-            
-            // Check if user is active
-            if (req.user.status !== 'active') {
-                console.log('User account is inactive:', req.user.username);
-                return res.status(401).json({ message: 'Your account is inactive. Please contact your club administrator.' });
-            }
-            
-            console.log('User authenticated:', req.user.username, 'Role:', req.user.systemRole || req.user.role);
-            next();
-        } catch (error) {
-            console.error('Token verification error:', error);
-            return res.status(401).json({ message: 'Not authorized, token failed' });
-        }
+      // Fetch user WITHOUT status (field removed)
+      req.user = await User.findById(decoded.id)
+        .select('systemRole role name username clubs')  // Removed 'status'
+        .populate('club');
+
+      console.log('Auth protect - User fetch:', {
+        id: decoded.id,
+        username: req.user?.username,
+        systemRole: req.user?.systemRole,
+        role: req.user?.role
+      });
+
+      if (!req.user) {
+        console.log('Auth protect - User not found for ID:', decoded.id);
+        return res.status(401).json({ message: 'User not found' });
+      }
+
+      // REMOVED: All status checks - Users are now always active by default
+      console.log('User authenticated:', req.user.username, 'Role:', req.user.systemRole || req.user.role);
+      next();
+    } catch (error) {
+      console.error('Token verification error:', error);
+      return res.status(401).json({ message: 'Not authorized, token failed' });
     }
+  }
 
-    if (!token) {
-        console.log('No token provided');
-        return res.status(401).json({ message: 'Not authorized, no token' });
-    }
+  if (!token) {
+    console.log('No token provided');
+    return res.status(401).json({ message: 'Not authorized, no token' });
+  }
 };
-
 // Middleware to check if user is an admin
 const admin = (req, res, next) => {
     // Check both systemRole and role for compatibility

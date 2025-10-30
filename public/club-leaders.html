@@ -565,9 +565,9 @@
                 <li><a href="faculty_settings.html"><i class="fas fa-cog"></i> Settings</a></li>
             </ul>
             <div class="user-profile">
-                <div class="user-avatar" id="userAvatar">RS</div>
+                <div class="user-avatar" id="userAvatar">F</div>
                 <div class="user-info">
-                    <h4 id="userName">Loading...</h4>
+                    <h4 id="userName">Faculty</h4>
                     <p id="userRole">Faculty Coordinator</p>
                 </div>
             </div>
@@ -783,6 +783,18 @@
                 }, 5000);
             }
             
+            // Helper function to fetch club name by ID
+            async function getClubName(clubId) {
+                if (!clubId) return 'N/A';
+                try {
+                    const response = await axios.get(`${API_URL}/clubs/${clubId}`);
+                    return response.data.name || 'N/A';
+                } catch (error) {
+                    console.error('Error fetching club name:', error);
+                    return 'N/A';
+                }
+            }
+            
             // Open add club leader modal
             addClubLeaderBtn.addEventListener('click', function() {
                 // Reset form
@@ -832,7 +844,7 @@
                 }
                 
                 try {
-                    const response = await axios.post(`${API_URL}/club-leaders`, {
+                    const response = await axios.post(`${API_URL}/users/club-leader`, {
                         name: leaderFullName.value,
                         department: leaderDepartment.value,
                         username: leaderUsername.value,
@@ -858,7 +870,7 @@
             // Confirm delete club leader
             confirmDeleteBtn.addEventListener('click', async function() {
                 try {
-                    const response = await axios.delete(`${API_URL}/club-leaders/${currentClubLeaderId}`);
+                    const response = await axios.delete(`${API_URL}/users/${currentClubLeaderId}/role/clubLeader`);
                     
                     showAlert('Club leader deleted successfully', 'success');
                     deleteConfirmModal.style.display = 'none';
@@ -909,7 +921,7 @@
                 `;
                 
                 try {
-                    const response = await axios.get(`${API_URL}/club-leaders`);
+                    const response = await axios.get(`${API_URL}/users/role/clubLeader`);
                     const clubLeaders = response.data;
                     
                     if (clubLeaders.length === 0) {
@@ -931,19 +943,28 @@
                         return;
                     }
                     
-                    // Populate table
-                    clubLeadersTableBody.innerHTML = clubLeaders.map(leader => `
-                        <tr>
-                            <td>${leader.name}</td>
-                            <td>${leader.department || 'N/A'}</td>
-                            <td>${leader.club ? leader.club.name : 'N/A'}</td>
-                            <td class="actions">
-                                <button class="btn btn-danger btn-sm" onclick="confirmDelete('${leader._id}')">
-                                    <i class="fas fa-trash"></i> Delete
-                                </button>
-                            </td>
-                        </tr>
-                    `).join('');
+                    // Populate table asynchronously
+                    const tableRows = await Promise.all(clubLeaders.map(async (leader) => {
+                        let clubName = 'N/A';
+                        if (leader.clubs && leader.clubs.length > 0) {
+                            const firstClubId = leader.clubs[0]._id || leader.clubs[0];
+                            clubName = await getClubName(firstClubId);
+                        }
+                        return `
+                            <tr>
+                                <td>${leader.name}</td>
+                                <td>${leader.department || 'N/A'}</td>
+                                <td>${clubName}</td>
+                                <td class="actions">
+                                    <button class="btn btn-danger btn-sm" onclick="confirmDelete('${leader._id}')">
+                                        <i class="fas fa-trash"></i> Delete
+                                    </button>
+                                </td>
+                            </tr>
+                        `;
+                    }));
+                    
+                    clubLeadersTableBody.innerHTML = tableRows.join('');
                 } catch (error) {
                     console.error('Error fetching club leaders:', error);
                     

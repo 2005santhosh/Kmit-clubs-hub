@@ -44,11 +44,11 @@ router.get('/', protect, authorize('admin'), async (req, res) => {
     let attendedEvents = 0;
     
     events.forEach(event => {
-      if (event.registeredUsers && event.registeredUsers.length > 0) {
+      if (event.registeredParticipants && event.registeredParticipants.length > 0) {
         attendedEvents++;
-        const attended = event.registeredUsers.filter(reg => reg.attended).length;
+        const attended = event.registeredParticipants.filter(reg => reg.attended).length;
         totalAttendance += attended;
-        totalCapacity += event.registeredUsers.length;
+        totalCapacity += event.registeredParticipants.length;
       }
     });
     
@@ -118,7 +118,7 @@ router.get('/clubs/:clubId', protect, authorize('clubLeader', 'admin'), async (r
     
     console.log(`Fetching club analytics for ${clubId} from ${startDate.toISOString()} to ${endDate.toISOString()}`);
     
-    // Get club-specific stats - FIXED: Changed from 'members.userId' to 'members.user'
+    // Get club-specific stats
     const club = await Club.findById(clubId).populate('members.user');
     
     if (!club) {
@@ -148,11 +148,11 @@ router.get('/clubs/:clubId', protect, authorize('clubLeader', 'admin'), async (r
     let attendedEvents = 0;
     
     events.forEach(event => {
-      if (event.registeredUsers && event.registeredUsers.length > 0) {
+      if (event.registeredParticipants && event.registeredParticipants.length > 0) {
         attendedEvents++;
-        const attended = event.registeredUsers.filter(reg => reg.attended).length;
+        const attended = event.registeredParticipants.filter(reg => reg.attended).length;
         totalAttendance += attended;
-        totalCapacity += event.registeredUsers.length;
+        totalCapacity += event.registeredParticipants.length;
       }
     });
     
@@ -271,7 +271,6 @@ async function getUserDistributionData() {
 async function getClubMembershipsData(clubId) {
   try {
     const filter = clubId ? { _id: clubId } : {};
-    // FIXED: Changed from 'members.userId' to 'members.user'
     const clubs = await Club.find(filter).populate('members.user');
     
     const labels = [];
@@ -407,16 +406,16 @@ async function getEventAttendanceData(startDate, endDate, clubId) {
     
     const events = await Event.find(filter)
       .populate('clubId', 'name')
-      .select('title clubId registeredUsers');
+      .select('title clubId registeredParticipants');
     
     const labels = [];
     const data = [];
     
     // Calculate attendance percentage for each event
     events.forEach(event => {
-      if (event.registeredUsers && event.registeredUsers.length > 0) {
-        const attended = event.registeredUsers.filter(reg => reg.attended).length;
-        const attendance = Math.round((attended / event.registeredUsers.length) * 100);
+      if (event.registeredParticipants && event.registeredParticipants.length > 0) {
+        const attended = event.registeredParticipants.filter(reg => reg.attended).length;
+        const attendance = Math.round((attended / event.registeredParticipants.length) * 100);
         
         labels.push(event.title);
         data.push(attendance);
@@ -442,7 +441,6 @@ async function getEventAttendanceData(startDate, endDate, clubId) {
 // Helper function to get membership growth data
 async function getMembershipGrowthData(clubId, startDate, endDate) {
   try {
-    // FIXED: Changed from 'members.userId' to 'members.user'
     const club = await Club.findById(clubId).populate('members.user');
     if (!club) {
       return { growth: [], newMembers: 0 };
@@ -453,7 +451,6 @@ async function getMembershipGrowthData(clubId, startDate, endDate) {
     let newMembers = 0;
     
     club.members.forEach(member => {
-      // FIXED: Changed from 'member.userId' to 'member.user'
       if (member.user && member.joinDate) {
         const joinDate = new Date(member.joinDate);
         if (joinDate >= startDate && joinDate <= endDate) {
@@ -497,14 +494,14 @@ async function getClubEventAttendanceData(clubId, startDate, endDate) {
         $gte: startDate,
         $lte: endDate
       }
-    }).select('title registeredUsers');
+    }).select('title registeredParticipants');
     
     const attendanceData = [];
     
     events.forEach(event => {
-      if (event.registeredUsers && event.registeredUsers.length > 0) {
-        const attended = event.registeredUsers.filter(reg => reg.attended).length;
-        const expected = event.registeredUsers.length;
+      if (event.registeredParticipants && event.registeredParticipants.length > 0) {
+        const attended = event.registeredParticipants.filter(reg => reg.attended).length;
+        const expected = event.registeredParticipants.length;
         
         attendanceData.push({
           event: event.title,
@@ -524,7 +521,6 @@ async function getClubEventAttendanceData(clubId, startDate, endDate) {
 // Helper function to get engagement data
 async function getClubEngagementData(clubId, startDate, endDate) {
   try {
-    // FIXED: Changed from 'members.userId' to 'members.user'
     const club = await Club.findById(clubId).populate('members.user');
     if (!club) {
       return { trend: [], mostActiveMembers: [], byRole: {} };
@@ -549,7 +545,6 @@ async function getClubEngagementData(clubId, startDate, endDate) {
     const members = club.members.slice(0, 5); // Take first 5 members
     
     members.forEach(member => {
-      // FIXED: Changed from 'member.userId' to 'member.user'
       if (member.user) {
         mostActiveMembers.push({
           name: member.user.name,

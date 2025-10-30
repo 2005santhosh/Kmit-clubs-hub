@@ -547,9 +547,19 @@
             margin-left: 1rem;
         }
 
-        .status-upcoming {
+        .status-pending {
             background-color: #fff3cd;
             color: #856404;
+        }
+
+        .status-approved {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .status-cancelled {
+            background-color: #f8d7da;
+            color: #721c24;
         }
 
         .status-ongoing {
@@ -705,10 +715,17 @@
             
             .club-meta {
                 justify-content: center;
+                flex-wrap: wrap;
             }
             
             .club-tabs {
                 flex-wrap: wrap;
+                justify-content: center;
+            }
+            
+            .club-tab {
+                padding: 0.5rem 1rem;
+                font-size: 0.9rem;
             }
             
             .members-list {
@@ -718,11 +735,16 @@
             .event-card {
                 flex-direction: column;
                 text-align: center;
+                gap: 0.5rem;
             }
             
             .event-icon {
                 margin-right: 0;
                 margin-bottom: 0.5rem;
+            }
+            
+            .event-status {
+                margin-left: 0;
             }
         }
 
@@ -733,6 +755,15 @@
             
             .main-content {
                 padding: 1rem;
+            }
+            
+            .club-name {
+                font-size: 1.5rem;
+            }
+            
+            .club-meta {
+                flex-direction: column;
+                gap: 0.5rem;
             }
         }
     </style>
@@ -748,6 +779,7 @@
                 <li><a href="faculty_dashboard.html"><i class="fas fa-home"></i> Dashboard</a></li>
                 <li><a href="approvals.html"><i class="fas fa-check-circle"></i> Approvals</a></li>
                 <li><a href="monitored-clubs.html"><i class="fas fa-users"></i> Monitored Clubs</a></li>
+                <li><a href="club-leaders.html"><i class="fas fa-user-tie"></i> Club Leaders</a></li>
                 <li><a href="faculty_reports.html"><i class="fas fa-file-alt"></i> Reports</a></li>
                 <li><a href="faculty_analytics.html"><i class="fas fa-chart-line"></i> Analytics</a></li>
                 <li><a href="faculty_settings.html"><i class="fas fa-cog"></i> Settings</a></li>
@@ -867,7 +899,6 @@
                 <div class="club-tab-content" id="events-tab">
                     <div class="section-header">
                         <h3 class="section-title">Club Events</h3>
-                        <a href="#" class="btn btn-primary" id="addEventBtn">Add Event</a>
                     </div>
                     <div class="events-list" id="eventsList">
                         <div class="spinner"></div>
@@ -1032,7 +1063,7 @@
                 toggleDebugBtn.textContent = 'Hide Debug Panel';
             }
             
-            // Fetch club details
+            // Fetch club details and events separately
             async function fetchClubDetails() {
                 const clubHeader = document.getElementById('clubHeader');
                 clubHeader.innerHTML = '<div class="spinner"></div>';
@@ -1040,22 +1071,39 @@
                 try {
                     console.log('Fetching club with ID:', clubId);
                     
-                    const response = await fetch(`/api/clubs/${clubId}`, {
-                        headers: {
-                            'Authorization': `Bearer ${token}`
-                        }
-                    });
+                    const [clubResponse, eventsResponse] = await Promise.all([
+                        fetch(`/api/clubs/${clubId}`, {
+                            headers: {
+                                'Authorization': `Bearer ${token}`
+                            }
+                        }),
+                        fetch(`/api/events?clubId=${clubId}`, {
+                            headers: {
+                                'Authorization': `Bearer ${token}`
+                            }
+                        })
+                    ]);
                     
-                    console.log('Response status:', response.status);
+                    console.log('Club response status:', clubResponse.status);
+                    console.log('Events response status:', eventsResponse.status);
                     
-                    if (!response.ok) {
-                        const errorData = await response.json();
-                        console.error('Error response:', errorData);
-                        throw new Error(`Failed to fetch club details: ${response.status} - ${errorData.message || 'Unknown error'}`);
+                    if (!clubResponse.ok) {
+                        const errorData = await clubResponse.json();
+                        console.error('Club error response:', errorData);
+                        throw new Error(`Failed to fetch club details: ${clubResponse.status} - ${errorData.message || 'Unknown error'}`);
                     }
                     
-                    const club = await response.json();
+                    if (!eventsResponse.ok) {
+                        const errorData = await eventsResponse.json();
+                        console.error('Events error response:', errorData);
+                        throw new Error(`Failed to fetch events: ${eventsResponse.status} - ${errorData.message || 'Unknown error'}`);
+                    }
+                    
+                    const club = await clubResponse.json();
+                    const events = await eventsResponse.json();
+                    
                     console.log('Club data received:', club);
+                    console.log('Events data received:', events);
                     
                     // Map club type to icon with fallback
                     let icon = 'fas fa-users';
@@ -1083,7 +1131,7 @@
                                 </div>
                                 <div class="club-meta-item">
                                     <i class="fas fa-calendar-alt"></i>
-                                    <span>${club.events ? club.events.length : 0} Events</span>
+                                    <span>${events.length} Events</span>
                                 </div>
                             </div>
                         </div>
@@ -1091,7 +1139,7 @@
                     
                     // Update club stats with fallbacks
                     document.getElementById('memberCount').textContent = club.members ? club.members.length : 0;
-                    document.getElementById('eventCount').textContent = club.events ? club.events.length : 0;
+                    document.getElementById('eventCount').textContent = events.length;
                     document.getElementById('reportCount').textContent = club.reports ? club.reports.length : 0;
                     document.getElementById('avgAttendance').textContent = club.avgAttendance || '0';
                     
@@ -1099,8 +1147,8 @@
                     document.getElementById('clubDescription').textContent = club.description || 'No description available.';
                     document.getElementById('facultyName').textContent = club.faculty ? club.faculty.name : 'Not assigned';
                     document.getElementById('leaderName').textContent = club.leader ? club.leader.name : 'Not assigned';
-                    document.getElementById('establishedDate').textContent = club.establishedDate ? 
-                        new Date(club.establishedDate).toLocaleDateString() : 'Unknown';
+                    document.getElementById('establishedDate').textContent = club.createdAt ? 
+                        new Date(club.createdAt).toLocaleDateString() : 'Unknown';
                     
                     // Update members list
                     if (club.members && club.members.length > 0) {
@@ -1110,8 +1158,8 @@
                     }
                     
                     // Update events list
-                    if (club.events && club.events.length > 0) {
-                        updateEventsList(club.events);
+                    if (events && events.length > 0) {
+                        updateEventsList(events);
                     } else {
                         document.getElementById('eventsList').innerHTML = '<p class="text-center">No events found.</p>';
                     }
@@ -1173,10 +1221,16 @@
                     const eventCard = document.createElement('div');
                     eventCard.className = 'event-card';
                     
-                    let statusClass = 'status-upcoming';
-                    let statusText = 'Upcoming';
+                    let statusClass = 'status-pending';
+                    let statusText = 'Pending';
                     
-                    if (event.status === 'ongoing') {
+                    if (event.status === 'approved') {
+                        statusClass = 'status-approved';
+                        statusText = 'Approved';
+                    } else if (event.status === 'cancelled') {
+                        statusClass = 'status-cancelled';
+                        statusText = 'Cancelled';
+                    } else if (event.status === 'ongoing') {
                         statusClass = 'status-ongoing';
                         statusText = 'Ongoing';
                     } else if (event.status === 'completed') {
@@ -1231,11 +1285,6 @@
                     reportsList.appendChild(reportCard);
                 });
             }
-            
-            // Add event button
-            document.getElementById('addEventBtn').addEventListener('click', function() {
-                window.location.href = `add-event.html?clubId=${clubId}`;
-            });
             
             // Initial data fetch
             fetchClubDetails();

@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Report Details</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background-color: #f4f4f4; }
+        .container { max-width: 800px; margin: 0 auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+        h1 { color: #333; }
+        .detail { margin-bottom: 10px; }
+        .label { font-weight: bold; color: #555; }
+        .status { padding: 5px 10px; border-radius: 4px; color: white; }
+        .approved { background-color: #28a745; }
+        .pending { background-color: #ffc107; color: black; }
+        .rejected { background-color: #dc3545; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #f2f2f2; }
+        .download-btn { background: #007bff; color: white; padding: 8px 16px; text-decoration: none; border-radius: 4px; display: inline-block; margin-top: 10px; }
+        .error { color: #dc3545; background: #f8d7da; padding: 10px; border-radius: 4px; margin-bottom: 20px; }
+        .loading { text-align: center; padding: 20px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 id="page-title">Loading Report...</h1>
+        <div id="loading" class="loading">Fetching report details...</div>
+        <div id="error" class="error" style="display: none;"></div>
+        <div id="content" style="display: none;">
+            <div class="detail">
+                <span class="label">Title:</span> <span id="title"></span>
+            </div>
+            <div class="detail">
+                <span class="label">Description:</span> <span id="description"></span>
+            </div>
+            <div class="detail">
+                <span class="label">Club:</span> <span id="club"></span>
+            </div>
+            <div class="detail">
+                <span class="label">Submitted By:</span> <span id="submittedBy"></span>
+            </div>
+            <div class="detail">
+                <span class="label">Status:</span> <span id="status"></span>
+            </div>
+            <div class="detail" id="approvedByDiv" style="display: none;">
+                <span class="label">Approved/Rejected By:</span> <span id="approvedBy"></span>
+            </div>
+            <div class="detail">
+                <span class="label">Submitted Date:</span> <span id="submittedDate"></span>
+            </div>
+            <div class="detail" id="approvedDateDiv" style="display: none;">
+                <span class="label">Approved Date:</span> <span id="approvedDate"></span>
+            </div>
+            <div id="attachments">
+                <span class="label">Attachment:</span>
+                <a id="downloadLink" class="download-btn" href="#" style="display: none;">Download Report File</a>
+            </div>
+            <div id="reportContent">
+                <span class="label">Report Content:</span>
+                <div id="contentData"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Parse URL param
+        const urlParams = new URLSearchParams(window.location.search);
+        const reportId = urlParams.get('id');
+        if (!reportId) {
+            document.getElementById('error').textContent = 'No report ID provided in URL.';
+            document.getElementById('error').style.display = 'block';
+            document.getElementById('loading').style.display = 'none';
+            return;
+        }
+
+        // Assume JWT token is stored in localStorage (from login)
+        const token = localStorage.getItem('token');
+        if (!token) {
+            document.getElementById('error').textContent = 'Please log in to view this report.';
+            document.getElementById('error').style.display = 'block';
+            document.getElementById('loading').style.display = 'none';
+            return;
+        }
+
+        // Fetch report details
+        fetch(`/api/clubactivityreports/${reportId}`, {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(report => {
+            // Populate basic fields
+            document.getElementById('title').textContent = report.title || 'N/A';
+            document.getElementById('description').textContent = report.description || 'N/A';
+            document.getElementById('club').textContent = report.club?.name || 'N/A';
+            document.getElementById('submittedBy').textContent = report.submittedBy?.name || 'N/A';
+            document.getElementById('status').innerHTML = `<span class="status ${report.status}">${report.status.toUpperCase()}</span>`;
+            document.getElementById('submittedDate').textContent = new Date(report.submittedDate).toLocaleDateString();
+
+            if (report.approvedBy) {
+                document.getElementById('approvedBy').textContent = report.approvedBy?.name || 'N/A';
+                document.getElementById('approvedByDiv').style.display = 'block';
+                document.getElementById('approvedDate').textContent = new Date(report.approvedDate).toLocaleDateString();
+                document.getElementById('approvedDateDiv').style.display = 'block';
+            }
+
+            // Handle attachment download
+            if (report.attachments && report.attachments.length > 0) {
+                const attachment = report.attachments[0];
+                const downloadUrl = `/api/clubactivityreports/${reportId}/download?token=${token}`;
+                const link = document.getElementById('downloadLink');
+                link.href = downloadUrl;
+                link.textContent = `Download ${attachment.filename} (${formatFileSize(attachment.size)})`;
+                link.style.display = 'inline-block';
+            }
+
+            // Render content (JSON data)
+            const content = report.content ? JSON.parse(report.content) : null;
+            const contentDiv = document.getElementById('contentData');
+            if (content) {
+                if (Array.isArray(content) && content.length > 0) {
+                    // Render as table
+                    let tableHtml = '<table><thead><tr>';
+                    const headers = Object.keys(content[0]);
+                    headers.forEach(header => {
+                        tableHtml += `<th>${header}</th>`;
+                    });
+                    tableHtml += '</tr></thead><tbody>';
+                    content.forEach(row => {
+                        tableHtml += '<tr>';
+                        headers.forEach(header => {
+                            tableHtml += `<td>${row[header] || ''}</td>`;
+                        });
+                        tableHtml += '</tr>';
+                    });
+                    tableHtml += '</tbody></table>';
+                    contentDiv.innerHTML = tableHtml;
+                } else if (typeof content === 'object' && Object.keys(content).length > 0) {
+                    // Render as key-value list (flattened)
+                    let listHtml = '<ul>';
+                    Object.keys(content).forEach(key => {
+                        if (typeof content[key] !== 'object' || content[key] === null) {
+                            listHtml += `<li><strong>${key}:</strong> ${content[key]}</li>`;
+                        } else {
+                            // For nested, show as JSON string (simple handling)
+                            listHtml += `<li><strong>${key}:</strong> ${JSON.stringify(content[key])}</li>`;
+                        }
+                    });
+                    listHtml += '</ul>';
+                    contentDiv.innerHTML = listHtml;
+                } else {
+                    contentDiv.textContent = 'No detailed content available.';
+                }
+            } else {
+                contentDiv.textContent = 'No content available.';
+            }
+
+            // Show content, hide loading/error
+            document.getElementById('content').style.display = 'block';
+            document.getElementById('loading').style.display = 'none';
+        })
+        .catch(error => {
+            console.error('Error fetching report:', error);
+            document.getElementById('error').textContent = `Error loading report: ${error.message}`;
+            document.getElementById('error').style.display = 'block';
+            document.getElementById('loading').style.display = 'none';
+        });
+
+        // Helper function to format file size
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+    </script>
+</body>
+</html>

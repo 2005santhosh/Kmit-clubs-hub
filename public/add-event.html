@@ -87,6 +87,7 @@
             align-items: center;
             padding: 0.8rem 1.5rem;
             color: rgba(255, 255, 255, 0.8);
+            text-decoration: none; /* FIX: Remove underline from sidebar links */
             transition: var(--transition);
         }
 
@@ -94,6 +95,7 @@
         .sidebar-menu a.active {
             background-color: rgba(255, 255, 255, 0.1);
             color: white;
+            text-decoration: none; /* FIX: Ensure no underline on hover/active */
         }
 
         .sidebar-menu i {
@@ -763,8 +765,14 @@
             return response.data;
         }
 
-        // Update user interface with user data
+       // Update user interface with user data
         function updateUserInterface(userData) {
+            // Update user name in dashboard header
+            // const welcomeMessage = document.getElementById('welcomeMessage');
+            // if (welcomeMessage) {
+            //     welcomeMessage.textContent = `Welcome back, ${userData.name}! Manage your club activities here.`;
+            // }
+            
             // Update user profile in sidebar
             const userAvatar = document.getElementById('userAvatar');
             const userName = document.getElementById('userName');
@@ -779,13 +787,9 @@
             }
             
             if (userRole) {
-                if (userData.club) {
-                    userRole.textContent = `Club Leader - ${userData.club.name}`;
-                } else if (userData.clubs && userData.clubs.length > 0) {
-                    userRole.textContent = `Club Leader - ${userData.clubs[0].name}`;
-                } else {
-                    userRole.textContent = 'Club Leader';
-                }
+                // FIXED: Use clubs[0] for club name if populated
+                const clubName = (userData.clubs && userData.clubs[0] && userData.clubs[0]._id && userData.clubs[0]._id.name) ? userData.clubs[0]._id.name : 'No Club';
+                userRole.textContent = `Club Leader - ${clubName}`;
             }
         }
 
@@ -895,13 +899,14 @@
                     description: formData.get('description').trim(),
                     clubId: clubId,
                     eventType: formData.get('eventType'),
-                    venue: formData.get('venue').trim(),
+                    // FIX: Send as 'location' to match backend expectation (venue value from form)
+                    location: formData.get('venue').trim(),
                     date: new Date(formData.get('date')).toISOString(),
                     startTime: formData.get('startTime'),
                     endTime: formData.get('endTime'),
                     maxParticipants: parseInt(formData.get('maxParticipants')) || 0,
                     entryPrice: parseFloat(formData.get('entryPrice')) || 0,
-                    budgetRequested: parseFloat(formData.get('budgetRequested')) || 0,
+                    budget: parseFloat(formData.get('budgetRequested')) || 0, // Backend expects 'budget' for requested
                     thumbnail: thumbnailUrl
                 };
                 

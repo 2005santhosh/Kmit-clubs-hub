@@ -674,9 +674,9 @@
                 <li><a href="faculty_settings.html"><i class="fas fa-cog"></i> Settings</a></li>
             </ul>
             <div class="user-profile">
-                <div class="user-avatar" id="userAvatar">RS</div>
+                <div class="user-avatar" id="userAvatar">F</div>
                 <div class="user-info">
-                    <h4 id="userName">Loading...</h4>
+                    <h4 id="userName">Faculty</h4>
                     <p id="userRole">Faculty Coordinator</p>
                 </div>
             </div>
@@ -971,93 +971,101 @@
             }
             
             // Fetch clubs assigned to this faculty
-            async function fetchFacultyClubs() {
-                const clubsGrid = document.getElementById('clubsGrid');
-                clubsGrid.innerHTML = '<div class="spinner"></div>';
-                
-                try {
-                    // Fetch clubs assigned to this faculty using the endpoint
-                    const response = await axios.get(`${API_URL}/clubs/faculty-monitored`);
-                    
-                    if (!response.ok) {
-                        throw new Error(`Failed to fetch clubs: ${response.status}`);
-                    }
-                    
-                    const clubs = response.data;
-                    console.log('Clubs data:', clubs);
-                    
-                    if (clubs.length === 0) {
-                        clubsGrid.innerHTML = `
-                            <div class="empty-state">
-                                <div class="empty-icon">
-                                    <i class="fas fa-users-slash"></i>
-                                </div>
-                                <h3 class="empty-title">No Clubs Assigned</h3>
-                                <p class="empty-message">
-                                    You haven't been assigned to monitor any clubs yet. Please contact the administrator.
-                                </p>
-                            </div>
-                        `;
-                        return;
-                    }
-                    
-                    // Map club type to icon
-                    const getClubIcon = (type) => {
-                        switch(type) {
-                            case 'technical': return 'fas fa-laptop-code';
-                            case 'cultural': return 'fas fa-music';
-                            case 'sports': return 'fas fa-running';
-                            case 'social': return 'fas fa-hands-helping';
-                            case 'academic': return 'fas fa-book';
-                            case 'literary': return 'fas fa-pen-fancy';
-                            default: return 'fas fa-users';
-                        }
-                    };
-                    
-                    // Render clubs
-                    clubsGrid.innerHTML = clubs.map(club => {
-                        // Use a default type if not present
-                        const clubType = club.type || 'general';
-                        
-                        return `
-                            <div class="club-card">
-                                <div class="club-card-header">
-                                    <div class="club-logo">
-                                        <i class="${getClubIcon(clubType)}"></i>
-                                    </div>
-                                    <div>
-                                        <h3 class="club-name">${club.name}</h3>
-                                        <span class="club-type">${clubType.charAt(0).toUpperCase() + clubType.slice(1)}</span>
-                                    </div>
-                                </div>
-                                <p class="club-description">${club.description || 'No description available.'}</p>
-                                <div class="club-stats">
-                                    <div class="club-stat">
-                                        <div class="club-stat-value">${club.members ? club.members.length : 0}</div>
-                                        <div class="club-stat-label">Members</div>
-                                    </div>
-                                    <div class="club-stat">
-                                        <div class="club-stat-value">${club.events ? club.events.length : 0}</div>
-                                        <div class="club-stat-label">Events</div>
-                                    </div>
-                                </div>
-                                <div class="club-actions">
-                                    <a href="club-events.html?id=${club._id}" class="btn btn-primary">View Events</a>
-                                    <a href="club-details.html?id=${club._id}" class="btn btn-secondary">Details</a>
-                                </div>
-                            </div>
-                        `;
-                    }).join('');
-                } catch (error) {
-                    console.error('Error fetching clubs:', error);
-                    console.error('Error details:', error.message, error.stack);
-                    clubsGrid.innerHTML = `
-                        <div class="alert alert-danger">
-                            Failed to load clubs. Please try again later.
-                        </div>
-                    `;
-                }
+async function fetchFacultyClubs() {
+    const clubsGrid = document.getElementById('clubsGrid');
+    clubsGrid.innerHTML = '<div class="spinner"></div>';
+    
+    try {
+        // Fetch clubs assigned to this faculty using the endpoint
+        const response = await axios.get(`${API_URL}/clubs/faculty-monitored`);
+        
+        // ✅ Axios check: Success if status 200-299
+        if (response.status < 200 || response.status >= 300) {
+            throw new Error(`Failed to fetch clubs: ${response.status} ${response.statusText}`);
+        }
+        
+        const clubs = response.data;  // Access .data directly
+        console.log('Clubs data:', clubs);
+        
+        if (clubs.length === 0) {
+            clubsGrid.innerHTML = `
+                <div class="empty-state">
+                    <div class="empty-icon">
+                        <i class="fas fa-users-slash"></i>
+                    </div>
+                    <h3 class="empty-title">No Clubs Assigned</h3>
+                    <p class="empty-message">
+                        You haven't been assigned to monitor any clubs yet. Please contact the administrator.
+                    </p>
+                </div>
+            `;
+            return;
+        }
+        
+        // Map club type to icon (unchanged)
+        const getClubIcon = (type) => {
+            switch(type) {
+                case 'technical': return 'fas fa-laptop-code';
+                case 'cultural': return 'fas fa-music';
+                case 'sports': return 'fas fa-running';
+                case 'social': return 'fas fa-hands-helping';
+                case 'academic': return 'fas fa-book';
+                case 'literary': return 'fas fa-pen-fancy';
+                default: return 'fas fa-users';
             }
+        };
+        
+        // Render clubs (unchanged)
+        clubsGrid.innerHTML = clubs.map(club => {
+            // Use a default type if not present
+            const clubType = club.type || 'general';
+            
+            return `
+                <div class="club-card">
+                    <div class="club-card-header">
+                        <div class="club-logo">
+                            <i class="${getClubIcon(clubType)}"></i>
+                        </div>
+                        <div>
+                            <h3 class="club-name">${club.name}</h3>
+                            <span class="club-type">${clubType.charAt(0).toUpperCase() + clubType.slice(1)}</span>
+                        </div>
+                    </div>
+                    <p class="club-description">${club.description || 'No description available.'}</p>
+                    <div class="club-stats">
+                        <div class="club-stat">
+                            <div class="club-stat-value">${club.members ? club.members.length : 0}</div>
+                            <div class="club-stat-label">Members</div>
+                        </div>
+                        <div class="club-stat">
+                            <div class="club-stat-value">${club.events ? club.events.length : 0}</div>
+                            <div class="club-stat-label">Events</div>
+                        </div>
+                    </div>
+                    <div class="club-actions">
+                        <a href="club-events.html?id=${club._id}" class="btn btn-primary">View Events</a>
+                        <a href="club-details.html?id=${club._id}" class="btn btn-secondary">Details</a>
+                    </div>
+                </div>
+            `;
+        }).join('');
+    } catch (error) {
+        console.error('Error fetching clubs:', error);
+        console.error('Full error details:', {
+            message: error.message,
+            status: error.response?.status,
+            data: error.response?.data
+        });
+        clubsGrid.innerHTML = `
+            <div class="alert alert-danger">
+                Failed to load clubs. Please try again later.<br>
+                <small>Error: ${error.message} (Status: ${error.response?.status || 'Unknown'})</small>
+            </div>
+        `;
+        // Optionally show user-friendly alert
+        showAlert(`Failed to load clubs: ${error.message}`, 'danger');
+    }
+}
             
             // Show alert message
             function showAlert(message, type) {

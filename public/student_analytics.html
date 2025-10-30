@@ -532,7 +532,7 @@
                 <li><a href="/student_dashboard"><i class="fas fa-home"></i> Dashboard</a></li>
                 <li><a href="/student_clubs"><i class="fas fa-users"></i> My Clubs</a></li>
                 <li><a href="/student_events"><i class="fas fa-calendar-alt"></i> Events</a></li>
-                <li><a href="/student_rewards"><i class="fas fa-trophy"></i> Rewards</a></li>
+                <!-- <li><a href="/student_rewards"><i class="fas fa-trophy"></i> Rewards</a></li> -->
                 <li><a href="/student_analytics" class="active"><i class="fas fa-chart-line"></i> Analytics</a></li>
                 <li><a href="/student_settings"><i class="fas fa-cog"></i> Settings</a></li>
             </ul>
@@ -558,10 +558,10 @@
                     <p>Track your club activities and performance</p>
                 </div>
                 <div class="dashboard-actions">
-                    <div class="notification-icon">
+                    <!-- <div class="notification-icon">
                         <i class="fas fa-bell"></i>
                         <span class="notification-badge" id="notificationBadge">3</span>
-                    </div>
+                    </div> -->
                     <button class="btn btn-secondary" onclick="logout()">
                         <i class="fas fa-sign-out-alt"></i> Logout
                     </button>
@@ -586,12 +586,16 @@
                     <h3 id="eventsAttendedCount">-</h3>
                     <p>Events Attended</p>
                 </div>
-                <div class="stat-card">
+                <!-- <div class="stat-card">
                     <i class="fas fa-trophy"></i>
                     <h3 id="rewardPointsCount">-</h3>
                     <p>Reward Points</p>
-                </div>
-               
+                </div> -->
+                <!-- <div class="stat-card">
+                    <i class="fas fa-star"></i>
+                    <h3 id="averageRating">-</h3>
+                    <p>Average Rating</p>
+                </div> -->
             </div>
 
             <!-- Activity Overview Chart -->
@@ -613,7 +617,7 @@
             </div>
 
             <!-- Points Progress Chart -->
-            <div class="content-section">
+            <!-- <div class="content-section">
                 <div class="section-header">
                     <h3 class="section-title">Points Progress</h3>
                 </div>
@@ -621,7 +625,7 @@
                 <div class="chart-container">
                     <canvas id="pointsChart"></canvas>
                 </div>
-            </div>
+            </div> -->
 
             <!-- Recent Activity -->
             <div class="content-section">
@@ -663,13 +667,14 @@
     
     // Current user ID (in a real app, this would come from authentication)
     let currentUserId = null;
+    let currentUserData = null;
     
     // Socket.io connection
     const socket = io('http://localhost:3000');
     
     // Chart instances
     let activityChart = null;
-    let pointsChart = null;
+    // let pointsChart = null;
     
     // Check if user is logged in
     document.addEventListener('DOMContentLoaded', function() {
@@ -702,25 +707,25 @@
             showLoading(true);
             hideError();
             
-            // Fetch user data
+            // Fetch user data (reuse for fallback)
             const userData = await fetchUserData();
             updateUserInterface(userData);
+            currentUserData = userData; // Store globally for fallback
             currentUserId = userData._id;
             
             // Join socket room for this user
             socket.emit('join-room', currentUserId);
             
             // Fetch user analytics
-            const analyticsData = await fetchUserAnalytics();
-            updateAnalyticsSummary(analyticsData);
+            await updateAnalyticsSummary();
             
             // Fetch activity data
             const activityData = await fetchActivityData('month');
             updateActivityChart(activityData);
             
             // Fetch points progress data
-            const pointsData = await fetchPointsProgressData();
-            updatePointsChart(pointsData);
+            // const pointsData = await fetchPointsProgressData();
+            // updatePointsChart(pointsData);
             
             // Fetch recent activity
             const recentActivity = await fetchRecentActivity();
@@ -800,60 +805,81 @@
         }
     }
 
-   // Fetch user analytics
-async function fetchUserAnalytics() {
-    try {
-        const response = await axios.get(`${API_URL}/userAnalytics/analytics`);
-        return response.data;
-    } catch (error) {
-        console.error('Error fetching user analytics:', error);
-        // Return default data if endpoint fails
-        return {
-            clubsJoined: 0,
-            eventsAttended: 0,
-            rewardPoints: 0,
-            averageRating: '0.0'
-        };
-    }
-}
-    // Update analytics summary
-    function updateAnalyticsSummary(analyticsData) {
-        const clubsJoinedCount = document.getElementById('clubsJoinedCount');
-        const eventsAttendedCount = document.getElementById('eventsAttendedCount');
-        const rewardPointsCount = document.getElementById('rewardPointsCount');
-        const averageRating = document.getElementById('averageRating');
-        
-        if (clubsJoinedCount) {
-            clubsJoinedCount.textContent = analyticsData.clubsJoined || 0;
-        }
-        
-        if (eventsAttendedCount) {
-            eventsAttendedCount.textContent = analyticsData.eventsAttended || 0;
-        }
-        
-        if (rewardPointsCount) {
-            rewardPointsCount.textContent = analyticsData.rewardPoints || 0;
-        }
-        
-        if (averageRating) {
-            averageRating.textContent = analyticsData.averageRating || '0.0';
+    // Fetch user analytics (enhanced with better error handling)
+    async function fetchUserAnalytics() {
+        try {
+            console.log('Fetching analytics from API...'); // Debug
+            const response = await axios.get(`${API_URL}/userAnalytics/analytics`);
+            console.log('Analytics API response:', response.data); // Debug
+            return response.data;
+        } catch (error) {
+            console.error('Error fetching user analytics:', error);
+            if (error.response) {
+                console.error('API Error Status:', error.response.status);
+                console.error('API Error Data:', error.response.data);
+                showError(`API Error: ${error.response.data.message || 'Failed to fetch analytics'}`);
+            } else {
+                showError('Network error: Unable to connect to server');
+            }
+            // Instead of default 0, rethrow to let caller handle (or calculate locally as fallback)
+            throw error;
         }
     }
 
-   // Fetch activity data
-async function fetchActivityData(period) {
-    try {
-        const response = await axios.get(`${API_URL}/userActivity/activity?period=${period}`);
-        return response.data;
-    } catch (error) {
-        console.error('Error fetching activity data:', error);
-        // Return default data if endpoint fails
-        return {
-            labels: [],
-            data: []
-        };
+    // Update analytics summary (with local fallback calculation like dashboard)
+    async function updateAnalyticsSummary() {
+        try {
+            const analyticsData = await fetchUserAnalytics();
+            const clubsJoinedCount = document.getElementById('clubsJoinedCount');
+            const eventsAttendedCount = document.getElementById('eventsAttendedCount');
+            // const rewardPointsCount = document.getElementById('rewardPointsCount');
+            const averageRating = document.getElementById('averageRating');
+            
+            if (clubsJoinedCount) clubsJoinedCount.textContent = analyticsData.clubsJoined || 0;
+            if (eventsAttendedCount) eventsAttendedCount.textContent = analyticsData.eventsAttended || 0;
+            // if (rewardPointsCount) rewardPointsCount.textContent = analyticsData.rewardPoints || 0;
+            if (averageRating) averageRating.textContent = analyticsData.averageRating || '0.0';
+        } catch (error) {
+            console.error('Failed to update analytics summary:', error);
+            // Fallback: Calculate locally from userData (fetch if not available)
+            if (!currentUserData) {
+                currentUserData = await fetchUserData(); // Fetch user data as fallback
+            }
+            const fallbackData = {
+                clubsJoined: Array.isArray(currentUserData.clubs) ? currentUserData.clubs.length : (currentUserData.club ? 1 : 0),
+                eventsAttended: Array.isArray(currentUserData.eventsAttended) ? currentUserData.eventsAttended.length : 0,
+                rewardPoints: currentUserData.points || 0,
+                averageRating: '0.0' // Simplified fallback
+            };
+            // Update UI with fallback
+            const clubsJoinedCount = document.getElementById('clubsJoinedCount');
+            const eventsAttendedCount = document.getElementById('eventsAttendedCount');
+            // const rewardPointsCount = document.getElementById('rewardPointsCount');
+            const averageRating = document.getElementById('averageRating');
+            
+            if (clubsJoinedCount) clubsJoinedCount.textContent = fallbackData.clubsJoined;
+            if (eventsAttendedCount) eventsAttendedCount.textContent = fallbackData.eventsAttended;
+            // if (rewardPointsCount) rewardPointsCount.textContent = fallbackData.rewardPoints;
+            if (averageRating) averageRating.textContent = fallbackData.averageRating;
+            
+            showError('Using fallback data due to API issue. Clubs: ' + fallbackData.clubsJoined);
+        }
     }
-}
+
+    // Fetch activity data
+    async function fetchActivityData(period) {
+        try {
+            const response = await axios.get(`${API_URL}/userActivity/activity?period=${period}`);
+            return response.data;
+        } catch (error) {
+            console.error('Error fetching activity data:', error);
+            // Return default data if endpoint fails
+            return {
+                labels: [],
+                data: []
+            };
+        }
+    }
 
     // Update activity chart
     function updateActivityChart(activityData) {
@@ -904,20 +930,20 @@ async function fetchActivityData(period) {
         });
     }
 
-   // Fetch points progress data
-async function fetchPointsProgressData() {
-    try {
-        const response = await axios.get(`${API_URL}/userAnalytics/points`);
-        return response.data;
-    } catch (error) {
-        console.error('Error fetching points progress data:', error);
-        // Return default data if endpoint fails
-        return {
-            labels: [],
-            data: []
-        };
+    // Fetch points progress data
+    async function fetchPointsProgressData() {
+        try {
+            const response = await axios.get(`${API_URL}/userAnalytics/points`);
+            return response.data;
+        } catch (error) {
+            console.error('Error fetching points progress data:', error);
+            // Return default data if endpoint fails
+            return {
+                labels: [],
+                data: []
+            };
+        }
     }
-}
 
     // Update points chart
     function updatePointsChart(pointsData) {
@@ -969,17 +995,17 @@ async function fetchPointsProgressData() {
         });
     }
 
-   // Fetch recent activity
-async function fetchRecentActivity() {
-    try {
-        const response = await axios.get(`${API_URL}/recentActivity`);
-        return response.data;
-    } catch (error) {
-        console.error('Error fetching recent activity:', error);
-        // Return default data if endpoint fails
-        return [];
+    // Fetch recent activity
+    async function fetchRecentActivity() {
+        try {
+            const response = await axios.get(`${API_URL}/recentActivity`);
+            return response.data;
+        } catch (error) {
+            console.error('Error fetching recent activity:', error);
+            // Return default data if endpoint fails
+            return [];
+        }
     }
-}
 
     // Update activity table
     function updateActivityTable(activities) {

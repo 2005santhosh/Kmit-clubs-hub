@@ -76,5 +76,31 @@ router.get('/analytics', protect, async (req, res) => {
         res.status(500).json({ message: 'Server Error' });
     }
 });
+// Ensure minimum points for club members (call this on fetch if needed)
+router.post('/ensure-minimum-points', protect, async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    let updated = false;
+    if (Array.isArray(user.clubs) && user.clubs.length > 0 && user.points < 10) {
+      user.points = 10;
+      await user.save();
+      updated = true;
+      console.log(`Enforced 10 points for club member: ${user.username}`);
+    }
+
+    res.json({
+      points: user.points,
+      wasUpdated: updated,
+      message: updated ? 'Minimum points enforced!' : 'Points already sufficient.'
+    });
+  } catch (error) {
+    console.error('Error ensuring minimum points:', error);
+    res.status(500).json({ message: 'Server Error' });
+  }
+});
 
 module.exports = router;

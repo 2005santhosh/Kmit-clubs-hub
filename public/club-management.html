@@ -352,6 +352,8 @@
             justify-content: center;
             font-size: 3rem;
             color: var(--primary);
+            background-size: cover;
+            background-position: center;
         }
 
         .club-content {
@@ -646,7 +648,7 @@
             <div class="user-profile">
                 <div class="user-avatar" id="userAvatar">SA</div>
                 <div class="user-info">
-                    <h4 id="userName">Loading...</h4>
+                    <h4 id="userName">Admin</h4>
                     <p id="userRole">System Administrator</p>
                 </div>
             </div>
@@ -798,895 +800,920 @@
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Check if user is logged in
-            const token = localStorage.getItem('token');
-            const user = JSON.parse(localStorage.getItem('user') || '{}');
-            
-            if (!token) {
-                window.location.href = '/login';
-                return;
-            }
-            
-            // Check if user has admin role
-            if (user.role !== 'admin') {
-                window.location.href = '/login';
-                return;
-            }
-            
-            // Update user profile
-            const userAvatar = document.getElementById('userAvatar');
-            const userName = document.getElementById('userName');
-            const userRole = document.getElementById('userRole');
-            
-            // Set user initials for avatar
-            if (user.name) {
-                const initials = user.name.split(' ').map(n => n[0]).join('').toUpperCase();
-                userAvatar.textContent = initials;
-                userName.textContent = user.name;
-            }
-            
-            // Set user role
-            if (user.role) {
-                userRole.textContent = user.role === 'admin' ? 'System Administrator' : 
-                                         user.role === 'faculty' ? 'Faculty Coordinator' :
-                                         user.role === 'clubLeader' ? 'Club Leader' : 'Student';
-            }
-            
-            // Mobile menu toggle
-            const mobileMenuToggle = document.getElementById('mobileMenuToggle');
-            const sidebar = document.getElementById('sidebar');
-            
-            mobileMenuToggle.addEventListener('click', function() {
-                sidebar.classList.toggle('active');
-            });
-            
-            // Close sidebar when clicking on a link
-            document.querySelectorAll('.sidebar-menu a').forEach(link => {
-                link.addEventListener('click', () => {
-                    sidebar.classList.remove('active');
-                });
-            });
-            
-            // Logout functionality
-            document.getElementById('logoutBtn').addEventListener('click', function() {
-                localStorage.removeItem('token');
-                localStorage.removeItem('user');
-                window.location.href = '/login';
-            });
-            
-            // Pagination variables
-            let currentPage = 1;
-            const clubsPerPage = 9;
-            let filteredClubs = [];
-            let allClubs = [];
-            let allFaculty = [];
-            let allClubLeaders = [];
-            
-            // Helper function to check if a string is a valid ObjectId
-            function isValidObjectId(id) {
-                return /^[0-9a-fA-F]{24}$/.test(id);
-            }
-            
-            // Helper function to fetch user details by ID
-            async function getUserDetails(userId) {
-                if (!userId) return null;
-                
+        (async function() {
+            document.addEventListener('DOMContentLoaded', async function() {
+                // Check if user is logged in
+                const token = localStorage.getItem('token');
+                if (!token) {
+                    window.location.href = '/login';
+                    return;
+                }
+
+                let user = JSON.parse(localStorage.getItem('user') || '{}');
+
+                // Fetch fresh user details
                 try {
-                    const response = await fetch(`/api/users/${userId}`, {
+                    const response = await fetch('/api/users/me', {
                         headers: {
                             'Authorization': `Bearer ${token}`
                         }
                     });
-                    
                     if (response.ok) {
-                        const user = await response.json();
-                        return user;
-                    } else {
+                        user = await response.json();
+                        localStorage.setItem('user', JSON.stringify(user));
+                    }
+                } catch (error) {
+                    console.error('Failed to fetch user details:', error);
+                }
+
+                // Check if user has admin role
+                if (user.role !== 'admin') {
+                    window.location.href = '/login';
+                    return;
+                }
+
+                // Update user profile
+                const userAvatar = document.getElementById('userAvatar');
+                const userName = document.getElementById('userName');
+                const userRole = document.getElementById('userRole');
+
+                // Set user initials for avatar and name
+                const displayName = user.name || user.username || 'Admin';
+                const initials = displayName.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2);
+                userAvatar.textContent = initials;
+                userName.textContent = displayName;
+
+                // Set user role
+                if (user.role) {
+                    userRole.textContent = user.role === 'admin' ? 'System Administrator' : 
+                                             user.role === 'faculty' ? 'Faculty Coordinator' :
+                                             user.role === 'clubLeader' ? 'Club Leader' : 'Student';
+                }
+
+                // Mobile menu toggle
+                const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+                const sidebar = document.getElementById('sidebar');
+
+                mobileMenuToggle.addEventListener('click', function() {
+                    sidebar.classList.toggle('active');
+                });
+
+                // Close sidebar when clicking on a link
+                document.querySelectorAll('.sidebar-menu a').forEach(link => {
+                    link.addEventListener('click', () => {
+                        sidebar.classList.remove('active');
+                    });
+                });
+
+                // Logout functionality
+                document.getElementById('logoutBtn').addEventListener('click', function() {
+                    localStorage.removeItem('token');
+                    localStorage.removeItem('user');
+                    window.location.href = '/login';
+                });
+
+                // Pagination variables
+                let currentPage = 1;
+                const clubsPerPage = 9;
+                let filteredClubs = [];
+                let allClubs = [];
+                let allFaculty = [];
+                let allClubLeaders = [];
+
+                // Helper function to check if a string is a valid ObjectId
+                function isValidObjectId(id) {
+                    return /^[0-9a-fA-F]{24}$/.test(id);
+                }
+
+                // Helper function to fetch user details by ID
+                async function getUserDetails(userId) {
+                    if (!userId) return null;
+
+                    try {
+                        const response = await fetch(`/api/users/${userId}`, {
+                            headers: {
+                                'Authorization': `Bearer ${token}`
+                            }
+                        });
+
+                        if (response.ok) {
+                            const user = await response.json();
+                            return user;
+                        } else {
+                            return null;
+                        }
+                    } catch (error) {
                         return null;
                     }
-                } catch (error) {
-                    return null;
                 }
-            }
-            
-            // Helper function to find faculty by ID in the cached faculty list
-            function findFacultyById(facultyId) {
-                if (!facultyId || !allFaculty || allFaculty.length === 0) return null;
-                
-                // Convert facultyId to string for consistent comparison
-                const facultyIdStr = facultyId.toString ? facultyId.toString() : String(facultyId);
-                
-                const faculty = allFaculty.find(f => {
-                    const facultyIdInList = f._id.toString ? f._id.toString() : String(f._id);
-                    return facultyIdInList === facultyIdStr;
-                });
-                
-                return faculty;
-            }
-            
-            // Helper function to find club leader by ID in the cached leaders list
-            function findLeaderById(leaderId) {
-                if (!leaderId || !allClubLeaders || allClubLeaders.length === 0) return null;
-                
-                // Convert leaderId to string for consistent comparison
-                const leaderIdStr = leaderId.toString ? leaderId.toString() : String(leaderId);
-                
-                const leader = allClubLeaders.find(l => {
-                    const leaderIdInList = l._id.toString ? l._id.toString() : String(l._id);
-                    return leaderIdInList === leaderIdStr;
-                });
-                
-                return leader;
-            }
-            
-            // Refresh faculty data
-            async function refreshFacultyData() {
-                try {
-                    const response = await fetch('/api/users/faculty', {
-                        headers: {
-                            'Authorization': `Bearer ${token}`
-                        }
+
+                // Helper function to find faculty by ID in the cached faculty list
+                function findFacultyById(facultyId) {
+                    if (!facultyId || !allFaculty || allFaculty.length === 0) return null;
+
+                    // Convert facultyId to string for consistent comparison
+                    const facultyIdStr = facultyId.toString ? facultyId.toString() : String(facultyId);
+
+                    const faculty = allFaculty.find(f => {
+                        const facultyIdInList = f._id.toString ? f._id.toString() : String(f._id);
+                        return facultyIdInList === facultyIdStr;
                     });
-                    
-                    if (!response.ok) {
-                        throw new Error(`Failed to fetch faculty: ${response.status}`);
-                    }
-                    
-                    allFaculty = await response.json();
-                    console.log('Faculty data refreshed:', allFaculty);
-                } catch (error) {
-                    console.error('Error refreshing faculty data:', error);
+
+                    return faculty;
                 }
-            }
-            
-            // Fetch clubs data
-            async function fetchClubs() {
-                try {
-                    const response = await fetch('/api/clubs', {
-                        headers: {
-                            'Authorization': `Bearer ${token}`
-                        }
+
+                // Helper function to find club leader by ID in the cached leaders list
+                function findLeaderById(leaderId) {
+                    if (!leaderId || !allClubLeaders || allClubLeaders.length === 0) return null;
+
+                    // Convert leaderId to string for consistent comparison
+                    const leaderIdStr = leaderId.toString ? leaderId.toString() : String(leaderId);
+
+                    const leader = allClubLeaders.find(l => {
+                        const leaderIdInList = l._id.toString ? l._id.toString() : String(l._id);
+                        return leaderIdInList === leaderIdStr;
                     });
-                    
-                    if (!response.ok) {
-                        throw new Error(`Failed to fetch clubs: ${response.status}`);
+
+                    return leader;
+                }
+
+                // Refresh faculty data
+                async function refreshFacultyData() {
+                    try {
+                        const response = await fetch('/api/users/faculty', {
+                            headers: {
+                                'Authorization': `Bearer ${token}`
+                            }
+                        });
+
+                        if (!response.ok) {
+                            throw new Error(`Failed to fetch faculty: ${response.status}`);
+                        }
+
+                        allFaculty = await response.json();
+                        console.log('Faculty data refreshed:', allFaculty);
+                    } catch (error) {
+                        console.error('Error refreshing faculty data:', error);
                     }
-                    
-                    const clubsData = await response.json();
-                    
-                    allClubs = clubsData;
-                    filteredClubs = [...allClubs];
-                    
-                    // Update clubs grid
+                }
+
+                // Fetch clubs data
+                async function fetchClubs() {
+                    try {
+                        const response = await fetch('/api/clubs', {
+                            headers: {
+                                'Authorization': `Bearer ${token}`
+                            }
+                        });
+
+                        if (!response.ok) {
+                            throw new Error(`Failed to fetch clubs: ${response.status}`);
+                        }
+
+                        const clubsData = await response.json();
+
+                        allClubs = clubsData;
+                        filteredClubs = [...allClubs];
+
+                        // Update clubs grid
+                        renderClubsGrid();
+
+                        // Update pagination
+                        renderPagination();
+                    } catch (error) {
+                        document.getElementById('clubsGridContainer').innerHTML = `<p style="color: red;">Error loading clubs: ${error.message}. Please try again.</p>`;
+                    }
+                }
+
+                // Fetch faculty data
+                async function fetchFaculty() {
+                    try {
+                        const response = await fetch('/api/users/faculty', {
+                            headers: {
+                                'Authorization': `Bearer ${token}`
+                            }
+                        });
+
+                        if (!response.ok) {
+                            throw new Error(`Failed to fetch faculty: ${response.status}`);
+                        }
+
+                        allFaculty = await response.json();
+
+                        // Update faculty dropdown in create club modal
+                        const facultySelect = document.getElementById('clubFaculty');
+                        facultySelect.innerHTML = '<option value="">Select a faculty coordinator</option>';
+                        allFaculty.forEach(faculty => {
+                            const option = document.createElement('option');
+                            option.value = faculty._id;
+                            option.textContent = faculty.name;
+                            facultySelect.appendChild(option);
+                        });
+
+                        // Update faculty dropdown in edit club modal
+                        const editFacultySelect = document.getElementById('editClubFaculty');
+                        editFacultySelect.innerHTML = '<option value="">Select a faculty coordinator</option>';
+                        allFaculty.forEach(faculty => {
+                            const option = document.createElement('option');
+                            option.value = faculty._id;
+                            option.textContent = faculty.name;
+                            editFacultySelect.appendChild(option);
+                        });
+                    } catch (error) {
+                        console.error('Error fetching faculty:', error);
+                    }
+                }
+
+                // Fetch club leaders data
+                async function fetchClubLeaders() {
+                    try {
+                        const response = await fetch('/api/users/role/clubLeader', {
+                            headers: {
+                                'Authorization': `Bearer ${token}`
+                            }
+                        });
+
+                        if (!response.ok) {
+                            throw new Error(`Failed to fetch club leaders: ${response.status}`);
+                        }
+
+                        allClubLeaders = await response.json();
+                    } catch (error) {
+                        console.error('Error fetching club leaders:', error);
+                    }
+                }
+
+                // Render clubs grid
+                function renderClubsGrid() {
+                    const clubsGridContainer = document.getElementById('clubsGridContainer');
+
+                    // Calculate pagination
+                    const startIndex = (currentPage - 1) * clubsPerPage;
+                    const endIndex = startIndex + clubsPerPage;
+                    const paginatedClubs = filteredClubs.slice(startIndex, endIndex);
+
+                    if (paginatedClubs.length === 0) {
+                        clubsGridContainer.innerHTML = '<p>No clubs found.</p>';
+                        return;
+                    }
+
+                    // Create grid
+                    let gridHTML = '<div class="clubs-grid">';
+
+                    paginatedClubs.forEach(club => {
+                        const memberCount = club.members ? club.members.length : 0;
+                        const eventCount = club.events ? club.events.length : 0;
+                        const statusClass = club.status === 'active' ? 'active' : 'inactive';
+                        const statusText = club.status === 'active' ? 'Active' : 'Inactive';
+
+                        let clubImageHTML = '';
+                        if (club.bannerImage) {
+                            clubImageHTML = `<div class="club-image" style="background-image: url('${club.bannerImage}');"></div>`;
+                        } else {
+                            clubImageHTML = `
+                                <div class="club-image">
+                                    <i class="fas fa-users-cog"></i>
+                                </div>
+                            `;
+                        }
+
+                        gridHTML += `
+                            <div class="club-card">
+                                ${clubImageHTML}
+                                <div class="club-content">
+                                    <div class="club-header">
+                                        <div class="club-title">${club.name}</div>
+                                        <div class="club-status ${statusClass}">${statusText}</div>
+                                    </div>
+                                    <div class="club-description">${club.description}</div>
+                                    <div class="club-stats">
+                                        <div><strong>${memberCount}</strong> members</div>
+                                        <div><strong>${eventCount}</strong> events</div>
+                                    </div>
+                                    <div class="club-actions">
+                                        <button class="btn btn-primary btn-sm view-club" data-id="${club._id}">View</button>
+                                        <button class="btn btn-secondary btn-sm edit-club" data-id="${club._id}">Edit</button>
+                                        <button class="btn btn-danger btn-sm delete-club" data-id="${club._id}">Delete</button>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    });
+
+                    gridHTML += '</div>';
+
+                    clubsGridContainer.innerHTML = gridHTML;
+
+                    // Add event listeners for action buttons
+                    document.querySelectorAll('.view-club').forEach(button => {
+                        button.addEventListener('click', function() {
+                            const clubId = this.getAttribute('data-id');
+                            viewClub(clubId);
+                        });
+                    });
+
+                    document.querySelectorAll('.edit-club').forEach(button => {
+                        button.addEventListener('click', function() {
+                            const clubId = this.getAttribute('data-id');
+                            editClub(clubId);
+                        });
+                    });
+
+                    document.querySelectorAll('.delete-club').forEach(button => {
+                        button.addEventListener('click', function() {
+                            const clubId = this.getAttribute('data-id');
+                            deleteClub(clubId);
+                        });
+                    });
+                }
+
+                // Render pagination
+                function renderPagination() {
+                    const pagination = document.getElementById('pagination');
+                    const totalPages = Math.ceil(filteredClubs.length / clubsPerPage);
+
+                    if (totalPages <= 1) {
+                        pagination.innerHTML = '';
+                        return;
+                    }
+
+                    let paginationHTML = '';
+
+                    // Previous button
+                    paginationHTML += `
+                        <li class="page-item ${currentPage === 1 ? 'disabled' : ''}">
+                            <a class="page-link" href="#" data-page="${currentPage - 1}">
+                                <i class="fas fa-chevron-left"></i>
+                            </a>
+                        </li>
+                    `;
+
+                    // Page numbers
+                    for (let i = 1; i <= totalPages; i++) {
+                        if (i === 1 || i === totalPages || (i >= currentPage - 1 && i <= currentPage + 1)) {
+                            paginationHTML += `
+                                <li class="page-item ${i === currentPage ? 'active' : ''}">
+                                    <a class="page-link" href="#" data-page="${i}">${i}</a>
+                                </li>
+                            `;
+                        } else if (i === currentPage - 2 || i === currentPage + 2) {
+                            paginationHTML += `
+                                <li class="page-item">
+                                    <span class="page-link">...</span>
+                                </li>
+                            `;
+                        }
+                    }
+
+                    // Next button
+                    paginationHTML += `
+                        <li class="page-item ${currentPage === totalPages ? 'disabled' : ''}">
+                            <a class="page-link" href="#" data-page="${currentPage + 1}">
+                                <i class="fas fa-chevron-right"></i>
+                            </a>
+                        </li>
+                    `;
+
+                    pagination.innerHTML = paginationHTML;
+
+                    // Add event listeners for pagination links
+                    document.querySelectorAll('.page-link').forEach(link => {
+                        link.addEventListener('click', function(e) {
+                            e.preventDefault();
+                            const page = parseInt(this.getAttribute('data-page'));
+                            if (page && page !== currentPage) {
+                                currentPage = page;
+                                renderClubsGrid();
+                                renderPagination();
+                            }
+                        });
+                    });
+                }
+
+                // Apply filters
+                document.getElementById('applyFilters').addEventListener('click', function() {
+                    const searchTerm = document.getElementById('searchClub').value.toLowerCase();
+                    const statusFilter = document.getElementById('filterStatus').value;
+
+                    filteredClubs = allClubs.filter(club => {
+                        // Search filter
+                        const matchesSearch = !searchTerm || 
+                            club.name.toLowerCase().includes(searchTerm) ||
+                            club.description.toLowerCase().includes(searchTerm);
+
+                        // Status filter
+                        const matchesStatus = !statusFilter || club.status === statusFilter;
+
+                        return matchesSearch && matchesStatus;
+                    });
+
+                    // Reset to first page
+                    currentPage = 1;
+
+                    // Update grid and pagination
                     renderClubsGrid();
-                    
-                    // Update pagination
                     renderPagination();
-                } catch (error) {
-                    document.getElementById('clubsGridContainer').innerHTML = `<p style="color: red;">Error loading clubs: ${error.message}. Please try again.</p>`;
-                }
-            }
-            
-            // Fetch faculty data
-            async function fetchFaculty() {
-                try {
-                    const response = await fetch('/api/users/faculty', {
-                        headers: {
-                            'Authorization': `Bearer ${token}`
-                        }
-                    });
-                    
-                    if (!response.ok) {
-                        throw new Error(`Failed to fetch faculty: ${response.status}`);
+                });
+
+                // Reset filters
+                document.getElementById('resetFilters').addEventListener('click', function() {
+                    document.getElementById('searchClub').value = '';
+                    document.getElementById('filterStatus').value = '';
+
+                    filteredClubs = [...allClubs];
+                    currentPage = 1;
+
+                    renderClubsGrid();
+                    renderPagination();
+                });
+
+                // Create Club Modal
+                const createClubModal = document.getElementById('createClubModal');
+                const createClubBtn = document.getElementById('createClubBtn');
+                const cancelCreateClub = document.getElementById('cancelCreateClub');
+                const createClubForm = document.getElementById('createClubForm');
+
+                createClubBtn.addEventListener('click', function() {
+                    createClubModal.style.display = 'flex';
+                });
+
+                cancelCreateClub.addEventListener('click', function() {
+                    createClubModal.style.display = 'none';
+                    createClubForm.reset();
+                });
+
+                createClubForm.addEventListener('submit', async function(e) {
+                    e.preventDefault();
+
+                    const name = document.getElementById('clubName').value;
+                    const description = document.getElementById('clubDescription').value;
+                    const facultyId = document.getElementById('clubFaculty').value;
+
+                    // Validate required fields
+                    if (!facultyId) {
+                        alert('Please select a faculty coordinator');
+                        return;
                     }
-                    
-                    allFaculty = await response.json();
-                    
-                    // Update faculty dropdown in create club modal
-                    const facultySelect = document.getElementById('clubFaculty');
-                    facultySelect.innerHTML = '<option value="">Select a faculty coordinator</option>';
-                    allFaculty.forEach(faculty => {
-                        const option = document.createElement('option');
-                        option.value = faculty._id;
-                        option.textContent = faculty.name;
-                        facultySelect.appendChild(option);
-                    });
-                    
-                    // Update faculty dropdown in edit club modal
-                    const editFacultySelect = document.getElementById('editClubFaculty');
-                    editFacultySelect.innerHTML = '<option value="">Select a faculty coordinator</option>';
-                    allFaculty.forEach(faculty => {
-                        const option = document.createElement('option');
-                        option.value = faculty._id;
-                        option.textContent = faculty.name;
-                        editFacultySelect.appendChild(option);
-                    });
-                } catch (error) {
-                    console.error('Error fetching faculty:', error);
-                }
-            }
-            
-            // Fetch club leaders data
-            async function fetchClubLeaders() {
-                try {
-                    const response = await fetch('/api/users/role/clubLeader', {
-                        headers: {
-                            'Authorization': `Bearer ${token}`
-                        }
-                    });
-                    
-                    if (!response.ok) {
-                        throw new Error(`Failed to fetch club leaders: ${response.status}`);
-                    }
-                    
-                    allClubLeaders = await response.json();
-                } catch (error) {
-                    console.error('Error fetching club leaders:', error);
-                }
-            }
-            
-            // Render clubs grid
-            function renderClubsGrid() {
-                const clubsGridContainer = document.getElementById('clubsGridContainer');
-                
-                // Calculate pagination
-                const startIndex = (currentPage - 1) * clubsPerPage;
-                const endIndex = startIndex + clubsPerPage;
-                const paginatedClubs = filteredClubs.slice(startIndex, endIndex);
-                
-                if (paginatedClubs.length === 0) {
-                    clubsGridContainer.innerHTML = '<p>No clubs found.</p>';
-                    return;
-                }
-                
-                // Create grid
-                let gridHTML = '<div class="clubs-grid">';
-                
-                paginatedClubs.forEach(club => {
-                    const memberCount = club.members ? club.members.length : 0;
-                    const eventCount = club.events ? club.events.length : 0;
-                    const statusClass = club.status === 'active' ? 'active' : 'inactive';
-                    const statusText = club.status === 'active' ? 'Active' : 'Inactive';
-                    
-                    gridHTML += `
-                        <div class="club-card">
-                            <div class="club-image">
-                                <i class="fas fa-users-cog"></i>
-                            </div>
-                            <div class="club-content">
-                                <div class="club-header">
-                                    <div class="club-title">${club.name}</div>
-                                    <div class="club-status ${statusClass}">${statusText}</div>
-                                </div>
-                                <div class="club-description">${club.description}</div>
-                                <div class="club-stats">
-                                    <div><strong>${memberCount}</strong> members</div>
-                                    <div><strong>${eventCount}</strong> events</div>
-                                </div>
-                                <div class="club-actions">
-                                    <button class="btn btn-primary btn-sm view-club" data-id="${club._id}">View</button>
-                                    <button class="btn btn-secondary btn-sm edit-club" data-id="${club._id}">Edit</button>
-                                    <button class="btn btn-danger btn-sm delete-club" data-id="${club._id}">Delete</button>
-                                </div>
-                            </div>
-                        </div>
-                    `;
-                });
-                
-                gridHTML += '</div>';
-                
-                clubsGridContainer.innerHTML = gridHTML;
-                
-                // Add event listeners for action buttons
-                document.querySelectorAll('.view-club').forEach(button => {
-                    button.addEventListener('click', function() {
-                        const clubId = this.getAttribute('data-id');
-                        viewClub(clubId);
-                    });
-                });
-                
-                document.querySelectorAll('.edit-club').forEach(button => {
-                    button.addEventListener('click', function() {
-                        const clubId = this.getAttribute('data-id');
-                        editClub(clubId);
-                    });
-                });
-                
-                document.querySelectorAll('.delete-club').forEach(button => {
-                    button.addEventListener('click', function() {
-                        const clubId = this.getAttribute('data-id');
-                        deleteClub(clubId);
-                    });
-                });
-            }
-            
-            // Render pagination
-            function renderPagination() {
-                const pagination = document.getElementById('pagination');
-                const totalPages = Math.ceil(filteredClubs.length / clubsPerPage);
-                
-                if (totalPages <= 1) {
-                    pagination.innerHTML = '';
-                    return;
-                }
-                
-                let paginationHTML = '';
-                
-                // Previous button
-                paginationHTML += `
-                    <li class="page-item ${currentPage === 1 ? 'disabled' : ''}">
-                        <a class="page-link" href="#" data-page="${currentPage - 1}">
-                            <i class="fas fa-chevron-left"></i>
-                        </a>
-                    </li>
-                `;
-                
-                // Page numbers
-                for (let i = 1; i <= totalPages; i++) {
-                    if (i === 1 || i === totalPages || (i >= currentPage - 1 && i <= currentPage + 1)) {
-                        paginationHTML += `
-                            <li class="page-item ${i === currentPage ? 'active' : ''}">
-                                <a class="page-link" href="#" data-page="${i}">${i}</a>
-                            </li>
-                        `;
-                    } else if (i === currentPage - 2 || i === currentPage + 2) {
-                        paginationHTML += `
-                            <li class="page-item">
-                                <span class="page-link">...</span>
-                            </li>
-                        `;
-                    }
-                }
-                
-                // Next button
-                paginationHTML += `
-                    <li class="page-item ${currentPage === totalPages ? 'disabled' : ''}">
-                        <a class="page-link" href="#" data-page="${currentPage + 1}">
-                            <i class="fas fa-chevron-right"></i>
-                        </a>
-                    </li>
-                `;
-                
-                pagination.innerHTML = paginationHTML;
-                
-                // Add event listeners for pagination links
-                document.querySelectorAll('.page-link').forEach(link => {
-                    link.addEventListener('click', function(e) {
-                        e.preventDefault();
-                        const page = parseInt(this.getAttribute('data-page'));
-                        if (page && page !== currentPage) {
-                            currentPage = page;
-                            renderClubsGrid();
-                            renderPagination();
-                        }
-                    });
-                });
-            }
-            
-            // Apply filters
-            document.getElementById('applyFilters').addEventListener('click', function() {
-                const searchTerm = document.getElementById('searchClub').value.toLowerCase();
-                const statusFilter = document.getElementById('filterStatus').value;
-                
-                filteredClubs = allClubs.filter(club => {
-                    // Search filter
-                    const matchesSearch = !searchTerm || 
-                        club.name.toLowerCase().includes(searchTerm) ||
-                        club.description.toLowerCase().includes(searchTerm);
-                    
-                    // Status filter
-                    const matchesStatus = !statusFilter || club.status === statusFilter;
-                    
-                    return matchesSearch && matchesStatus;
-                });
-                
-                // Reset to first page
-                currentPage = 1;
-                
-                // Update grid and pagination
-                renderClubsGrid();
-                renderPagination();
-            });
-            
-            // Reset filters
-            document.getElementById('resetFilters').addEventListener('click', function() {
-                document.getElementById('searchClub').value = '';
-                document.getElementById('filterStatus').value = '';
-                
-                filteredClubs = [...allClubs];
-                currentPage = 1;
-                
-                renderClubsGrid();
-                renderPagination();
-            });
-            
-            // Create Club Modal
-            const createClubModal = document.getElementById('createClubModal');
-            const createClubBtn = document.getElementById('createClubBtn');
-            const cancelCreateClub = document.getElementById('cancelCreateClub');
-            const createClubForm = document.getElementById('createClubForm');
-            
-            createClubBtn.addEventListener('click', function() {
-                createClubModal.style.display = 'flex';
-            });
-            
-            cancelCreateClub.addEventListener('click', function() {
-                createClubModal.style.display = 'none';
-                createClubForm.reset();
-            });
-            
-            createClubForm.addEventListener('submit', async function(e) {
-                e.preventDefault();
-                
-                const name = document.getElementById('clubName').value;
-                const description = document.getElementById('clubDescription').value;
-                const facultyId = document.getElementById('clubFaculty').value;
-                
-                // Validate required fields
-                if (!facultyId) {
-                    alert('Please select a faculty coordinator');
-                    return;
-                }
-                
-                try {
-                    const response = await fetch('/api/clubs', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Authorization': `Bearer ${token}`
-                        },
-                        body: JSON.stringify({ 
-                            name, 
-                            description, 
-                            faculty: facultyId
-                        })
-                    });
-                    
-                    if (response.ok) {
-                        alert('Club created successfully!');
-                        createClubModal.style.display = 'none';
-                        createClubForm.reset();
-                        fetchClubs(); // Refresh clubs list
-                    } else {
-                        const error = await response.json();
-                        alert(`Error: ${error.message}`);
-                    }
-                } catch (error) {
-                    console.error('Error creating club:', error);
-                    alert('Error creating club. Please try again.');
-                }
-            });
-            
-            // View Club Modal
-            const viewClubModal = document.getElementById('viewClubModal');
-            const closeViewClub = document.getElementById('closeViewClub');
-            const viewClubError = document.getElementById('viewClubError');
-            const viewClubWarning = document.getElementById('viewClubWarning');
-            
-            closeViewClub.addEventListener('click', function() {
-                viewClubModal.style.display = 'none';
-                viewClubError.style.display = 'none';
-                viewClubWarning.style.display = 'none';
-            });
-            
-            // View club function
-            async function viewClub(clubId) {
-                // Check if clubId is valid
-                if (!isValidObjectId(clubId)) {
-                    viewClubError.textContent = 'Invalid club ID format';
-                    viewClubError.style.display = 'block';
-                    viewClubModal.style.display = 'flex';
-                    return;
-                }
-                
-                try {
-                    // First get the basic club data to ensure we get the raw faculty ID
-                    const basicResponse = await fetch(`/api/clubs/${clubId}`, {
-                        headers: {
-                            'Authorization': `Bearer ${token}`
-                        }
-                    });
-                    
-                    if (!basicResponse.ok) {
-                        throw new Error(`Failed to fetch basic club data: ${basicResponse.status}`);
-                    }
-                    
-                    const basicClub = await basicResponse.json();
-                    console.log('Basic club data:', basicClub);
-                    
-                    // Now try to get the full club data
-                    let club;
+
                     try {
-                        const fullResponse = await fetch(`/api/clubs/${clubId}/full`, {
+                        const response = await fetch('/api/clubs', {
+                            method: 'POST',
                             headers: {
+                                'Content-Type': 'application/json',
                                 'Authorization': `Bearer ${token}`
-                            }
+                            },
+                            body: JSON.stringify({ 
+                                name, 
+                                description, 
+                                faculty: facultyId
+                            })
                         });
-                        
-                        if (fullResponse.ok) {
-                            club = await fullResponse.json();
-                            console.log('Full club data:', club);
-                        } else {
-                            // If full endpoint fails, use the basic data
-                            club = basicClub;
-                            console.log('Using basic club data as fallback');
-                        }
-                    } catch (error) {
-                        console.warn('Full endpoint failed, using basic club data:', error);
-                        club = basicClub;
-                    }
-                    
-                    // Hide error and warning messages if they were shown
-                    viewClubError.style.display = 'none';
-                    viewClubWarning.style.display = 'none';
-                    
-                    // Get faculty name with multiple fallback strategies
-                    let facultyName = 'Not assigned';
-                    let facultyWarning = '';
-                    
-                    if (club.faculty) {
-                        console.log('Club has faculty, trying to get name...');
-                        
-                        // If faculty is an object and has name, use it
-                        if (typeof club.faculty === 'object' && club.faculty.name) {
-                            facultyName = club.faculty.name;
-                            console.log('Using faculty name from populated object:', facultyName);
-                        } 
-                        // If faculty is a string or ObjectId, try to find in cache or fetch
-                        else if (typeof club.faculty === 'string' || club.faculty instanceof mongoose.Types.ObjectId) {
-                            const facultyId = typeof club.faculty === 'string' ? club.faculty : club.faculty.toString();
-                            console.log('Faculty is an ID, trying to get details for:', facultyId);
-                            
-                            // First try to find in cache
-                            const facultyFromCache = findFacultyById(facultyId);
-                            if (facultyFromCache) {
-                                facultyName = facultyFromCache.name;
-                                console.log('Using faculty name from cache:', facultyName);
-                            } else {
-                                // Fetch from API
-                                const facultyDetails = await getUserDetails(facultyId);
-                                if (facultyDetails) {
-                                    facultyName = facultyDetails.name || 'Unknown Faculty';
-                                    console.log('Using faculty name from API:', facultyName);
-                                } else {
-                                    facultyWarning = `Warning: Faculty with ID ${facultyId} not found in the database. This club may need to be updated.`;
-                                    console.warn(facultyWarning);
-                                }
-                            }
-                        }
-                        // If faculty is an object but without name (e.g., only _id), try to get details
-                        else if (club.faculty._id) {
-                            const facultyId = club.faculty._id.toString ? club.faculty._id.toString() : String(club.faculty._id);
-                            console.log('Faculty is an object with _id, trying to get details for:', facultyId);
-                            
-                            // First try to find in cache
-                            const facultyFromCache = findFacultyById(facultyId);
-                            if (facultyFromCache) {
-                                facultyName = facultyFromCache.name;
-                                console.log('Using faculty name from cache:', facultyName);
-                            } else {
-                                // Fetch from API
-                                const facultyDetails = await getUserDetails(facultyId);
-                                if (facultyDetails) {
-                                    facultyName = facultyDetails.name || 'Unknown Faculty';
-                                    console.log('Using faculty name from API:', facultyName);
-                                } else {
-                                    facultyWarning = `Warning: Faculty with ID ${facultyId} not found in the database. This club may need to be updated.`;
-                                    console.warn(facultyWarning);
-                                }
-                            }
-                        }
-                    }
-                    
-                    // Similarly for leader
-                    let leaderName = 'Not assigned';
-                    let leaderWarning = '';
-                    
-                    if (club.leader) {
-                        console.log('Club has leader, trying to get name...');
-                        
-                        // If leader is an object and has name, use it
-                        if (typeof club.leader === 'object' && club.leader.name) {
-                            leaderName = club.leader.name;
-                            console.log('Using leader name from populated object:', leaderName);
-                        } 
-                        // If leader is a string or ObjectId, try to find in cache or fetch
-                        else if (typeof club.leader === 'string' || club.leader instanceof mongoose.Types.ObjectId) {
-                            const leaderId = typeof club.leader === 'string' ? club.leader : club.leader.toString();
-                            console.log('Leader is an ID, trying to get details for:', leaderId);
-                            
-                            // First try to find in cache
-                            const leaderFromCache = findLeaderById(leaderId);
-                            if (leaderFromCache) {
-                                leaderName = leaderFromCache.name;
-                                console.log('Using leader name from cache:', leaderName);
-                            } else {
-                                // Fetch from API
-                                const leaderDetails = await getUserDetails(leaderId);
-                                if (leaderDetails) {
-                                    leaderName = leaderDetails.name || 'Unknown Leader';
-                                    console.log('Using leader name from API:', leaderName);
-                                } else {
-                                    leaderWarning = `Warning: Leader with ID ${leaderId} not found in the database. This club may need to be updated.`;
-                                    console.warn(leaderWarning);
-                                }
-                            }
-                        }
-                        // If leader is an object but without name (e.g., only _id), try to get details
-                        else if (club.leader._id) {
-                            const leaderId = club.leader._id.toString ? club.leader._id.toString() : String(club.leader._id);
-                            console.log('Leader is an object with _id, trying to get details for:', leaderId);
-                            
-                            // First try to find in cache
-                            const leaderFromCache = findLeaderById(leaderId);
-                            if (leaderFromCache) {
-                                leaderName = leaderFromCache.name;
-                                console.log('Using leader name from cache:', leaderName);
-                            } else {
-                                // Fetch from API
-                                const leaderDetails = await getUserDetails(leaderId);
-                                if (leaderDetails) {
-                                    leaderName = leaderDetails.name || 'Unknown Leader';
-                                    console.log('Using leader name from API:', leaderName);
-                                } else {
-                                    leaderWarning = `Warning: Leader with ID ${leaderId} not found in the database. This club may need to be updated.`;
-                                    console.warn(leaderWarning);
-                                }
-                            }
-                        }
-                    }
-                    
-                    // Show warning message if there are issues with faculty or leader
-                    if (facultyWarning || leaderWarning) {
-                        viewClubWarning.textContent = facultyWarning || leaderWarning;
-                        viewClubWarning.style.display = 'block';
-                        console.warn('Faculty/Leader warnings:', { facultyWarning, leaderWarning });
-                    }
-                    
-                    // Populate club details
-                    const clubDetailsContainer = document.getElementById('clubDetailsContainer');
-                    clubDetailsContainer.innerHTML = `
-                        <div class="club-detail-item">
-                            <div class="club-detail-label">Club Name</div>
-                            <div class="club-detail-value">${club.name}</div>
-                        </div>
-                        <div class="club-detail-item">
-                            <div class="club-detail-label">Description</div>
-                            <div class="club-detail-value">${club.description}</div>
-                        </div>
-                        <div class="club-detail-item">
-                            <div class="club-detail-label">Faculty Coordinator</div>
-                            <div class="club-detail-value">${facultyName}</div>
-                        </div>
-                        <div class="club-detail-item">
-                            <div class="club-detail-label">Club Leader</div>
-                            <div class="club-detail-value">${leaderName}</div>
-                        </div>
-                        <div class="club-detail-item">
-                            <div class="club-detail-label">Status</div>
-                            <div class="club-detail-value">${club.status || 'active'}</div>
-                        </div>
-                        <div class="club-detail-item">
-                            <div class="club-detail-label">Members</div>
-                            <div class="club-detail-value">${club.members ? club.members.length : 0}</div>
-                        </div>
-                        <div class="club-detail-item">
-                            <div class="club-detail-label">Events</div>
-                            <div class="club-detail-value">${club.events ? club.events.length : 0}</div>
-                        </div>
-                    `;
-                    
-                    // Show modal
-                    viewClubModal.style.display = 'flex';
-                } catch (error) {
-                    console.error('Error in viewClub:', error);
-                    viewClubError.textContent = `Error fetching club details: ${error.message}`;
-                    viewClubError.style.display = 'block';
-                    viewClubModal.style.display = 'flex';
-                }
-            }
-            
-            // Edit Club Modal
-            const editClubModal = document.getElementById('editClubModal');
-            const cancelEditClub = document.getElementById('cancelEditClub');
-            const editClubForm = document.getElementById('editClubForm');
-            const editClubError = document.getElementById('editClubError');
-            const editClubWarning = document.getElementById('editClubWarning');
-            
-            cancelEditClub.addEventListener('click', function() {
-                editClubModal.style.display = 'none';
-                editClubForm.reset();
-                editClubError.style.display = 'none';
-                editClubWarning.style.display = 'none';
-            });
-            
-            editClubForm.addEventListener('submit', async function(e) {
-                e.preventDefault();
-                
-                const clubId = document.getElementById('editClubId').value;
-                const name = document.getElementById('editClubName').value;
-                const description = document.getElementById('editClubDescription').value;
-                const facultyId = document.getElementById('editClubFaculty').value;
-                const status = document.getElementById('editClubStatus').value;
-                
-                try {
-                    console.log('Updating club with data:', { clubId, name, description, facultyId, status });
-                    
-                    const response = await fetch(`/api/clubs/${clubId}`, {
-                        method: 'PUT',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Authorization': `Bearer ${token}`
-                        },
-                        body: JSON.stringify({ 
-                            name, 
-                            description, 
-                            faculty: facultyId,
-                            status 
-                        })
-                    });
-                    
-                    console.log('Update response status:', response.status);
-                    
-                    if (response.ok) {
-                        const updatedClub = await response.json();
-                        console.log('Updated club:', updatedClub);
-                        
-                        alert('Club updated successfully!');
-                        editClubModal.style.display = 'none';
-                        editClubForm.reset();
-                        editClubError.style.display = 'none';
-                        editClubWarning.style.display = 'none';
-                        
-                        // Refresh faculty list to ensure we have the latest data
-                        await refreshFacultyData();
-                        fetchClubs(); // Refresh clubs list
-                    } else {
-                        const error = await response.json();
-                        console.error('Update error response:', error);
-                        alert(`Error: ${error.message || 'Unknown error occurred'}`);
-                    }
-                } catch (error) {
-                    console.error('Error updating club:', error);
-                    alert('Error updating club. Please try again.');
-                }
-            });
-            
-            // Edit club function
-            async function editClub(clubId) {
-                // Check if clubId is valid
-                if (!isValidObjectId(clubId)) {
-                    editClubError.textContent = 'Invalid club ID format';
-                    editClubError.style.display = 'block';
-                    editClubModal.style.display = 'flex';
-                    return;
-                }
-                
-                try {
-                    // First get the basic club data to ensure we get the raw faculty ID
-                    const basicResponse = await fetch(`/api/clubs/${clubId}`, {
-                        headers: {
-                            'Authorization': `Bearer ${token}`
-                        }
-                    });
-                    
-                    if (!basicResponse.ok) {
-                        throw new Error(`Failed to fetch basic club data: ${basicResponse.status}`);
-                    }
-                    
-                    const basicClub = await basicResponse.json();
-                    console.log('Basic club data for edit:', basicClub);
-                    
-                    // Now try to get the full club data
-                    let club;
-                    try {
-                        const fullResponse = await fetch(`/api/clubs/${clubId}/full`, {
-                            headers: {
-                                'Authorization': `Bearer ${token}`
-                            }
-                        });
-                        
-                        if (fullResponse.ok) {
-                            club = await fullResponse.json();
-                            console.log('Full club data for edit:', club);
-                        } else {
-                            // If full endpoint fails, use the basic data
-                            club = basicClub;
-                            console.log('Using basic club data as fallback for edit');
-                        }
-                    } catch (error) {
-                        console.warn('Full endpoint failed, using basic club data for edit:', error);
-                        club = basicClub;
-                    }
-                    
-                    // Hide error and warning messages if they were shown
-                    editClubError.style.display = 'none';
-                    editClubWarning.style.display = 'none';
-                    
-                    // Populate form fields
-                    document.getElementById('editClubId').value = club._id;
-                    document.getElementById('editClubName').value = club.name;
-                    document.getElementById('editClubDescription').value = club.description;
-                    document.getElementById('editClubStatus').value = club.status || 'active';
-                    
-                    // Handle faculty coordinator with multiple strategies
-                    let facultyId = '';
-                    let facultyWarning = '';
-                    
-                    if (club.faculty) {
-                        if (typeof club.faculty === 'object' && club.faculty._id) {
-                            facultyId = club.faculty._id;
-                        } else if (typeof club.faculty === 'string') {
-                            facultyId = club.faculty;
-                            
-                            // Check if faculty exists in the cached list or database
-                            const facultyFromCache = findFacultyById(facultyId);
-                            if (!facultyFromCache) {
-                                const facultyDetails = await getUserDetails(facultyId);
-                                if (!facultyDetails) {
-                                    facultyWarning = `Warning: Faculty with ID ${facultyId} not found in the database. Please select a valid faculty coordinator.`;
-                                }
-                            }
-                        }
-                        
-                        document.getElementById('editClubFaculty').value = facultyId;
-                    } else {
-                        document.getElementById('editClubFaculty').value = '';
-                    }
-                    
-                    // Show warning message if there are issues with faculty
-                    if (facultyWarning) {
-                        editClubWarning.textContent = facultyWarning;
-                        editClubWarning.style.display = 'block';
-                    }
-                    
-                    // Show modal
-                    editClubModal.style.display = 'flex';
-                } catch (error) {
-                    console.error('Error in editClub:', error);
-                    editClubError.textContent = `Error fetching club details: ${error.message}`;
-                    editClubError.style.display = 'block';
-                    editClubModal.style.display = 'flex';
-                }
-            }
-            
-            // Delete club function
-            async function deleteClub(clubId) {
-                // Check if clubId is valid
-                if (!isValidObjectId(clubId)) {
-                    alert('Invalid club ID format');
-                    return;
-                }
-                
-                if (confirm('Are you sure you want to delete this club? This action cannot be undone.')) {
-                    try {
-                        const response = await fetch(`/api/clubs/${clubId}`, {
-                            method: 'DELETE',
-                            headers: {
-                                'Authorization': `Bearer ${token}`
-                            }
-                        });
-                        
+
                         if (response.ok) {
-                            alert('Club deleted successfully!');
+                            alert('Club created successfully!');
+                            createClubModal.style.display = 'none';
+                            createClubForm.reset();
                             fetchClubs(); // Refresh clubs list
                         } else {
                             const error = await response.json();
+                            alert(`Error: ${error.message}`);
+                        }
+                    } catch (error) {
+                        console.error('Error creating club:', error);
+                        alert('Error creating club. Please try again.');
+                    }
+                });
+
+                // View Club Modal
+                const viewClubModal = document.getElementById('viewClubModal');
+                const closeViewClub = document.getElementById('closeViewClub');
+                const viewClubError = document.getElementById('viewClubError');
+                const viewClubWarning = document.getElementById('viewClubWarning');
+
+                closeViewClub.addEventListener('click', function() {
+                    viewClubModal.style.display = 'none';
+                    viewClubError.style.display = 'none';
+                    viewClubWarning.style.display = 'none';
+                });
+
+                // View club function
+                async function viewClub(clubId) {
+                    // Check if clubId is valid
+                    if (!isValidObjectId(clubId)) {
+                        viewClubError.textContent = 'Invalid club ID format';
+                        viewClubError.style.display = 'block';
+                        viewClubModal.style.display = 'flex';
+                        return;
+                    }
+
+                    try {
+                        // First get the basic club data to ensure we get the raw faculty ID
+                        const basicResponse = await fetch(`/api/clubs/${clubId}`, {
+                            headers: {
+                                'Authorization': `Bearer ${token}`
+                            }
+                        });
+
+                        if (!basicResponse.ok) {
+                            throw new Error(`Failed to fetch basic club data: ${basicResponse.status}`);
+                        }
+
+                        const basicClub = await basicResponse.json();
+                        console.log('Basic club data:', basicClub);
+
+                        // Now try to get the full club data
+                        let club;
+                        try {
+                            const fullResponse = await fetch(`/api/clubs/${clubId}/full`, {
+                                headers: {
+                                    'Authorization': `Bearer ${token}`
+                                }
+                            });
+
+                            if (fullResponse.ok) {
+                                club = await fullResponse.json();
+                                console.log('Full club data:', club);
+                            } else {
+                                // If full endpoint fails, use the basic data
+                                club = basicClub;
+                                console.log('Using basic club data as fallback');
+                            }
+                        } catch (error) {
+                            console.warn('Full endpoint failed, using basic club data:', error);
+                            club = basicClub;
+                        }
+
+                        // Hide error and warning messages if they were shown
+                        viewClubError.style.display = 'none';
+                        viewClubWarning.style.display = 'none';
+
+                        // Get faculty name with multiple fallback strategies
+                        let facultyName = 'Not assigned';
+                        let facultyWarning = '';
+
+                        if (club.faculty) {
+                            console.log('Club has faculty, trying to get name...');
+
+                            // If faculty is an object and has name, use it
+                            if (typeof club.faculty === 'object' && club.faculty.name) {
+                                facultyName = club.faculty.name;
+                                console.log('Using faculty name from populated object:', facultyName);
+                            } 
+                            // If faculty is a string or ObjectId, try to find in cache or fetch
+                            else if (typeof club.faculty === 'string' || (club.faculty && club.faculty.toString && club.faculty.toString().length === 24)) {
+                                const facultyId = typeof club.faculty === 'string' ? club.faculty : club.faculty.toString();
+                                console.log('Faculty is an ID, trying to get details for:', facultyId);
+
+                                // First try to find in cache
+                                const facultyFromCache = findFacultyById(facultyId);
+                                if (facultyFromCache) {
+                                    facultyName = facultyFromCache.name;
+                                    console.log('Using faculty name from cache:', facultyName);
+                                } else {
+                                    // Fetch from API
+                                    const facultyDetails = await getUserDetails(facultyId);
+                                    if (facultyDetails) {
+                                        facultyName = facultyDetails.name || 'Unknown Faculty';
+                                        console.log('Using faculty name from API:', facultyName);
+                                    } else {
+                                        facultyWarning = `Warning: Faculty with ID ${facultyId} not found in the database. This club may need to be updated.`;
+                                        console.warn(facultyWarning);
+                                    }
+                                }
+                            }
+                            // If faculty is an object but without name (e.g., only _id), try to get details
+                            else if (club.faculty && club.faculty._id) {
+                                const facultyId = club.faculty._id.toString ? club.faculty._id.toString() : String(club.faculty._id);
+                                console.log('Faculty is an object with _id, trying to get details for:', facultyId);
+
+                                // First try to find in cache
+                                const facultyFromCache = findFacultyById(facultyId);
+                                if (facultyFromCache) {
+                                    facultyName = facultyFromCache.name;
+                                    console.log('Using faculty name from cache:', facultyName);
+                                } else {
+                                    // Fetch from API
+                                    const facultyDetails = await getUserDetails(facultyId);
+                                    if (facultyDetails) {
+                                        facultyName = facultyDetails.name || 'Unknown Faculty';
+                                        console.log('Using faculty name from API:', facultyName);
+                                    } else {
+                                        facultyWarning = `Warning: Faculty with ID ${facultyId} not found in the database. This club may need to be updated.`;
+                                        console.warn(facultyWarning);
+                                    }
+                                }
+                            }
+                        }
+
+                        // Similarly for leader
+                        let leaderName = 'Not assigned';
+                        let leaderWarning = '';
+
+                        if (club.leader) {
+                            console.log('Club has leader, trying to get name...');
+
+                            // If leader is an object and has name, use it
+                            if (typeof club.leader === 'object' && club.leader.name) {
+                                leaderName = club.leader.name;
+                                console.log('Using leader name from populated object:', leaderName);
+                            } 
+                            // If leader is a string or ObjectId, try to find in cache or fetch
+                            else if (typeof club.leader === 'string' || (club.leader && club.leader.toString && club.leader.toString().length === 24)) {
+                                const leaderId = typeof club.leader === 'string' ? club.leader : club.leader.toString();
+                                console.log('Leader is an ID, trying to get details for:', leaderId);
+
+                                // First try to find in cache
+                                const leaderFromCache = findLeaderById(leaderId);
+                                if (leaderFromCache) {
+                                    leaderName = leaderFromCache.name;
+                                    console.log('Using leader name from cache:', leaderName);
+                                } else {
+                                    // Fetch from API
+                                    const leaderDetails = await getUserDetails(leaderId);
+                                    if (leaderDetails) {
+                                        leaderName = leaderDetails.name || 'Unknown Leader';
+                                        console.log('Using leader name from API:', leaderName);
+                                    } else {
+                                        leaderWarning = `Warning: Leader with ID ${leaderId} not found in the database. This club may need to be updated.`;
+                                        console.warn(leaderWarning);
+                                    }
+                                }
+                            }
+                            // If leader is an object but without name (e.g., only _id), try to get details
+                            else if (club.leader && club.leader._id) {
+                                const leaderId = club.leader._id.toString ? club.leader._id.toString() : String(club.leader._id);
+                                console.log('Leader is an object with _id, trying to get details for:', leaderId);
+
+                                // First try to find in cache
+                                const leaderFromCache = findLeaderById(leaderId);
+                                if (leaderFromCache) {
+                                    leaderName = leaderFromCache.name;
+                                    console.log('Using leader name from cache:', leaderName);
+                                } else {
+                                    // Fetch from API
+                                    const leaderDetails = await getUserDetails(leaderId);
+                                    if (leaderDetails) {
+                                        leaderName = leaderDetails.name || 'Unknown Leader';
+                                        console.log('Using leader name from API:', leaderName);
+                                    } else {
+                                        leaderWarning = `Warning: Leader with ID ${leaderId} not found in the database. This club may need to be updated.`;
+                                        console.warn(leaderWarning);
+                                    }
+                                }
+                            }
+                        }
+
+                        // Show warning message if there are issues with faculty or leader
+                        if (facultyWarning || leaderWarning) {
+                            viewClubWarning.textContent = (facultyWarning ? facultyWarning + ' ' : '') + (leaderWarning ? leaderWarning : '');
+                            viewClubWarning.style.display = 'block';
+                            console.warn('Faculty/Leader warnings:', { facultyWarning, leaderWarning });
+                        }
+
+                        // Populate club details
+                        const clubDetailsContainer = document.getElementById('clubDetailsContainer');
+                        clubDetailsContainer.innerHTML = `
+                            <div class="club-detail-item">
+                                <div class="club-detail-label">Club Name</div>
+                                <div class="club-detail-value">${club.name}</div>
+                            </div>
+                            <div class="club-detail-item">
+                                <div class="club-detail-label">Description</div>
+                                <div class="club-detail-value">${club.description}</div>
+                            </div>
+                            <div class="club-detail-item">
+                                <div class="club-detail-label">Faculty Coordinator</div>
+                                <div class="club-detail-value">${facultyName}</div>
+                            </div>
+                            <div class="club-detail-item">
+                                <div class="club-detail-label">Club Leader</div>
+                                <div class="club-detail-value">${leaderName}</div>
+                            </div>
+                            <div class="club-detail-item">
+                                <div class="club-detail-label">Status</div>
+                                <div class="club-detail-value">${club.status || 'active'}</div>
+                            </div>
+                            <div class="club-detail-item">
+                                <div class="club-detail-label">Members</div>
+                                <div class="club-detail-value">${club.members ? club.members.length : 0}</div>
+                            </div>
+                            <div class="club-detail-item">
+                                <div class="club-detail-label">Events</div>
+                                <div class="club-detail-value">${club.events ? club.events.length : 0}</div>
+                            </div>
+                        `;
+
+                        // Show modal
+                        viewClubModal.style.display = 'flex';
+                    } catch (error) {
+                        console.error('Error in viewClub:', error);
+                        viewClubError.textContent = `Error fetching club details: ${error.message}`;
+                        viewClubError.style.display = 'block';
+                        viewClubModal.style.display = 'flex';
+                    }
+                }
+
+                // Edit Club Modal
+                const editClubModal = document.getElementById('editClubModal');
+                const cancelEditClub = document.getElementById('cancelEditClub');
+                const editClubForm = document.getElementById('editClubForm');
+                const editClubError = document.getElementById('editClubError');
+                const editClubWarning = document.getElementById('editClubWarning');
+
+                cancelEditClub.addEventListener('click', function() {
+                    editClubModal.style.display = 'none';
+                    editClubForm.reset();
+                    editClubError.style.display = 'none';
+                    editClubWarning.style.display = 'none';
+                });
+
+                editClubForm.addEventListener('submit', async function(e) {
+                    e.preventDefault();
+
+                    const clubId = document.getElementById('editClubId').value;
+                    const name = document.getElementById('editClubName').value;
+                    const description = document.getElementById('editClubDescription').value;
+                    const facultyId = document.getElementById('editClubFaculty').value;
+                    const status = document.getElementById('editClubStatus').value;
+
+                    try {
+                        console.log('Updating club with data:', { clubId, name, description, facultyId, status });
+
+                        const response = await fetch(`/api/clubs/${clubId}`, {
+                            method: 'PUT',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Authorization': `Bearer ${token}`
+                            },
+                            body: JSON.stringify({ 
+                                name, 
+                                description, 
+                                faculty: facultyId,
+                                status 
+                            })
+                        });
+
+                        console.log('Update response status:', response.status);
+
+                        if (response.ok) {
+                            const updatedClub = await response.json();
+                            console.log('Updated club:', updatedClub);
+
+                            alert('Club updated successfully!');
+                            editClubModal.style.display = 'none';
+                            editClubForm.reset();
+                            editClubError.style.display = 'none';
+                            editClubWarning.style.display = 'none';
+
+                            // Refresh faculty list to ensure we have the latest data
+                            await refreshFacultyData();
+                            fetchClubs(); // Refresh clubs list
+                        } else {
+                            const error = await response.json();
+                            console.error('Update error response:', error);
                             alert(`Error: ${error.message || 'Unknown error occurred'}`);
                         }
                     } catch (error) {
-                        console.error('Error deleting club:', error);
-                        alert('Error deleting club. Please try again.');
+                        console.error('Error updating club:', error);
+                        alert('Error updating club. Please try again.');
+                    }
+                });
+
+                // Edit club function
+                async function editClub(clubId) {
+                    // Check if clubId is valid
+                    if (!isValidObjectId(clubId)) {
+                        editClubError.textContent = 'Invalid club ID format';
+                        editClubError.style.display = 'block';
+                        editClubModal.style.display = 'flex';
+                        return;
+                    }
+
+                    try {
+                        // First get the basic club data to ensure we get the raw faculty ID
+                        const basicResponse = await fetch(`/api/clubs/${clubId}`, {
+                            headers: {
+                                'Authorization': `Bearer ${token}`
+                            }
+                        });
+
+                        if (!basicResponse.ok) {
+                            throw new Error(`Failed to fetch basic club data: ${basicResponse.status}`);
+                        }
+
+                        const basicClub = await basicResponse.json();
+                        console.log('Basic club data for edit:', basicClub);
+
+                        // Now try to get the full club data
+                        let club;
+                        try {
+                            const fullResponse = await fetch(`/api/clubs/${clubId}/full`, {
+                                headers: {
+                                    'Authorization': `Bearer ${token}`
+                                }
+                            });
+
+                            if (fullResponse.ok) {
+                                club = await fullResponse.json();
+                                console.log('Full club data for edit:', club);
+                            } else {
+                                // If full endpoint fails, use the basic data
+                                club = basicClub;
+                                console.log('Using basic club data as fallback for edit');
+                            }
+                        } catch (error) {
+                            console.warn('Full endpoint failed, using basic club data for edit:', error);
+                            club = basicClub;
+                        }
+
+                        // Hide error and warning messages if they were shown
+                        editClubError.style.display = 'none';
+                        editClubWarning.style.display = 'none';
+
+                        // Populate form fields
+                        document.getElementById('editClubId').value = club._id;
+                        document.getElementById('editClubName').value = club.name;
+                        document.getElementById('editClubDescription').value = club.description;
+                        document.getElementById('editClubStatus').value = club.status || 'active';
+
+                        // Handle faculty coordinator with multiple strategies
+                        let facultyId = '';
+                        let facultyWarning = '';
+
+                        if (club.faculty) {
+                            if (typeof club.faculty === 'object' && club.faculty._id) {
+                                facultyId = club.faculty._id;
+                            } else if (typeof club.faculty === 'string' || (club.faculty && club.faculty.toString && club.faculty.toString().length === 24)) {
+                                facultyId = typeof club.faculty === 'string' ? club.faculty : club.faculty.toString();
+
+                                // Check if faculty exists in the cached list or database
+                                const facultyFromCache = findFacultyById(facultyId);
+                                if (!facultyFromCache) {
+                                    const facultyDetails = await getUserDetails(facultyId);
+                                    if (!facultyDetails) {
+                                        facultyWarning = `Warning: Faculty with ID ${facultyId} not found in the database. Please select a valid faculty coordinator.`;
+                                    }
+                                }
+                            }
+
+                            document.getElementById('editClubFaculty').value = facultyId;
+                        } else {
+                            document.getElementById('editClubFaculty').value = '';
+                        }
+
+                        // Show warning message if there are issues with faculty
+                        if (facultyWarning) {
+                            editClubWarning.textContent = facultyWarning;
+                            editClubWarning.style.display = 'block';
+                        }
+
+                        // Show modal
+                        editClubModal.style.display = 'flex';
+                    } catch (error) {
+                        console.error('Error in editClub:', error);
+                        editClubError.textContent = `Error fetching club details: ${error.message}`;
+                        editClubError.style.display = 'block';
+                        editClubModal.style.display = 'flex';
                     }
                 }
-            }
-            
-            // Initial data fetch
-            fetchClubs();
-            fetchFaculty();
-            fetchClubLeaders();
-        });
+
+                // Delete club function
+                async function deleteClub(clubId) {
+                    // Check if clubId is valid
+                    if (!isValidObjectId(clubId)) {
+                        alert('Invalid club ID format');
+                        return;
+                    }
+
+                    if (confirm('Are you sure you want to delete this club? This action cannot be undone.')) {
+                        try {
+                            const response = await fetch(`/api/clubs/${clubId}`, {
+                                method: 'DELETE',
+                                headers: {
+                                    'Authorization': `Bearer ${token}`
+                                }
+                            });
+
+                            if (response.ok) {
+                                alert('Club deleted successfully!');
+                                fetchClubs(); // Refresh clubs list
+                            } else {
+                                const error = await response.json();
+                                alert(`Error: ${error.message || 'Unknown error occurred'}`);
+                            }
+                        } catch (error) {
+                            console.error('Error deleting club:', error);
+                            alert('Error deleting club. Please try again.');
+                        }
+                    }
+                }
+
+                // Initial data fetch
+                fetchClubs();
+                fetchFaculty();
+                fetchClubLeaders();
+            });
+        })();
     </script>
 </body>
 </html>

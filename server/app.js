@@ -1,24 +1,24 @@
-require("dotenv").config()
-const express = require("express")
-const path = require("path")
-const cors = require("cors")
-const helmet = require("helmet")
-const rateLimit = require("express-rate-limit")
-const mongoose = require("mongoose")
-const bcrypt = require("bcryptjs")
-const connectDB = require("./config/db")
-const authRoutes = require("./routes/auth")
-const clubRoutes = require("./routes/clubs")
-const userRoutes = require("./routes/userRoutes")
-const userRoutesLegacy = require("./routes/users")
-const roleRoutes = require("./routes/roles")
-const permissionRoutes = require("./routes/permissions")
-const eventRoutes = require("./routes/events")
-const reportRoutes = require("./routes/reports")
-const uploadRoutes = require("./routes/uploadRoutes")
-const analyticsRoutes = require("./routes/analytics")
-const notificationRoutes = require("./routes/notifications")
-const approvalRoutes = require("./routes/approvals")
+require("dotenv").config();
+const express = require("express");
+const path = require("path");
+const cors = require("cors");
+const helmet = require("helmet");
+const rateLimit = require("express-rate-limit");
+const mongoose = require("mongoose");
+const bcrypt = require("bcryptjs");
+const connectDB = require("./config/db");
+const authRoutes = require("./routes/auth");
+const clubRoutes = require("./routes/clubs");
+const userRoutes = require("./routes/userRoutes");
+const userRoutesLegacy = require("./routes/users");
+const roleRoutes = require("./routes/roles");
+const permissionRoutes = require("./routes/permissions");
+const eventRoutes = require("./routes/events");
+const reportRoutes = require("./routes/reports");
+const uploadRoutes = require("./routes/uploadRoutes");
+const analyticsRoutes = require("./routes/analytics");
+const notificationRoutes = require("./routes/notifications");
+const approvalRoutes = require("./routes/approvals");
 const dashboardRoutes = require('./routes/dashboard');
 const clubLeadersRoutes = require('./routes/clubLeaders');
 const clubActivityReportsRouter = require('./routes/clubActivityReports');
@@ -28,46 +28,94 @@ const studentRoutes = require('./routes/studentRoutes');
 const userAnalyticsRoutes = require('./routes/userAnalytics');
 const userActivityRoutes = require('./routes/userActivity');
 const recentActivityRoutes = require('./routes/recentActivity');
-const { connectRedis } = require("./config/redis")
-const Club = require("./models/Club")
-const Role = require("./models/Role")
-const Permission = require("./models/Permission")
-const Event = require("./models/Event")
-const User = require("./models/User")
-const Approval = require("./models/Approval")
-const ClubActivityReport = require("./models/ClubActivityReport")
-const Notification = require("./models/Notification")
-const Report = require("./models/Report")
-const Reward = require("./models/Reward")
+const { connectRedis } = require("./config/redis");
+const Club = require("./models/Club");
+const Role = require("./models/Role");
+const Permission = require("./models/Permission");
+const Event = require("./models/Event");
+const User = require("./models/User");
+const Approval = require("./models/Approval");
+const ClubActivityReport = require("./models/ClubActivityReport");
+const Notification = require("./models/Notification");
+const Report = require("./models/Report");
+const Reward = require("./models/Reward");
 const userPointsRoutes = require('./routes/userPoints');
 const earnedRewardsRoutes = require('./routes/earnedRewards');
 
+// Import auth middleware
+const jwt = require('jsonwebtoken');
+
+// Proper authentication middleware
+const authenticateToken = (req, res, next) => {
+  const authHeader = req.headers['authorization'];
+  const token = authHeader && authHeader.split(' ')[1];
+  
+  if (!token) {
+    return res.status(401).json({ message: 'Access token required' });
+  }
+  
+  jwt.verify(token, process.env.JWT_SECRET || 'kmitclubshub', (err, user) => {
+    if (err) {
+      return res.status(403).json({ message: 'Invalid token' });
+    }
+    req.user = user;
+    next();
+  });
+};
+
+// Proper authorization middleware - UPDATED with fallback to legacy 'role'
+const authorizeRole = (allowedRoles) => {
+  return (req, res, next) => {
+    if (!req.user) {
+      return res.status(401).json({ message: 'Authentication required' });
+    }
+    
+    // Fallback to legacy 'role' if systemRole is missing
+    const userRole = req.user.systemRole || req.user.role;
+    
+    // Enhanced logging
+    console.log('Auth check:', { 
+      username: req.user.username || 'unknown', 
+      systemRole: req.user.systemRole, 
+      fallbackRole: req.user.role, 
+      finalRole: userRole, 
+      allowed: allowedRoles 
+    });
+    
+    if (!allowedRoles.includes(userRole)) {
+      console.log(`Role mismatch: ${userRole} not in [${allowedRoles.join(', ')}]`);
+      return res.status(403).json({ message: 'Insufficient permissions' });
+    }
+    
+    next();
+  };
+};
+
 // JWT token generation function
 const generateToken = (id) => {
-  const jwt = require('jsonwebtoken');
   return jwt.sign({ id }, process.env.JWT_SECRET || 'kmitclubshub', {
-    expiresIn: '5h',
+    expiresIn: process.env.JWT_EXPIRE || '30d',
   });
 };
 
 // Multer for file uploads
-const multer = require("multer")
-const fs = require("fs")
+const multer = require("multer");
+const fs = require("fs");
 
 // Configure multer for file uploads
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    const uploadPath = path.join(__dirname, "../public/uploads/events")
+    const uploadPath = process.env.UPLOAD_PATH || path.join(__dirname, "../public/uploads/events");
     if (!fs.existsSync(uploadPath)) {
-      fs.mkdirSync(uploadPath, { recursive: true })
+      fs.mkdirSync(uploadPath, { recursive: true });
     }
-    cb(null, uploadPath)
+    cb(null, uploadPath);
   },
   filename: function (req, file, cb) {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9)
-    cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname))
-  }
-})
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
+  },
+});
 
 const upload = multer({ 
   storage: storage,
@@ -76,62 +124,128 @@ const upload = multer({
   },
   fileFilter: function (req, file, cb) {
     if (file.mimetype.startsWith('image/')) {
-      cb(null, true)
+      cb(null, true);
     } else {
-      cb(new Error('Only image files are allowed!'), false)
+      cb(new Error('Only image files are allowed!'), false);
     }
-  }
-})
+  },
+});
 
-const app = express()
+const app = express();
 
 // Connect to MongoDB
-connectDB()
+connectDB();
 
 // Connect to Redis
-connectRedis()
+connectRedis();
 
 // Security middleware
 app.use(
   helmet({
-    contentSecurityPolicy: false,
-    crossOriginEmbedderPolicy: false,
+    contentSecurityPolicy: process.env.NODE_ENV === 'production',
+    crossOriginEmbedderPolicy: process.env.NODE_ENV === 'production',
   }),
-)
+);
 
 // Rate limiting
-const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 1000, // limit each IP to 100 requests per windowMs
+const authLimiter = rateLimit({
+  windowMs: 30 * 60 * 1000, // 30 minutes
+  max: 1000, // limit each IP to 5 requests per windowMs for auth
   message: "Too many requests from this IP, please try again later.",
-})
-app.use(limiter)
+});
+
+const generalLimiter = rateLimit({
+  windowMs: 30 * 60 * 1000, // 30 minutes
+  max: 1000, // limit each IP to 1000 requests per windowMs
+  message: "Too many requests from this IP, please try again later.",
+});
+
+// Full club details endpoint - MOVED BEFORE clubRoutes to make it public and match first
+app.get("/api/clubs/:id/full", async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ message: 'Invalid club ID format' });
+    }
+
+    const club = await Club.findById(id)
+      .populate('faculty', 'name username department role systemRole')
+      .populate('leader', 'name username role systemRole')
+      .populate('members._id', 'name username')
+      .populate('events', 'title date status');
+
+    if (!club) {
+      return res.status(404).json({ message: 'Club not found' });
+    }
+
+    res.json(club);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Server Error' });
+  }
+});
+
+app.use('/api/auth', authLimiter);
+// Add this route in server.js (after app.use("/api/auth", authRoutes);)
+app.get('/api/auth/me', authenticateToken, async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id)  // Use req.user.id (from JWT)
+      .select('-password')
+      .populate('club', 'name description type registerLink bannerImage')  // Legacy single club
+      .populate({
+        path: 'clubs._id',  // Populate nested club refs in array
+        select: 'name description type registerLink bannerImage'
+      });
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // Ensure consistent 'role' for frontend (fallback from systemRole)
+    const userObj = user.toObject();
+    userObj.role = userObj.systemRole || userObj.role;
+
+    res.json(userObj);
+  } catch (error) {
+    console.error('Error fetching user profile:', error);
+    res.status(500).json({ message: 'Server Error' });
+  }
+});
+app.use(generalLimiter);
 
 // CORS
-app.use(cors())
+app.use(cors({
+  origin: process.env.FRONTEND_URL || '*',
+}));
 
 // Body parser middleware
-app.use(express.json({ limit: "10mb" }))
-app.use(express.urlencoded({ extended: true, limit: "10mb" }))
+app.use(express.json({ limit: "10mb" }));
+app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 
 // Static files
-app.use(express.static(path.join(__dirname, "../public")))
+app.use(express.static(path.join(__dirname, "../public")));
 // Add this to serve uploaded files
-app.use('/uploads', express.static(path.join(__dirname, 'public/uploads')))
-
+app.use('/uploads', express.static(path.join(__dirname, 'public/uploads')));
+app.get("/event-details.html", (req, res) => {
+  res.sendFile(path.join(__dirname, "../public/event-details.html"));
+});
+app.get("/report-details.html", (req, res) => {
+  res.sendFile(path.join(__dirname, "../public/report-details.html"));
+});
 // Routes
-app.use("/api/auth", authRoutes)
-app.use("/api/clubs", clubRoutes)
-app.use("/api/users", userRoutes)
-app.use("/api/users-legacy", userRoutesLegacy)
-app.use("/api/roles", roleRoutes)
-app.use("/api/permissions", permissionRoutes)
-app.use("/api/events", eventRoutes)
-app.use("/api/reports", reportRoutes)
-app.use("/api/upload", uploadRoutes)
-app.use("/api/analytics", analyticsRoutes)
-app.use("/api/notifications", notificationRoutes)
-app.use("/api/approvals", approvalRoutes)
+app.use("/api/auth", authRoutes);
+app.use("/api/clubs", clubRoutes);
+app.use("/api/users", userRoutes);
+app.use("/api/users-legacy", userRoutesLegacy);
+app.use("/api/roles", roleRoutes);
+app.use("/api/permissions", permissionRoutes);
+app.use("/api/events", eventRoutes);
+app.use("/api/reports", reportRoutes);
+app.use("/api/upload", uploadRoutes);
+app.use("/api/analytics", analyticsRoutes);
+app.use("/api/notifications", notificationRoutes);
+app.use("/api/approvals", approvalRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/club-leaders', clubLeadersRoutes);
 app.use("/api/rewards", rewardRoutes);
@@ -142,7 +256,7 @@ app.use("/api/userActivity", userActivityRoutes);
 app.use("/api/recentActivity", recentActivityRoutes);
 
 // Add a specific DELETE route for clubactivityreports before using the router
-app.delete("/api/clubactivityreports/:id", async (req, res) => {
+app.delete("/api/clubactivityreports/:id", authenticateToken, authorizeRole(['admin']), async (req, res) => {
   try {
     const reportId = req.params.id;
     console.log(`Attempting to delete report with ID: ${reportId} from clubactivityreports collection`);
@@ -174,7 +288,7 @@ app.delete("/api/clubactivityreports/:id", async (req, res) => {
 app.use("/api/clubactivityreports", clubActivityReportsRouter);
 
 // DELETE endpoint for reports collection
-app.delete("/api/reports/:id", async (req, res) => {
+app.delete("/api/reports/:id", authenticateToken, authorizeRole(['admin']), async (req, res) => {
   try {
     const reportId = req.params.id;
     console.log(`Attempting to delete report with ID: ${reportId} from reports collection`);
@@ -203,26 +317,26 @@ app.delete("/api/reports/:id", async (req, res) => {
 });
 
 // Image upload route
-app.post('/api/upload/event-image', upload.single('image'), (req, res) => {
+app.post('/api/upload/event-image', authenticateToken, upload.single('image'), (req, res) => {
   try {
     if (!req.file) {
-      return res.status(400).json({ success: false, message: 'No file uploaded' })
+      return res.status(400).json({ success: false, message: 'No file uploaded' });
     }
 
-    const fileUrl = `/uploads/events/${req.file.filename}`
+    const fileUrl = `/uploads/events/${req.file.filename}`;
     res.json({
       success: true,
       url: fileUrl,
       message: 'Image uploaded successfully'
-    })
+    });
   } catch (error) {
-    console.error('Error uploading image:', error)
-    res.status(500).json({ success: false, message: 'Failed to upload image' })
+    console.error('Error uploading image:', error);
+    res.status(500).json({ success: false, message: 'Failed to upload image' });
   }
-})
+});
 
 // Password change route (legacy)
-app.post('/api/auth/change-password', async (req, res) => {
+app.post('/api/auth/change-password', authenticateToken, async (req, res) => {
   try {
     const { currentPassword, newPassword } = req.body;
     
@@ -234,7 +348,6 @@ app.post('/api/auth/change-password', async (req, res) => {
     }
     
     // Verify token
-    const jwt = require('jsonwebtoken');
     const decoded = jwt.verify(token, process.env.JWT_SECRET || 'your_jwt_secret');
     
     // Find user
@@ -262,10 +375,10 @@ app.post('/api/auth/change-password', async (req, res) => {
     console.error('Error changing password:', error);
     res.status(500).json({ message: 'Server error' });
   }
-})
+});
 
 // Reset all passwords to default
-app.post('/api/auth/reset-all-passwords', async (req, res) => {
+app.post('/api/auth/reset-all-passwords', authenticateToken, authorizeRole(['admin']), async (req, res) => {
   try {
     // Only allow admins to access this endpoint
     const token = req.header('Authorization')?.replace('Bearer ', '');
@@ -275,7 +388,6 @@ app.post('/api/auth/reset-all-passwords', async (req, res) => {
     }
     
     // Verify token
-    const jwt = require('jsonwebtoken');
     const decoded = jwt.verify(token, process.env.JWT_SECRET || 'your_jwt_secret');
     
     // Check if user is admin
@@ -304,7 +416,36 @@ app.post('/api/auth/reset-all-passwords', async (req, res) => {
     console.error('Error resetting passwords:', error);
     res.status(500).json({ message: 'Server error' });
   }
-})
+});
+
+// Temp Debug: Check and fix user status - REMOVE AFTER USE
+app.get('/api/debug/user-status/:username', async (req, res) => {
+  try {
+    const { username } = req.params;
+    const user = await User.findOne({ username }).select('username status systemRole');
+    
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    
+    console.log(`User ${username}: status="${user.status}", systemRole="${user.systemRole}"`);
+    
+    // Force set to active if not
+    if (user.status !== 'active') {
+      user.status = 'active';
+      await user.save();
+      console.log(`Fixed status for ${username} to 'active'`);
+    }
+    
+    res.json({ 
+      username: user.username, 
+      originalStatus: user.status,  // Before any fix
+      systemRole: user.systemRole 
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
 
 // Debug endpoints for authentication
 app.get("/api/auth/check-user/:username", async (req, res) => {
@@ -502,7 +643,7 @@ app.post("/api/auth/comprehensive-debug", async (req, res) => {
     
     return res.json({
       userDetails,
-      enteredPassword,
+      enteredPassword: password,
       hashedEnteredPassword,
       passwordMatch: isMatch,
       token,
@@ -768,7 +909,7 @@ app.post("/api/auth/debug-student-login", async (req, res) => {
     
     return res.json({
       userDetails,
-      enteredPassword,
+      enteredPassword: password,
       hashedEnteredPassword,
       isStudent,
       passwordMatch: isMatch,
@@ -825,6 +966,7 @@ app.post("/api/auth/test-simple-password", async (req, res) => {
   }
 });
 
+// Consolidated comprehensive-debug (remove duplicates)
 app.post("/api/auth/comprehensive-debug", async (req, res) => {
   try {
     const { comprehensiveDebug } = require('./controllers/authController');
@@ -846,7 +988,7 @@ app.post("/api/auth/fix-password", async (req, res) => {
 });
 
 // Manual endpoint to reset student passwords
-app.post("/api/auth/reset-student-passwords", async (req, res) => {
+app.post("/api/auth/reset-student-passwords", authenticateToken, authorizeRole(['admin']), async (req, res) => {
   try {
     // Only allow admins to access this endpoint
     const token = req.header('Authorization')?.replace('Bearer ', '');
@@ -856,7 +998,6 @@ app.post("/api/auth/reset-student-passwords", async (req, res) => {
     }
     
     // Verify token
-    const jwt = require('jsonwebtoken');
     const decoded = jwt.verify(token, process.env.JWT_SECRET || 'your_jwt_secret');
     
     // Check if user is admin
@@ -897,7 +1038,7 @@ app.post("/api/auth/reset-student-passwords", async (req, res) => {
 });
 
 // Endpoint to list all students (without passwords)
-app.get("/api/auth/list-students", async (req, res) => {
+app.get("/api/auth/list-students", authenticateToken, authorizeRole(['admin']), async (req, res) => {
   try {
     // Only allow admins to access this endpoint
     const token = req.header('Authorization')?.replace('Bearer ', '');
@@ -907,7 +1048,6 @@ app.get("/api/auth/list-students", async (req, res) => {
     }
     
     // Verify token
-    const jwt = require('jsonwebtoken');
     const decoded = jwt.verify(token, process.env.JWT_SECRET || 'your_jwt_secret');
     
     // Check if user is admin
@@ -960,7 +1100,7 @@ app.post("/api/auth/verify-student-password", async (req, res) => {
 });
 
 // Admin endpoint to fix club members points
-app.post("/api/admin/fix-club-members-points", async (req, res) => {
+app.post("/api/admin/fix-club-members-points", authenticateToken, authorizeRole(['admin']), async (req, res) => {
   try {
     // Only allow admins to access this endpoint
     const token = req.header('Authorization')?.replace('Bearer ', '');
@@ -970,7 +1110,6 @@ app.post("/api/admin/fix-club-members-points", async (req, res) => {
     }
     
     // Verify token
-    const jwt = require('jsonwebtoken');
     const decoded = jwt.verify(token, process.env.JWT_SECRET || 'your_jwt_secret');
     
     // Check if user is admin
@@ -1032,7 +1171,7 @@ app.get("/api/debug/club-members-points", async (req, res) => {
 });
 
 // NEW: Endpoint to assign a club to a faculty user
-app.post("/api/users/assign-club", async (req, res) => {
+app.post("/api/users/assign-club", authenticateToken, authorizeRole(['admin']), async (req, res) => {
   try {
     const { userId, clubId, role } = req.body;
     
@@ -1086,134 +1225,138 @@ app.post("/api/users/assign-club", async (req, res) => {
 });
 
 // Full club details endpoint
-app.get("/api/clubs/:id/full", async (req, res) => {
-  try {
-    const { id } = req.params;
+// app.get("/api/clubs/:id/full", async (req, res) => {
+//   try {
+//     const { id } = req.params;
 
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-      return res.status(400).json({ message: 'Invalid club ID format' });
-    }
+//     if (!mongoose.Types.ObjectId.isValid(id)) {
+//       return res.status(400).json({ message: 'Invalid club ID format' });
+//     }
 
-    const club = await Club.findById(id)
-      .populate('faculty', 'name username department role systemRole')
-      .populate('leader', 'name username role systemRole')
-      .populate('members._id', 'name username')
-      .populate('events', 'title date status');
+//     const club = await Club.findById(id)
+//       .populate('faculty', 'name username department role systemRole')
+//       .populate('leader', 'name username role systemRole')
+//       .populate('members._id', 'name username')
+//       .populate('events', 'title date status');
 
-    if (!club) {
-      return res.status(404).json({ message: 'Club not found' });
-    }
+//     if (!club) {
+//       return res.status(404).json({ message: 'Club not found' });
+//     }
 
-    res.json(club);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Server Error' });
-  }
-});
+//     res.json(club);
+//   } catch (error) {
+//     console.error(error);
+//     res.status(500).json({ message: 'Server Error' });
+//   }
+// });
 
 // Serve HTML pages
 app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "../public/index.html"))
-})
+  res.sendFile(path.join(__dirname, "../public/index.html"));
+});
 
 app.get("/login", (req, res) => {
-  res.sendFile(path.join(__dirname, "../public/login.html"))
-})
+  res.sendFile(path.join(__dirname, "../public/login.html"));
+});
 
 app.get("/dashboard", (req, res) => {
-  res.sendFile(path.join(__dirname, "../public/dashboard.html"))
-})
+  res.sendFile(path.join(__dirname, "../public/dashboard.html"));
+});
 
 app.get("/clubs", (req, res) => {
-  res.sendFile(path.join(__dirname, "../public/clubs.html"))
-})
+  res.sendFile(path.join(__dirname, "../public/clubs.html"));
+});
 
 app.get("/system-settings", (req, res) => {
-  res.sendFile(path.join(__dirname, "../public/system-settings.html"))
-})
+  res.sendFile(path.join(__dirname, "../public/system-settings.html"));
+});
 
 app.get("/role-management", (req, res) => {
-  res.sendFile(path.join(__dirname, "../public/role-management.html"))
-})
+  res.sendFile(path.join(__dirname, "../public/role-management.html"));
+});
 
 app.get("/user-management", (req, res) => {
-  res.sendFile(path.join(__dirname, "../public/user-management.html"))
-})
+  res.sendFile(path.join(__dirname, "../public/user-management.html"));
+});
 
 app.get("/event-management", (req, res) => {
-  res.sendFile(path.join(__dirname, "../public/event-management.html"))
-})
+  res.sendFile(path.join(__dirname, "../public/event-management.html"));
+});
 
 app.get("/reports", (req, res) => {
-  res.sendFile(path.join(__dirname, "../public/reports.html"))
-})
+  res.sendFile(path.join(__dirname, "../public/reports.html"));
+});
 
 app.get("/analytics", (req, res) => {
-  res.sendFile(path.join(__dirname, "../public/analytics.html"))
-})
+  res.sendFile(path.join(__dirname, "../public/analytics.html"));
+});
 
 app.get("/admin", (req, res) => {
-  res.sendFile(path.join(__dirname, "../public/admin.html"))
-})
+  res.sendFile(path.join(__dirname, "../public/admin.html"));
+});
 
 app.get("/activity-log", (req, res) => {
-  res.sendFile(path.join(__dirname, "../public/activity-log.html"))
-})
+  res.sendFile(path.join(__dirname, "../public/activity-log.html"));
+});
 
 // Role-based dashboard redirects
 app.get("/student_dashboard", (req, res) => {
-  res.sendFile(path.join(__dirname, "../public/student_dashboard.html"))
-})
+  res.sendFile(path.join(__dirname, "../public/student_dashboard.html"));
+});
 
 app.get("/club_leader_dashboard", (req, res) => {
-  res.sendFile(path.join(__dirname, "../public/club_leader_dashboard.html"))
-})
+  res.sendFile(path.join(__dirname, "../public/club_leader_dashboard.html"));
+});
 
 app.get("/faculty_dashboard", (req, res) => {
-  res.sendFile(path.join(__dirname, "../public/faculty_dashboard.html"))
-})
+  res.sendFile(path.join(__dirname, "../public/faculty_dashboard.html"));
+});
 
 // Faculty-specific routes
 app.get("/approvals", (req, res) => {
-  res.sendFile(path.join(__dirname, "../public/approvals.html"))
-})
+  res.sendFile(path.join(__dirname, "../public/approvals.html"));
+});
 
 app.get("/monitored-clubs", (req, res) => {
-  res.sendFile(path.join(__dirname, "../public/monitored-clubs.html"))
-})
+  res.sendFile(path.join(__dirname, "../public/monitored-clubs.html"));
+});
 
 app.get("/faculty_reports", (req, res) => {
-  res.sendFile(path.join(__dirname, "../public/faculty_reports.html"))
-})
+  res.sendFile(path.join(__dirname, "../public/faculty_reports.html"));
+});
 
 app.get("/faculty_analytics", (req, res) => {
-  res.sendFile(path.join(__dirname, "../public/faculty_analytics.html"))
-})
+  res.sendFile(path.join(__dirname, "../public/faculty_analytics.html"));
+});
 
 app.get("/faculty_settings", (req, res) => {
-  res.sendFile(path.join(__dirname, "../public/faculty_settings.html"))
-})
+  res.sendFile(path.join(__dirname, "../public/faculty_settings.html"));
+});
 
 // Club events page
 app.get("/club-events", (req, res) => {
-  res.sendFile(path.join(__dirname, "../public/club-events.html"))
-})
+  res.sendFile(path.join(__dirname, "../public/club-events.html"));
+});
 
 app.get("/event-details", (req, res) => {
-  res.sendFile(path.join(__dirname, "../public/event-details.html"))
-})
+  res.sendFile(path.join(__dirname, "../public/event-details.html"));
+});
 
 app.get("/add-event", (req, res) => {
-  res.sendFile(path.join(__dirname, "../public/add-event.html"))
-})
+  res.sendFile(path.join(__dirname, "../public/add-event.html"));
+});
 
 app.get("/club-details", (req, res) => {
-  res.sendFile(path.join(__dirname, "../public/club-details.html"))
-})
+  res.sendFile(path.join(__dirname, "../public/club-details.html"));
+});
+
+app.get("/club-detail", (req, res) => {
+  res.sendFile(path.join(__dirname, "../public/clubs_detail.html"));
+});
 
 app.get("/report-details", (req, res) => {
-  res.sendFile(path.join(__dirname, "../public/report-details.html"))
-})
+  res.sendFile(path.join(__dirname, "../public/report-details.html"));
+});
 
 // Club Leader specific routes
 app.get("/leader-user-management", (req, res) => {
@@ -1238,57 +1381,57 @@ app.get("/leader-settings", (req, res) => {
 
 // Student-specific routes
 app.get("/student_dashboard", (req, res) => {
-  res.sendFile(path.join(__dirname, "../public/student_dashboard.html"))
-})
+  res.sendFile(path.join(__dirname, "../public/student_dashboard.html"));
+});
 
 app.get("/student_clubs", (req, res) => {
-  res.sendFile(path.join(__dirname, "../public/student_clubs.html"))
-})
+  res.sendFile(path.join(__dirname, "../public/student_clubs.html"));
+});
 
 app.get("/student_events", (req, res) => {
-  res.sendFile(path.join(__dirname, "../public/student_events.html"))
-})
+  res.sendFile(path.join(__dirname, "../public/student_events.html"));
+});
 
 app.get("/student_rewards", (req, res) => {
-  res.sendFile(path.join(__dirname, "../public/student_rewards.html"))
-})
+  res.sendFile(path.join(__dirname, "../public/student_rewards.html"));
+});
 
 app.get("/student_analytics", (req, res) => {
-  res.sendFile(path.join(__dirname, "../public/student_analytics.html"))
-})
+  res.sendFile(path.join(__dirname, "../public/student_analytics.html"));
+});
 
 app.get("/student_settings", (req, res) => {
-  res.sendFile(path.join(__dirname, "../public/student_settings.html"))
-})
+  res.sendFile(path.join(__dirname, "../public/student_settings.html"));
+});
 
 // Debug endpoints
 app.get("/api/debug/user-roles", async (req, res) => {
   try {
-    const users = await User.find({})
-    const roleCounts = {}
+    const users = await User.find({});
+    const roleCounts = {};
     users.forEach((user) => {
       // Use systemRole if available, otherwise fall back to role
       const userRole = user.systemRole || user.role;
-      roleCounts[userRole] = (roleCounts[userRole] || 0) + 1
-    })
+      roleCounts[userRole] = (roleCounts[userRole] || 0) + 1;
+    });
 
-    const roles = await Role.find({})
+    const roles = await Role.find({});
     const roleMapping = {
       Admin: "admin",
       Faculty: "faculty",
       "Club Leader": "clubLeader",
       Student: "student",
-    }
+    };
 
-    const roleUserCounts = {}
+    const roleUserCounts = {};
     roles.forEach((role) => {
-      const userRoleValue = roleMapping[role.name]
+      const userRoleValue = roleMapping[role.name];
       if (userRoleValue) {
-        roleUserCounts[role.name] = roleCounts[userRoleValue] || 0
+        roleUserCounts[role.name] = roleCounts[userRoleValue] || 0;
       } else {
-        roleUserCounts[role.name] = 0
+        roleUserCounts[role.name] = 0;
       }
-    })
+    });
 
     res.json({
       totalUsers: users.length,
@@ -1298,22 +1441,22 @@ app.get("/api/debug/user-roles", async (req, res) => {
         userCount: roleUserCounts[role.name],
       })),
       mapping: roleMapping,
-    })
+    });
   } catch (error) {
-    res.status(500).json({ message: error.message })
+    res.status(500).json({ message: error.message });
   }
-})
+});
 
 app.get("/api/debug/clubs", async (req, res) => {
   try {
     const clubs = await Club.find({})
       .populate("faculty", "name username systemRole email")
-      .populate("leader", "name username systemRole email")
-    res.json(clubs)
+      .populate("leader", "name username systemRole email");
+    res.json(clubs);
   } catch (error) {
-    res.status(500).json({ message: error.message })
+    res.status(500).json({ message: error.message });
   }
-})
+});
 
 // FIXED: Updated debug endpoint to correctly populate members
 app.get("/api/debug/clubs/:id", async (req, res) => {
@@ -1328,17 +1471,17 @@ app.get("/api/debug/clubs/:id", async (req, res) => {
       .populate({
         path: "events",
         select: "title date venue status description",
-      })
+      });
 
     if (!club) {
-      return res.status(404).json({ message: "Club not found" })
+      return res.status(404).json({ message: "Club not found" });
     }
 
-    res.json(club)
+    res.json(club);
   } catch (error) {
-    res.status(500).json({ message: error.message })
+    res.status(500).json({ message: error.message });
   }
-})
+});
 
 // NEW: Debug endpoint to show raw club structure
 app.get("/api/debug/club-raw/:id", async (req, res) => {
@@ -1359,7 +1502,7 @@ app.get("/api/debug/club-raw/:id", async (req, res) => {
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
-})
+});
 
 // NEW: Debug endpoint to check club members
 app.get("/api/debug/club-members/:id", async (req, res) => {
@@ -1394,60 +1537,60 @@ app.get("/api/debug/club-members/:id", async (req, res) => {
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
-})
+});
 
 app.get("/api/debug/events", async (req, res) => {
   try {
-    const events = await Event.find({}).populate("clubId", "name").populate("organizer", "name")
-    res.json(events)
+    const events = await Event.find({}).populate("clubId", "name").populate("organizer", "name");
+    res.json(events);
   } catch (error) {
-    res.status(500).json({ message: error.message })
+    res.status(500).json({ message: error.message });
   }
-})
+});
 
 app.get("/api/debug/faculty", async (req, res) => {
   try {
-    const faculty = await User.find({ systemRole: "faculty" })
-    res.json(faculty)
+    const faculty = await User.find({ systemRole: "faculty" });
+    res.json(faculty);
   } catch (error) {
-    res.status(500).json({ message: error.message })
+    res.status(500).json({ message: error.message });
   }
-})
+});
 
 app.get("/api/debug/club-leaders", async (req, res) => {
   try {
-    const leaders = await User.find({ systemRole: "clubLeader" })
-    res.json(leaders)
+    const leaders = await User.find({ systemRole: "clubLeader" });
+    res.json(leaders);
   } catch (error) {
-    res.status(500).json({ message: error.message })
+    res.status(500).json({ message: error.message });
   }
-})
+});
 
 app.get("/api/debug/reports", async (req, res) => {
   try {
     const reports = await ClubActivityReport.find({})
       .populate("club", "name")
       .populate("submittedBy", "name")
-      .populate("approvedBy", "name")
-    res.json(reports)
+      .populate("approvedBy", "name");
+    res.json(reports);
   } catch (error) {
-    res.status(500).json({ message: error.message })
+    res.status(500).json({ message: error.message });
   }
-})
+});
 
 app.get("/api/debug/notifications", async (req, res) => {
   try {
     const notifications = await Notification.find({})
       .populate("sender", "name")
-      .populate("recipients", "name")
-    res.json(notifications)
+      .populate("recipients", "name");
+    res.json(notifications);
   } catch (error) {
-    res.status(500).json({ message: error.message })
+    res.status(500).json({ message: error.message });
   }
-})
+});
 
 // NEW: Cleanup endpoint for invalid member references
-app.post("/api/clubs/cleanup-members", async (req, res) => {
+app.post("/api/clubs/cleanup-members", authenticateToken, authorizeRole(['admin']), async (req, res) => {
   try {
     // Only allow admins to access this endpoint
     if (!req.user || req.user.systemRole !== 'admin') {
@@ -1489,50 +1632,73 @@ app.post("/api/clubs/cleanup-members", async (req, res) => {
     console.error('Error cleaning up invalid members:', error);
     res.status(500).json({ message: 'Server Error' });
   }
-})
+});
+
+// Add these endpoints after your existing auth routes
+
+// Debug routes
+app.post("/api/auth/verify-fix-admin", async (req, res) => {
+  try {
+    const { verifyFixAdmin } = require('./controllers/authController');
+    await verifyFixAdmin(req, res);
+  } catch (error) {
+    console.error('Verify fix admin error:', error);
+    res.status(500).json({ message: 'Server Error' });
+  }
+});
+
+app.post("/api/auth/debug-login", async (req, res) => {
+  try {
+    const { debugLogin } = require('./controllers/authController');
+    await debugLogin(req, res);
+  } catch (error) {
+    console.error('Debug login error:', error);
+    res.status(500).json({ message: 'Server Error' });
+  }
+});
 
 // Error handling middleware
 app.use((err, req, res, next) => {
-  console.error(err.stack)
+  console.error(err.stack);
 
   if (err.name === "CastError") {
-    return res.status(400).json({ message: "Invalid ID format" })
+    return res.status(400).json({ message: "Invalid ID format" });
   }
 
   if (err.code === 11000) {
-    return res.status(400).json({ message: "Duplicate field value" })
+    return res.status(400).json({ message: "Duplicate field value" });
   }
 
   if (err.name === "ValidationError") {
-    const messages = Object.values(err.errors).map((val) => val.message)
-    return res.status(400).json({ message: messages.join(", ") })
+    const messages = Object.values(err.errors).map((val) => val.message);
+    return res.status(400).json({ message: messages.join(", ") });
   }
 
   if (err.code === "LIMIT_FILE_SIZE") {
-    return res.status(400).json({ message: "File size too large" })
+    return res.status(400).json({ message: "File size too large" });
   }
 
   if (err.message === "Only image files are allowed!") {
-    return res.status(400).json({ message: "Only image files are allowed" })
+    return res.status(400).json({ message: "Only image files are allowed" });
   }
 
-  res.status(500).json({ message: "Server Error" })
-})
+  res.status(500).json({ message: "Server Error" });
+});
 
 // 404 handler
 app.use((req, res) => {
-  res.status(404).json({ message: "Route not found" })
-})
+  res.status(404).json({ message: "Route not found" });
+});
 
 // Create default admin if not exists
 const createDefaultAdmin = async () => {
   try {
     if (mongoose.connection.readyState !== 1) {
-      console.log("MongoDB not connected, skipping admin creation")
-      return
+      console.log("MongoDB not connected, skipping admin creation");
+      return;
     }
 
-    const adminExists = await User.findOne({ username: "deepa@kmit" })
+    const adminExists = await User.findOne({ username: "deepa@kmit" });
 
     if (!adminExists) {
       // Create admin with plain text password
@@ -1547,19 +1713,19 @@ const createDefaultAdmin = async () => {
       // Use the setPassword method to avoid double hashing
       await admin.setPassword("Kmit123@");
       
-      console.log("Default admin created with password: Kmit123@ and role: admin")
+      console.log("Default admin created with password: Kmit123@ and role: admin");
     } else {
-      console.log("Default admin already exists")
+      console.log("Default admin already exists");
       
       // Check if the role is correct
       if (adminExists.systemRole !== "admin" || adminExists.role !== "admin") {
-        console.log(`Admin role is incorrect (${adminExists.systemRole}), fixing...`)
+        console.log(`Admin role is incorrect (${adminExists.systemRole}), fixing...`);
         adminExists.systemRole = "admin";
         adminExists.role = "admin"; // Also update the old role field
         await adminExists.save();
-        console.log("Admin role fixed to: admin")
+        console.log("Admin role fixed to: admin");
       } else {
-        console.log("Admin role is already correct")
+        console.log("Admin role is already correct");
       }
       
       // Check if the password is properly hashed
@@ -1571,43 +1737,44 @@ const createDefaultAdmin = async () => {
       console.log(`Can admin password be verified? ${isMatch}`);
       
       if (!isMatch) {
-        console.log("Admin password verification failed, resetting...")
+        console.log("Admin password verification failed, resetting...");
         
         // Use the setPassword method to avoid double hashing
         await adminExists.setPassword("Kmit123@");
         
-        console.log("Admin password reset")
+        console.log("Admin password reset");
       } else {
-        console.log("Admin password is properly set and can be verified")
+        console.log("Admin password is properly set and can be verified");
       }
     }
   } catch (error) {
-    console.error("Error creating default admin:", error.message)
+    console.error("Error creating default admin:", error.message);
   }
-}
+};
+
 // Fix user roles
 const fixUserRoles = async () => {
   try {
-    const usersWithoutRoles = await User.countDocuments({ systemRole: { $exists: false } })
-    console.log(`Found ${usersWithoutRoles} users without systemRole`)
+    const usersWithoutRoles = await User.countDocuments({ systemRole: { $exists: false } });
+    console.log(`Found ${usersWithoutRoles} users without systemRole`);
 
     if (usersWithoutRoles > 0) {
       const result = await User.updateMany(
         { systemRole: { $exists: false } }, 
         { $set: { systemRole: "student" } }
-      )
-      console.log(`Updated ${result.modifiedCount} users with default systemRole 'student'`)
+      );
+      console.log(`Updated ${result.modifiedCount} users with default systemRole 'student'`);
     }
 
     // Also fix users with old 'role' field
-    const usersWithOldRole = await User.find({ role: { $exists: true } })
-    console.log(`Found ${usersWithOldRole.length} users with old 'role' field`)
+    const usersWithOldRole = await User.find({ role: { $exists: true } });
+    console.log(`Found ${usersWithOldRole.length} users with old 'role' field`);
 
     for (const user of usersWithOldRole) {
       user.systemRole = user.role;
       delete user.role; // Remove the old field
       await user.save();
-      console.log(`Updated user ${user.username} from old 'role' to new 'systemRole'`)
+      console.log(`Updated user ${user.username} from old 'role' to new 'systemRole'`);
     }
 
     const roleCounts = await User.aggregate([
@@ -1617,23 +1784,23 @@ const fixUserRoles = async () => {
           count: { $sum: 1 },
         },
       },
-    ])
+    ]);
 
-    console.log("User counts by systemRole after update:")
+    console.log("User counts by systemRole after update:");
     roleCounts.forEach((item) => {
-      console.log(`  ${item._id}: ${item.count}`)
-    })
+      console.log(`  ${item._id}: ${item.count}`);
+    });
   } catch (error) {
-    console.error("Error fixing user roles:", error)
+    console.error("Error fixing user roles:", error);
   }
-}
+};
 
 // Create default roles and permissions
 const createDefaultRolesAndPermissions = async () => {
   try {
     if (mongoose.connection.readyState !== 1) {
-      console.log("MongoDB not connected, skipping roles and permissions creation")
-      return
+      console.log("MongoDB not connected, skipping roles and permissions creation");
+      return;
     }
 
     const defaultPermissions = [
@@ -1645,16 +1812,16 @@ const createDefaultRolesAndPermissions = async () => {
       { name: "Manage Users" },
       { name: "Manage Roles" },
       { name: "System Settings" },
-    ]
+    ];
 
-    const permissions = []
+    const permissions = [];
     for (const permData of defaultPermissions) {
-      let perm = await Permission.findOne({ name: permData.name })
+      let perm = await Permission.findOne({ name: permData.name });
       if (!perm) {
-        perm = await Permission.create(permData)
-        console.log(`Created permission: ${perm.name}`)
+        perm = await Permission.create(permData);
+        console.log(`Created permission: ${perm.name}`);
       }
-      permissions.push(perm)
+      permissions.push(perm);
     }
 
     const defaultRoles = [
@@ -1678,40 +1845,40 @@ const createDefaultRolesAndPermissions = async () => {
         description: "Regular students with basic permissions",
         permissions: permissions.slice(0, 2).map((p) => p._id),
       },
-    ]
+    ];
 
     for (const roleData of defaultRoles) {
-      let role = await Role.findOne({ name: roleData.name })
+      let role = await Role.findOne({ name: roleData.name });
       if (!role) {
-        role = await Role.create(roleData)
-        console.log(`Created role: ${role.name}`)
+        role = await Role.create(roleData);
+        console.log(`Created role: ${role.name}`);
       }
     }
   } catch (error) {
-    console.error("Error creating default roles and permissions:", error.message)
+    console.error("Error creating default roles and permissions:", error.message);
   }
-}
+};
 
 // Update club types
 async function updateClubTypes() {
   try {
     if (mongoose.connection.readyState !== 1) {
-      console.log("MongoDB not connected, skipping club types update")
-      return
+      console.log("MongoDB not connected, skipping club types update");
+      return;
     }
 
-    const clubs = await Club.find({ type: { $exists: false } })
-    console.log(`Found ${clubs.length} clubs without type field`)
+    const clubs = await Club.find({ type: { $exists: false } });
+    console.log(`Found ${clubs.length} clubs without type field`);
 
     for (const club of clubs) {
-      club.type = "general"
-      await club.save()
-      console.log(`Updated club ${club.name} with type 'general'`)
+      club.type = "general";
+      await club.save();
+      console.log(`Updated club ${club.name} with type 'general'`);
     }
 
-    console.log("All clubs updated with type field")
+    console.log("All clubs updated with type field");
   } catch (error) {
-    console.error("Error updating club types:", error)
+    console.error("Error updating club types:", error);
   }
 }
 
@@ -1719,8 +1886,8 @@ async function updateClubTypes() {
 const createDefaultRewards = async () => {
   try {
     if (mongoose.connection.readyState !== 1) {
-      console.log("MongoDB not connected, skipping rewards creation")
-      return
+      console.log("MongoDB not connected, skipping rewards creation");
+      return;
     }
 
     const defaultRewards = [
@@ -1800,7 +1967,7 @@ const createDefaultRewards = async () => {
   } catch (error) {
     console.error("Error creating default rewards:", error.message);
   }
-}
+};
 
 // Fix existing club members points
 const fixClubMembersPoints = async () => {
@@ -1831,62 +1998,51 @@ const fixClubMembersPoints = async () => {
   } catch (error) {
     console.error("Error fixing club members points:", error);
   }
-}
-
-// Add these endpoints after your existing auth routes
-
-// Debug routes
-app.post("/api/auth/verify-fix-admin", async (req, res) => {
-  try {
-    const { verifyFixAdmin } = require('./controllers/authController');
-    await verifyFixAdmin(req, res);
-  } catch (error) {
-    console.error('Verify fix admin error:', error);
-    res.status(500).json({ message: 'Server Error' });
-  }
-});
-
-app.post("/api/auth/debug-login", async (req, res) => {
-  try {
-    const { debugLogin } = require('./controllers/authController');
-    await debugLogin(req, res);
-  } catch (error) {
-    console.error('Debug login error:', error);
-    res.status(500).json({ message: 'Server Error' });
-  }
-});
+};
 
 // Start server
-const PORT = process.env.PORT || 3000
-const server = app.listen(PORT, () => {
-    console.log(`KMIT Clubs Hub server running on port ${PORT}`);
-    
-    // Initialize data
-    setTimeout(createDefaultAdmin, 2000);
-    setTimeout(fixUserRoles, 3000);
-    setTimeout(createDefaultRolesAndPermissions, 4000);
-    setTimeout(updateClubTypes, 6000);
-    setTimeout(createDefaultRewards, 8000);
-    setTimeout(fixClubMembersPoints, 10000);
+const PORT = process.env.PORT || 3000;
+const server = app.listen(PORT, async () => {
+  console.log(`KMIT Clubs Hub server running on port ${PORT}`);
+  
+  // Initialize data
+  try {
+    await Promise.all([
+      createDefaultAdmin(),
+      fixUserRoles(),
+      createDefaultRolesAndPermissions(),
+      updateClubTypes(),
+      createDefaultRewards(),
+      fixClubMembersPoints()
+    ]);
+    console.log('Database initialization complete!');
+  } catch (error) {
+    console.error('Error during initialization:', error);
+  }
 });
 
 // Attach socket.io to the server
-const io = require('socket.io')(server);
+const io = require('socket.io')(server, {
+  cors: {
+    origin: process.env.FRONTEND_URL || '*',
+    methods: ["GET", "POST"]
+  }
+});
 
 // Make io accessible to routes
 app.set('io', io);
 
 // Socket.io connection handling
 io.on('connection', (socket) => {
-    console.log('User connected:', socket.id);
-    
-    // Join a room
-    socket.on('join-room', (userId) => {
-        socket.join(userId);
-        console.log(`User ${userId} joined room`);
-    });
-    
-    socket.on('disconnect', () => {
-        console.log('User disconnected:', socket.id);
-    });
+  console.log('User connected:', socket.id);
+  
+  // Join a room
+  socket.on('join-room', (userId) => {
+    socket.join(userId);
+    console.log(`User ${userId} joined room`);
+  });
+  
+  socket.on('disconnect', () => {
+    console.log('User disconnected:', socket.id);
+  });
 });

@@ -47,7 +47,7 @@ const userSchema = new mongoose.Schema(
     role: {
       type: String,
       enum: ["admin", "faculty", "clubLeader", "student"],
-      default: "student",
+      // default: "student",
     },
     department: {
       type: String,
@@ -80,7 +80,7 @@ const userSchema = new mongoose.Schema(
       role: {
         type: String,
         enum: ["member", "leader"],
-        default: "member",
+        // default: "member",
       },
       joinDate: {
         type: Date,
@@ -112,11 +112,7 @@ const userSchema = new mongoose.Schema(
       type: Date,
       default: null,
     },
-    status: {
-      type: String,
-      enum: ["active", "pending"],
-      default: "active",
-    },
+    // REMOVED: status field - All users are now implicitly active by default
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
@@ -153,6 +149,7 @@ userSchema.pre("save", async function (next) {
     this.points = 10;
     console.log(`User ${this.username} is a club member, setting points to 10`);
   }
+
   next();
 })
 

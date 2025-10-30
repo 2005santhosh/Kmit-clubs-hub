@@ -1262,7 +1262,7 @@
                         </div>
                         <p class="event-description">${event.description || 'No description available.'}</p>
                         <div class="event-actions">
-                            <a href="event-details.html?id=${event._id}" class="btn btn-primary">View Details</a>
+                            <a href="event-details.html?id=${event._id}&clubId=${clubId}" class="btn btn-primary">View Details</a>
                             ${event.status === 'upcoming' ? `<button class="btn btn-warning" onclick="updateEventStatus('${event._id}', 'cancelled')">Cancel Event</button>` : ''}
                         </div>
                     `;

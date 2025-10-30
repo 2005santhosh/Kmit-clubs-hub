@@ -700,14 +700,12 @@
                 <h2><i class="fas fa-university"></i> KMIT Clubs Hub</h2>
             </div>
             <ul class="sidebar-menu">
-                <li><a href="admin.html"><i class="fas fa-home"></i> Dashboard</a></li>
-                <li><a href="user-management.html"><i class="fas fa-users"></i> User Management</a></li>
-                <li><a href="role-management.html"><i class="fas fa-user-shield"></i> Role Management</a></li>
-                <li><a href="club-management.html"><i class="fas fa-users-cog"></i> Club Management</a></li>
-                <li><a href="event-management.html"><i class="fas fa-calendar-alt"></i> Event Management</a></li>
-                <li><a href="reports.html"><i class="fas fa-file-alt"></i> Reports</a></li>
-                <li><a href="analytics.html"><i class="fas fa-chart-line"></i> Analytics</a></li>
-                <li><a href="system-settings.html" class="active"><i class="fas fa-cog"></i>System Settings</a></li>
+                <li><a href="/student_dashboard"><i class="fas fa-home"></i> Dashboard</a></li>
+                <li><a href="/student_clubs"><i class="fas fa-users"></i> My Clubs</a></li>
+                <li><a href="/student_events"><i class="fas fa-calendar-alt"></i> Events</a></li>
+                <!-- <li><a href="/student_rewards" ><i class="fas fa-trophy"></i> Rewards</a></li> -->
+                <li><a href="/student_analytics"><i class="fas fa-chart-line"></i> Analytics</a></li>
+                <li><a href="/student_settings" class="active"><i class="fas fa-cog"></i> Settings</a></li>
             </ul>
             <div class="user-profile">
                 <div class="user-avatar" id="userAvatar">SA</div>
@@ -731,10 +729,10 @@
                     <p>Manage your profile and account settings.</p>
                 </div>
                 <div class="dashboard-actions">
-                    <div class="notification-icon">
+                    <!-- <div class="notification-icon">
                         <i class="fas fa-bell"></i>
                         <span class="notification-badge" id="notificationCount">0</span>
-                    </div>
+                    </div> -->
                     <button class="btn btn-secondary" id="logoutBtn">
                         <i class="fas fa-sign-out-alt"></i> Logout
                     </button>
@@ -983,31 +981,15 @@
         document.addEventListener('DOMContentLoaded', function() {
             // Check if user is logged in
             const token = localStorage.getItem('token');
-            const user = JSON.parse(localStorage.getItem('user') || '{}');
+            let user = JSON.parse(localStorage.getItem('user') || '{}');
             
             if (!token) {
                 window.location.href = '/login';
                 return;
             }
             
-            // Update user profile in sidebar
-            const userAvatar = document.getElementById('userAvatar');
-            const userName = document.getElementById('userName');
-            const userRole = document.getElementById('userRole');
-            
-            // Set user initials for avatar
-            if (user.name) {
-                const initials = user.name.split(' ').map(n => n[0]).join('').toUpperCase();
-                userAvatar.textContent = initials;
-                userName.textContent = user.name;
-            }
-            
-            // Set user role
-            if (user.role) {
-                userRole.textContent = user.role === 'admin' ? 'System Administrator' : 
-                                         user.role === 'faculty' ? 'Faculty Coordinator' :
-                                         user.role === 'clubLeader' ? 'Club Leader' : 'Student';
-            }
+            // Initial sidebar update from localStorage (fallback)
+            updateSidebar(user);
             
             // Mobile menu toggle
             const mobileMenuToggle = document.getElementById('mobileMenuToggle');
@@ -1100,6 +1082,37 @@
                 }
             }
             
+           // UPDATED: Function to update sidebar with user data (now uses systemRole)
+function updateSidebar(userData) {
+    const userAvatar = document.getElementById('userAvatar');
+    const userName = document.getElementById('userName');
+    const userRole = document.getElementById('userRole');
+    
+    // Update name and avatar initials
+    if (userData.name) {
+        userName.textContent = userData.name;
+        const initials = userData.name.split(' ').map(n => n[0]).join('').toUpperCase();
+        userAvatar.innerHTML = `<span>${initials}</span>`; // Use span for fallback
+    } else {
+        userName.textContent = 'Loading...';
+        userAvatar.innerHTML = '<span>SA</span>'; // Default fallback
+    }
+    
+    // UPDATED: Use systemRole (with mapping)
+    if (userData.systemRole) {
+        const roleMap = {
+            'admin': 'System Administrator',
+            'faculty': 'Faculty Coordinator',
+            'clubLeader': 'Club Leader',
+            'student': 'Student' // Explicit default
+        };
+        userRole.textContent = roleMap[userData.systemRole] || 'Student';
+    } else {
+        userRole.textContent = 'Loading...'; // Avoid blind default
+    }
+    
+    console.log('Sidebar updated with:', userData); // Debug log
+} 
             // Profile settings form submission
             document.getElementById('profileSettingsForm').addEventListener('submit', async function(e) {
                 e.preventDefault();
@@ -1127,18 +1140,13 @@
                     const data = await response.json();
                     
                     if (response.ok) {
-                        // Update user info in localStorage
-                        const updatedUser = { ...user, name, username, department, bio };
-                        localStorage.setItem('user', JSON.stringify(updatedUser));
+                        // Update localStorage and user object
+                        user = { ...user, name, username, department, bio };
+                        localStorage.setItem('user', JSON.stringify(user));
                         
-                        // Update profile display
+                        // Update displays (main + sidebar)
                         document.getElementById('profileName').textContent = name;
-                        document.getElementById('userName').textContent = name;
-                        
-                        // Update avatar initials if name changed
-                        const initials = name.split(' ').map(n => n[0]).join('').toUpperCase();
-                        document.getElementById('profileAvatarText').textContent = initials;
-                        document.getElementById('userAvatar').textContent = initials;
+                        updateSidebar(user); // Sync sidebar
                         
                         // Show success message
                         showProfileAlert('Profile updated successfully!', 'success');
@@ -1246,57 +1254,69 @@
                 }
             });
             
-            // Fetch user profile data
-            async function fetchUserProfile() {
-                try {
-                    const response = await fetch('/api/users/profile', {
-                        headers: {
-                            'Authorization': `Bearer ${token}`
-                        }
-                    });
-                    
-                    if (!response.ok) {
-                        const errorData = await response.json();
-                        throw new Error(errorData.message || `Failed to fetch user profile: ${response.status}`);
-                    }
-                    
-                    const userProfile = await response.json();
-                    
-                    // Update profile display
-                    document.getElementById('profileName').textContent = userProfile.name || 'Unknown';
-                    document.getElementById('profileRole').textContent = userProfile.role === 'admin' ? 'System Administrator' : 
-                                                              userProfile.role === 'faculty' ? 'Faculty Coordinator' :
-                                                              userProfile.role === 'clubLeader' ? 'Club Leader' : 'Student';
-                    
-                    // Update profile form
-                    document.getElementById('profileNameInput').value = userProfile.name || '';
-                    document.getElementById('profileUsernameInput').value = userProfile.username || '';
-                    document.getElementById('profileDepartmentInput').value = userProfile.department || '';
-                    document.getElementById('profileBioInput').value = userProfile.bio || '';
-                    
-                    // Update profile avatar
-                    const profileAvatarText = document.getElementById('profileAvatarText');
-                    if (userProfile.name) {
-                        const initials = userProfile.name.split(' ').map(n => n[0]).join('').toUpperCase();
-                        profileAvatarText.textContent = initials;
-                    }
-                    
-                    // If user has an avatar image, display it
-                    if (userProfile.avatar) {
-                        const profileAvatar = document.getElementById('profileAvatar');
-                        profileAvatar.innerHTML = `<img src="${userProfile.avatar}" alt="Profile Avatar">`;
-                    }
-                } catch (error) {
-                    console.error('Error fetching user profile:', error);
-                    // Show error message in profile section
-                    document.getElementById('profileName').textContent = 'Error loading profile';
-                    document.getElementById('profileRole').textContent = error.message || 'Please try again later';
-                    
-                    // Show error alert
-                    showProfileAlert(error.message || 'Error loading profile. Please try again later.', 'danger');
-                }
+           // UPDATED: Fetch user profile data (now uses systemRole)
+async function fetchUserProfile() {
+    try {
+        const response = await fetch('/api/users/profile', {
+            headers: {
+                'Authorization': `Bearer ${token}`
             }
-            
+        });
+        
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.message || `Failed to fetch user profile: ${response.status}`);
+        }
+        
+        const userProfile = await response.json();
+        console.log('Fetched user profile:', userProfile); // Debug log
+        
+        // Sync localStorage with fetched data
+        user = { ...user, ...userProfile };
+        localStorage.setItem('user', JSON.stringify(user));
+        
+        // Update main profile display (UPDATED: use systemRole)
+        document.getElementById('profileName').textContent = userProfile.name || 'Unknown';
+        document.getElementById('profileRole').textContent = userProfile.systemRole === 'admin' ? 'System Administrator' : 
+                                                          userProfile.systemRole === 'faculty' ? 'Faculty Coordinator' :
+                                                          userProfile.systemRole === 'clubLeader' ? 'Club Leader' : 'Student';
+        
+        // Update profile form
+        document.getElementById('profileNameInput').value = userProfile.name || '';
+        document.getElementById('profileUsernameInput').value = userProfile.username || '';
+        document.getElementById('profileDepartmentInput').value = userProfile.department || '';
+        document.getElementById('profileBioInput').value = userProfile.bio || '';
+        
+        // Update profile avatar
+        const profileAvatar = document.getElementById('profileAvatar');
+        const profileAvatarText = document.getElementById('profileAvatarText');
+        if (userProfile.name) {
+            const initials = userProfile.name.split(' ').map(n => n[0]).join('').toUpperCase();
+            profileAvatarText.textContent = initials;
+        }
+        
+        // If user has an avatar image, display it
+        if (userProfile.avatar) {
+            profileAvatar.innerHTML = `<img src="${userProfile.avatar}" alt="Profile Avatar">`;
+        } else {
+            profileAvatar.innerHTML = `<span id="profileAvatarText">${profileAvatarText.textContent}</span>`;
+        }
+        
+        // Sync sidebar with fetched data
+        updateSidebar(userProfile);
+        
+    } catch (error) {
+        console.error('Error fetching user profile:', error);
+        // Keep "Loading..." in sidebar if fetch fails
+        updateSidebar({ name: null, systemRole: null }); // UPDATED: use systemRole
+        // Show error message in profile section
+        document.getElementById('profileName').textContent = 'Error loading profile';
+        document.getElementById('profileRole').textContent = error.message || 'Please try again later';
+        
+        // Show error alert
+        showProfileAlert(error.message || 'Error loading profile. Please try again later.', 'danger');
+    }
+}         
             // Initial data fetch
             fetchUserProfile();
         });

@@ -6,38 +6,55 @@ const User = require('../models/User');
 // Get user analytics
 router.get('/analytics', protect, async (req, res) => {
     try {
+        console.log(`Fetching analytics for user ID: ${req.user.id}`); // Debug log
+        
         const user = await User.findById(req.user.id)
-            .populate('clubs._id', 'name')
+            .populate('clubs._id', 'name')  // Populate nested club refs
             .populate('eventsAttended', 'title date')
-            .populate('rewards', 'name points date');
+            .populate('rewards', 'name points date')
+            .lean();  // Use lean() for faster queries
         
         if (!user) {
+            console.error('User not found for ID:', req.user.id);
             return res.status(404).json({ message: 'User not found' });
         }
         
-        // Get clubs joined count
-        const clubsJoined = user.clubs ? user.clubs.length : 0;
+        console.log('User clubs data:', user.clubs); // Debug: Log raw clubs array
+        
+        // Safely calculate clubs joined (handle non-array edge cases)
+        let clubsJoined = 0;
+        if (Array.isArray(user.clubs) && user.clubs.length > 0) {
+            clubsJoined = user.clubs.length;
+        } else if (user.club) {  // Fallback to legacy single club
+            clubsJoined = 1;
+        }
         
         // Get events attended count
-        const eventsAttended = user.eventsAttended ? user.eventsAttended.length : 0;
+        const eventsAttended = Array.isArray(user.eventsAttended) ? user.eventsAttended.length : 0;
         
         // Get reward points
         const rewardPoints = user.points || 0;
         
-        // Calculate average rating
-        const averageRating = user.ratings && user.ratings.length > 0 
-            ? (user.getAverageRating()).toFixed(1) 
-            : '0.0';
+        // Calculate average rating (ensure ratings is array)
+        let averageRating = '0.0';
+        if (Array.isArray(user.ratings) && user.ratings.length > 0) {
+            const sum = user.ratings.reduce((total, rating) => total + (rating.value || 0), 0);
+            averageRating = (sum / user.ratings.length).toFixed(1);
+        }
         
-        res.json({
+        const analyticsData = {
             clubsJoined,
             eventsAttended,
             rewardPoints,
             averageRating
-        });
+        };
+        
+        console.log('Analytics response:', analyticsData); // Debug log
+        
+        res.json(analyticsData);
     } catch (error) {
-        console.error('Error fetching user analytics:', error);
-        res.status(500).json({ message: 'Server Error' });
+        console.error('Error fetching user analytics:', error); // Enhanced logging
+        res.status(500).json({ message: 'Server Error', details: error.message }); // Expose details for debugging
     }
 });
 

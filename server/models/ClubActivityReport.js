@@ -1,13 +1,17 @@
+// models/ClubActivityReport.js
 const mongoose = require('mongoose');
 
 const ClubActivityReportSchema = new mongoose.Schema({
   title: {
     type: String,
-    required: true
+    required: [true, 'Please provide a report title'],
+    trim: true,
+    maxlength: [100, 'Title cannot be more than 100 characters']
   },
   description: {
     type: String,
-    required: true
+    required: [true, 'Please provide a description'],
+    trim: true
   },
   club: {
     type: mongoose.Schema.Types.ObjectId,
@@ -16,7 +20,7 @@ const ClubActivityReportSchema = new mongoose.Schema({
   },
   type: {
     type: String,
-    required: true,
+    required: [true, 'Please specify the report type'],
     enum: ['event', 'monthly', 'annual', 'financial']
   },
   submittedBy: {
@@ -40,21 +44,26 @@ const ClubActivityReportSchema = new mongoose.Schema({
   approvedDate: {
     type: Date
   },
-  rejectedReason: {
-    type: String
-  },
   content: {
-    type: String,
-    required: true
+    type: String, // Stored as JSON string
+    default: null
   },
   attachments: [{
-    filename: String,
-    path: String,
-    mimetype: String,
-    size: Number
+    filename: {
+      type: String,
+      required: true
+    },
+    path: {
+      type: String,
+      required: true
+    },
+    mimetype: {
+      type: String
+    },
+    size: {
+      type: Number
+    }
   }]
-}, {
-  timestamps: true
 });
 
 module.exports = mongoose.model('ClubActivityReport', ClubActivityReportSchema);

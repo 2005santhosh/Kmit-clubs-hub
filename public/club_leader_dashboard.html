@@ -893,11 +893,11 @@
                     <h3 id="pendingApprovals">-</h3>
                     <p>Pending Approvals</p>
                 </div>
-                <div class="stat-card">
+                <!-- <div class="stat-card">
                     <i class="fas fa-star"></i>
                     <h3 id="clubRating">-</h3>
                     <p>Club Rating</p>
-                </div>
+                </div> -->
             </div>
 
             <!-- Create Event -->
@@ -986,335 +986,401 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-    <script>
-        // API base URL
-        const API_URL = '/api';
-        let clubId = '';
-        let userData = {};
+<script>
+    // API base URL
+    const API_URL = '/api';
+    let clubId = '';
+    let userData = {};
 
-        // Check if user is logged in
-        document.addEventListener('DOMContentLoaded', function() {
-            // Check for token in localStorage
-            const token = localStorage.getItem('token');
-            if (!token) {
-                window.location.href = '/login';
-                return;
-            }
+    // Check if user is logged in
+    document.addEventListener('DOMContentLoaded', function() {
+        // Check for token in localStorage
+        const token = localStorage.getItem('token');
+        if (!token) {
+            window.location.href = '/login';
+            return;
+        }
+        
+        // Set up axios default headers
+        axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+        
+        // Initialize dashboard
+        initializeDashboard();
+        
+        // Set up mobile menu toggle
+        setupMobileMenu();
+        
+        // Set up notification dropdown
+        setupNotificationDropdown();
+    });
+
+    // Initialize dashboard with data fetching
+    async function initializeDashboard() {
+        try {
+            showLoading(true);
+            hideError();
             
-            // Set up axios default headers
-            axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+            // Fetch user data
+            userData = await fetchUserData();
+            updateUserInterface(userData);
             
-            // Initialize dashboard
-            initializeDashboard();
-            
-            // Set up mobile menu toggle
-            setupMobileMenu();
-            
-            // Set up notification dropdown
-            setupNotificationDropdown();
-        });
-
-        // Initialize dashboard with data fetching
-        async function initializeDashboard() {
-            try {
-                showLoading(true);
-                hideError();
+            // FIXED: Get club ID from clubs array (extract string _id from populated Club doc)
+            if (userData.clubs && userData.clubs.length > 0 && userData.clubs[0]._id && userData.clubs[0]._id._id) {
+                clubId = userData.clubs[0]._id._id.toString();
                 
-                // Fetch user data
-                userData = await fetchUserData();
-                updateUserInterface(userData);
+                // Fetch club data for members and stats
+                const clubResponse = await fetchClubData(clubId);
+                const club = clubResponse.data;
                 
-                // Get club ID from user data
-                if (userData.club && userData.club._id) {
-                    clubId = userData.club._id;
-                    
-                    // Fetch dashboard stats
-                    const statsData = await fetchDashboardStats();
-                    updateStatsCards(statsData);
-                    
-                    // Fetch pending approvals
-                    const approvalsData = await fetchPendingApprovals();
-                    updatePendingApprovals(approvalsData);
-                    
-                    // Fetch recent events
-                    const eventsData = await fetchRecentEvents();
-                    updateRecentEvents(eventsData);
-                    
-                    // Fetch club members
-                    const membersData = await fetchClubMembers(clubId);
-                    updateClubMembers(membersData);
-                } else {
-                    // User is not associated with a club
-                    showError('You are not associated with any club. Please contact administrator.');
-                    
-                    // Show empty states for all sections
-                    updateStatsCards({
-                        totalMembers: 0,
-                        totalEvents: 0,
-                        pendingApprovals: 0,
-                        clubRating: 0
-                    });
-                    
-                    updatePendingApprovals([]);
-                    updateRecentEvents([]);
-                    updateClubMembers([]);
-                    
-                    // Disable quick action buttons
-                    document.querySelectorAll('.btn-primary, .btn-success, .btn-warning').forEach(btn => {
-                        btn.disabled = true;
-                        btn.style.opacity = '0.5';
-                        btn.style.cursor = 'not-allowed';
-                    });
-                }
+                // Compute stats from club data
+                const statsData = {
+                    totalMembers: club.members ? club.members.length : 0,
+                    totalEvents: club.events ? club.events.length : 0,
+                    pendingApprovals: 0, // Will be fetched separately
+                };
+                updateStatsCards(statsData);
                 
-                // Fetch notifications
-                fetchNotifications();
+                // Fetch pending approvals count separately
+                const pendingCount = await fetchPendingCount(clubId);
+                statsData.pendingApprovals = pendingCount;
+                updateStatsCards(statsData);
                 
-            } catch (error) {
-                console.error('Error initializing dashboard:', error);
-                const errorMessage = error.response?.data?.message || 'Failed to load dashboard data. Please try again later.';
-                showError(errorMessage);
+                // Fetch pending approvals
+                const approvalsData = await fetchPendingApprovals(clubId);
+                updatePendingApprovals(approvalsData);
                 
-                // If unauthorized, redirect to login
-                if (error.response && error.response.status === 401) {
-                    localStorage.removeItem('token');
-                    window.location.href = '/login';
-                }
-            } finally {
-                showLoading(false);
-            }
-        }
-
-        // Show/hide loading spinner
-        function showLoading(show) {
-            const spinner = document.getElementById('loadingSpinner');
-            if (spinner) {
-                spinner.style.display = show ? 'block' : 'none';
-            }
-        }
-
-        // Show/hide error message
-        function showError(message) {
-            const errorElement = document.getElementById('errorMessage');
-            if (errorElement) {
-                errorElement.textContent = message;
-                errorElement.style.display = 'block';
-            }
-        }
-
-        function hideError() {
-            const errorElement = document.getElementById('errorMessage');
-            if (errorElement) {
-                errorElement.style.display = 'none';
-            }
-        }
-
-        // Show success message
-        function showSuccess(message) {
-            const successElement = document.getElementById('successMessage');
-            if (successElement) {
-                successElement.textContent = message;
-                successElement.style.display = 'block';
+                // Fetch recent events
+                const eventsData = await fetchRecentEvents(clubId);
+                updateRecentEvents(eventsData);
                 
-                // Auto hide after 5 seconds
-                setTimeout(() => {
-                    successElement.style.display = 'none';
-                }, 5000);
-            }
-        }
-
-        // Fetch user data
-        async function fetchUserData() {
-            try {
-                const response = await axios.get(`${API_URL}/auth/me`);
-                return response.data;
-            } catch (error) {
-                throw error;
-            }
-        }
-
-        // Fetch dashboard statistics
-        async function fetchDashboardStats() {
-            try {
-                const response = await axios.get(`${API_URL}/dashboard/stats`);
-                return response.data;
-            } catch (error) {
-                console.error('Error fetching dashboard stats:', error);
-                // Return default values if there's an error
-                return {
+                // FIXED: Use flat members endpoint for display (to get clean {name: 'Real Name'} structure)
+                const members = await fetchClubMembers(clubId);
+                updateClubMembers(members);
+            } else {
+                // User is not associated with a club
+                showError('You are not associated with any club. Please contact administrator.');
+                
+                // Show empty states for all sections
+                updateStatsCards({
                     totalMembers: 0,
                     totalEvents: 0,
                     pendingApprovals: 0,
-                    clubRating: 0
-                };
+                });
+                
+                updatePendingApprovals([]);
+                updateRecentEvents([]);
+                updateClubMembers([]);
+                
+                // Disable quick action buttons
+                document.querySelectorAll('.btn-primary, .btn-success, .btn-warning').forEach(btn => {
+                    btn.disabled = true;
+                    btn.style.opacity = '0.5';
+                    btn.style.cursor = 'not-allowed';
+                });
             }
-        }
-
-        // Fetch pending approvals
-        async function fetchPendingApprovals() {
-            try {
-                const response = await axios.get(`${API_URL}/dashboard/pending-approvals`);
-                return response.data;
-            } catch (error) {
-                console.error('Error fetching pending approvals:', error);
-                return [];
+            
+            // Fetch notifications
+            fetchNotifications();
+            
+        } catch (error) {
+            console.error('Error initializing dashboard:', error);
+            const status = error.response?.status;
+            const msg = error.response?.data?.message || 'Failed to load dashboard data. Please try again later.';
+            
+            if (status === 401) {
+              localStorage.removeItem('token');
+              localStorage.removeItem('user');
+              window.location.href = '/login?error=auth';
+            } else {
+              showError(msg);  // Non-401 errors just show message
             }
+        } finally {
+            showLoading(false);
         }
+    }
 
-        // Fetch recent events
-        async function fetchRecentEvents() {
-            try {
-                const response = await axios.get(`${API_URL}/dashboard/recent-events`);
-                return response.data;
-            } catch (error) {
-                console.error('Error fetching recent events:', error);
-                return [];
+    // Show/hide loading spinner
+    function showLoading(show) {
+        const spinner = document.getElementById('loadingSpinner');
+        if (spinner) {
+            spinner.style.display = show ? 'block' : 'none';
+        }
+    }
+
+    // Show/hide error message
+    function showError(message) {
+        const errorElement = document.getElementById('errorMessage');
+        if (errorElement) {
+            errorElement.textContent = message;
+            errorElement.style.display = 'block';
+        }
+    }
+
+    function hideError() {
+        const errorElement = document.getElementById('errorMessage');
+        if (errorElement) {
+            errorElement.style.display = 'none';
+        }
+    }
+
+    // Show success message
+    function showSuccess(message) {
+        const successElement = document.getElementById('successMessage');
+        if (successElement) {
+            successElement.textContent = message;
+            successElement.style.display = 'block';
+            
+            // Auto hide after 5 seconds
+            setTimeout(() => {
+                successElement.style.display = 'none';
+            }, 5000);
+        }
+    }
+
+    // Fetch user data
+    async function fetchUserData() {
+        try {
+            const response = await axios.get(`${API_URL}/auth/me`);
+            return response.data;
+        } catch (error) {
+            console.error('Error fetching user data:', error);
+            const status = error.response?.status;
+            const msg = error.response?.data?.message || 'Failed to fetch user data';
+            
+            if (status === 401) {
+              localStorage.removeItem('token');
+              localStorage.removeItem('user');
+              window.location.href = '/login?error=auth';
             }
+            throw error;  // Re-throw for upper catch
         }
+    }
 
-       // Fetch club members
+    // FIXED: Fetch club data using existing /api/clubs/:id endpoint
+    async function fetchClubData(clubId) {
+        try {
+            const response = await axios.get(`${API_URL}/clubs/${clubId}`);
+            return response;
+        } catch (error) {
+            console.error('Error fetching club data:', error);
+            const status = error.response?.status;
+            if (status === 401) {
+              localStorage.removeItem('token');
+              localStorage.removeItem('user');
+              window.location.href = '/login?error=auth';
+            }
+            throw error;
+        }
+    }
+
+    // FIXED: Fetch pending count using existing /api/events?status=pending&clubId=...
+    async function fetchPendingCount(clubId) {
+        try {
+            const response = await axios.get(`${API_URL}/events?clubId=${clubId}&status=pending`);
+            return response.data.length || 0;
+        } catch (error) {
+            console.error('Error fetching pending count:', error);
+            const status = error.response?.status;
+            if (status === 401) {
+              localStorage.removeItem('token');
+              localStorage.removeItem('user');
+              window.location.href = '/login?error=auth';
+            }
+            return 0;
+        }
+    }
+
+    // FIXED: Fetch pending approvals using existing /api/events?status=pending&clubId=...
+    async function fetchPendingApprovals(clubId) {
+        try {
+            const response = await axios.get(`${API_URL}/events?clubId=${clubId}&status=pending`);
+            return response.data || [];
+        } catch (error) {
+            console.error('Error fetching pending approvals:', error);
+            const status = error.response?.status;
+            if (status === 401) {
+              localStorage.removeItem('token');
+              localStorage.removeItem('user');
+              window.location.href = '/login?error=auth';
+            }
+            return [];
+        }
+    }
+
+    // FIXED: Fetch recent events using existing /api/events?status=approved&clubId=... (limit=5)
+    async function fetchRecentEvents(clubId) {
+        try {
+            const response = await axios.get(`${API_URL}/events?clubId=${clubId}&status=approved&limit=5`);
+            return response.data || [];
+        } catch (error) {
+            console.error('Error fetching recent events:', error);
+            const status = error.response?.status;
+            if (status === 401) {
+              localStorage.removeItem('token');
+              localStorage.removeItem('user');
+              window.location.href = '/login?error=auth';
+            }
+            return [];
+        }
+    }
+
+    // Fetch notifications
+    async function fetchNotifications() {
+        try {
+            const response = await axios.get(`${API_URL}/notifications`);
+            const notifications = response.data || [];
+            
+            updateNotificationList(notifications);
+            updateNotificationBadge(notifications);
+        } catch (error) {
+            console.error('Error fetching notifications:', error);
+            const status = error.response?.status;
+            const msg = error.response?.data?.message || 'Failed to fetch notifications';
+            
+            if (status === 401) {
+              localStorage.removeItem('token');
+              localStorage.removeItem('user');
+              window.location.href = '/login?error=auth';
+            }
+            updateNotificationList([]);
+            updateNotificationBadge([]);
+        }
+    }
+
+    // Update user interface with user data
+    function updateUserInterface(userData) {
+        // Update user name in dashboard header
+        const welcomeMessage = document.getElementById('welcomeMessage');
+        if (welcomeMessage) {
+            welcomeMessage.textContent = `Welcome back, ${userData.name}! Manage your club activities here.`;
+        }
+        
+        // Update user profile in sidebar
+        const userAvatar = document.getElementById('userAvatar');
+        const userName = document.getElementById('userName');
+        const userRole = document.getElementById('userRole');
+        
+        if (userAvatar) {
+            userAvatar.textContent = userData.name.split(' ').map(n => n[0]).join('');
+        }
+        
+        if (userName) {
+            userName.textContent = userData.name;
+        }
+        
+        if (userRole) {
+            // FIXED: Use clubs[0] for club name if populated
+            const clubName = (userData.clubs && userData.clubs[0] && userData.clubs[0]._id && userData.clubs[0]._id.name) ? userData.clubs[0]._id.name : 'No Club';
+            userRole.textContent = `Club Leader - ${clubName}`;
+        }
+    }
+
+    // Update pending approvals section
+    function updatePendingApprovals(pendingItems) {
+        const container = document.getElementById('pendingApprovalsList');
+        
+        if (!container) return;
+        
+        // Clear loading spinner
+        container.innerHTML = '';
+        
+        if (pendingItems.length === 0) {
+            container.innerHTML = '<p>No pending approvals</p>';
+            return;
+        }
+        
+        // Add each pending item to the list
+        pendingItems.forEach(item => {
+            const eventDate = new Date(item.date);
+            const day = eventDate.getDate();
+            const month = eventDate.toLocaleString('default', { month: 'short' });
+            
+            const pendingItem = document.createElement('div');
+            pendingItem.className = 'event-item';
+            pendingItem.innerHTML = `
+                <div class="event-date">
+                    <div class="event-day">${day}</div>
+                    <div class="event-month">${month}</div>
+                </div>
+                <div class="event-info">
+                    <div class="event-name">${item.title}</div>
+                    <div class="event-status pending">Pending Approval</div>
+                </div>
+                <div class="event-actions">
+                    <button class="btn btn-primary" onclick="viewEventDetails('${item._id}')">View Details</button>
+                </div>
+            `;
+            
+            container.appendChild(pendingItem);
+        });
+    }
+
+    // Update recent events section
+    function updateRecentEvents(events) {
+        const container = document.getElementById('recentEventsList');
+        
+        if (!container) return;
+        
+        // Clear loading spinner
+        container.innerHTML = '';
+        
+        if (events.length === 0) {
+            container.innerHTML = '<p>No recent events</p>';
+            return;
+        }
+        
+        // Add each event to the list
+        events.forEach(event => {
+            const eventDate = new Date(event.date);
+            const day = eventDate.getDate();
+            const month = eventDate.toLocaleString('default', { month: 'short' });
+            
+            const eventItem = document.createElement('div');
+            eventItem.className = 'event-item';
+            eventItem.innerHTML = `
+                <div class="event-date">
+                    <div class="event-day">${day}</div>
+                    <div class="event-month">${month}</div>
+                </div>
+                <div class="event-info">
+                    <div class="event-name">${event.title}</div>
+                    <div class="event-status approved">${event.status === 'completed' ? 'Completed' : 'Approved'}</div>
+                </div>
+                <div class="event-actions">
+                    <button class="btn btn-primary" onclick="viewEventDetails('${event._id}')">View Details</button>
+                </div>
+            `;
+            
+            container.appendChild(eventItem);
+        });
+    }
+
+    // Update statistics cards
+    function updateStatsCards(stats) {
+        document.getElementById('totalMembers').textContent = stats.totalMembers || 0;
+        document.getElementById('totalEvents').textContent = stats.totalEvents || 0;
+        document.getElementById('pendingApprovals').textContent = stats.pendingApprovals || 0;
+    }
+
+// FIXED: Use flat /members endpoint (like user management) for clean names
 async function fetchClubMembers(clubId) {
     try {
-        const response = await axios.get(`${API_URL}/clubs/${clubId}`);
-        console.log('Club data:', response.data); // Debug log
-        console.log('Club members:', response.data.members); // Debug log
-        return response.data.members || [];
+        const response = await axios.get(`${API_URL}/clubs/${clubId}/members`);
+        console.log('Flat club members:', response.data.members);  // Debug
+        return response.data.members || [];  // Flat array: [{name: 'Real', ...}]
     } catch (error) {
         console.error('Error fetching club members:', error);
+        const status = error.response?.status;
+        if (status === 401) {
+          localStorage.removeItem('token');
+          localStorage.removeItem('user');
+          window.location.href = '/login?error=auth';
+        }
         return [];
     }
 }
-        // Fetch notifications
-        async function fetchNotifications() {
-            try {
-                const response = await axios.get(`${API_URL}/notifications`);
-                const notifications = response.data || [];
-                
-                updateNotificationList(notifications);
-                updateNotificationBadge(notifications);
-            } catch (error) {
-                updateNotificationList([]);
-                updateNotificationBadge([]);
-            }
-        }
 
-        // Update user interface with user data
-        function updateUserInterface(userData) {
-            // Update user name in dashboard header
-            const welcomeMessage = document.getElementById('welcomeMessage');
-            if (welcomeMessage) {
-                welcomeMessage.textContent = `Welcome back, ${userData.name}! Manage your club activities here.`;
-            }
-            
-            // Update user profile in sidebar
-            const userAvatar = document.getElementById('userAvatar');
-            const userName = document.getElementById('userName');
-            const userRole = document.getElementById('userRole');
-            
-            if (userAvatar) {
-                userAvatar.textContent = userData.name.split(' ').map(n => n[0]).join('');
-            }
-            
-            if (userName) {
-                userName.textContent = userData.name;
-            }
-            
-            if (userRole) {
-                const clubName = userData.club && userData.club.name ? userData.club.name : 'No Club';
-                userRole.textContent = `Club Leader - ${clubName}`;
-            }
-        }
-
-        // Update pending approvals section
-        function updatePendingApprovals(pendingItems) {
-            const container = document.getElementById('pendingApprovalsList');
-            
-            if (!container) return;
-            
-            // Clear loading spinner
-            container.innerHTML = '';
-            
-            if (pendingItems.length === 0) {
-                container.innerHTML = '<p>No pending approvals</p>';
-                return;
-            }
-            
-            // Add each pending item to the list
-            pendingItems.forEach(item => {
-                const eventDate = new Date(item.date);
-                const day = eventDate.getDate();
-                const month = eventDate.toLocaleString('default', { month: 'short' });
-                
-                const pendingItem = document.createElement('div');
-                pendingItem.className = 'event-item';
-                pendingItem.innerHTML = `
-                    <div class="event-date">
-                        <div class="event-day">${day}</div>
-                        <div class="event-month">${month}</div>
-                    </div>
-                    <div class="event-info">
-                        <div class="event-name">${item.title}</div>
-                        <div class="event-status pending">Pending Approval</div>
-                    </div>
-                    <div class="event-actions">
-                        <button class="btn btn-primary" onclick="viewEventDetails('${item._id}')">View Details</button>
-                    </div>
-                `;
-                
-                container.appendChild(pendingItem);
-            });
-        }
-
-        // Update recent events section
-        function updateRecentEvents(events) {
-            const container = document.getElementById('recentEventsList');
-            
-            if (!container) return;
-            
-            // Clear loading spinner
-            container.innerHTML = '';
-            
-            if (events.length === 0) {
-                container.innerHTML = '<p>No recent events</p>';
-                return;
-            }
-            
-            // Add each event to the list
-            events.forEach(event => {
-                const eventDate = new Date(event.date);
-                const day = eventDate.getDate();
-                const month = eventDate.toLocaleString('default', { month: 'short' });
-                
-                const eventItem = document.createElement('div');
-                eventItem.className = 'event-item';
-                eventItem.innerHTML = `
-                    <div class="event-date">
-                        <div class="event-day">${day}</div>
-                        <div class="event-month">${month}</div>
-                    </div>
-                    <div class="event-info">
-                        <div class="event-name">${event.title}</div>
-                        <div class="event-status approved">${event.status === 'completed' ? 'Completed' : 'Approved'}</div>
-                    </div>
-                    <div class="event-actions">
-                        <button class="btn btn-primary" onclick="viewEventDetails('${event._id}')">View Details</button>
-                    </div>
-                `;
-                
-                container.appendChild(eventItem);
-            });
-        }
-
-        // Update statistics cards
-        function updateStatsCards(stats) {
-            document.getElementById('totalMembers').textContent = stats.totalMembers || 0;
-            document.getElementById('totalEvents').textContent = stats.totalEvents || 0;
-            document.getElementById('pendingApprovals').textContent = stats.pendingApprovals || 0;
-            document.getElementById('clubRating').textContent = stats.clubRating || 0;
-        }
-
-       // Update club members section
-function updateClubMembers(members) {
+  function updateClubMembers(members) {
     const container = document.getElementById('clubMembersList');
     
     if (!container) return;
@@ -1322,7 +1388,7 @@ function updateClubMembers(members) {
     // Clear loading spinner
     container.innerHTML = '';
     
-    if (members.length === 0) {
+    if (!members || members.length === 0) {
         container.innerHTML = '<p>No club members</p>';
         return;
     }
@@ -1331,9 +1397,16 @@ function updateClubMembers(members) {
     const displayMembers = members.slice(0, 3);
     
     displayMembers.forEach(member => {
-        // Check if member has user object and name
-        const memberName = member.user ? member.user.name : 'Unknown';
-        const initials = memberName.split(' ').map(n => n[0]).join('');
+        // FIXED: Flat structure - direct member.name (fallback to username if 'Unknown')
+        let memberName = member.name;
+        if (memberName === 'Unknown' && member.username) {
+            memberName = member.username;
+        } else if (!memberName) {
+            memberName = 'Unknown';
+        }
+        
+        // FIXED: Safe initials with fallback
+        const initials = memberName !== 'Unknown' ? memberName.split(' ').map(n => n[0]).join('') : 'U';
         
         const memberItem = document.createElement('div');
         memberItem.className = 'member-item';
@@ -1341,7 +1414,7 @@ function updateClubMembers(members) {
             <div class="member-avatar">${initials}</div>
             <div class="member-info">
                 <div class="member-name">${memberName}</div>
-                <div class="member-role">${member.role || 'Member'}</div>
+                <div class="member-role">${member.clubRole || member.role || 'Member'}</div>
             </div>
             <div class="member-actions">
                 <button class="btn btn-primary" onclick="window.location.href='/leader-user-management'">View</button>
@@ -1351,112 +1424,113 @@ function updateClubMembers(members) {
         container.appendChild(memberItem);
     });
 }
-        // Update notification list
-        function updateNotificationList(notifications) {
-            const notificationList = document.getElementById('notificationList');
-            
-            if (!notificationList) return;
-            
-            // Clear notification list
-            notificationList.innerHTML = '';
-            
-            if (notifications.length === 0) {
-                notificationList.innerHTML = '<div class="notification-empty">No notifications</div>';
-                return;
-            }
-            
-            // Add each notification to the list
-            notifications.forEach(notification => {
-                const notificationDate = new Date(notification.createdAt);
-                const formattedDate = notificationDate.toLocaleDateString();
-                const formattedTime = notificationDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-                
-                const notificationItem = document.createElement('div');
-                notificationItem.className = `notification-item ${notification.isRead ? '' : 'unread'}`;
-                notificationItem.setAttribute('data-id', notification._id);
-                notificationItem.innerHTML = `
-                    <div class="notification-title">${notification.title}</div>
-                    <div class="notification-message">${notification.message}</div>
-                    <div class="notification-time">
-                        <i class="fas fa-clock"></i> ${formattedDate} at ${formattedTime}
-                    </div>
-                `;
-                
-                // Add click event to mark as read
-                notificationItem.addEventListener('click', function() {
-                    if (!notification.isRead) {
-                        markNotificationAsRead(notification._id);
-                    }
-                });
-                
-                notificationList.appendChild(notificationItem);
-            });
+    // Update notification list
+    function updateNotificationList(notifications) {
+        const notificationList = document.getElementById('notificationList');
+        
+        if (!notificationList) return;
+        
+        // Clear notification list
+        notificationList.innerHTML = '';
+        
+        if (notifications.length === 0) {
+            notificationList.innerHTML = '<div class="notification-empty">No notifications</div>';
+            return;
         }
-
-        // Update notification badge
-        function updateNotificationBadge(notifications) {
-            const notificationBadge = document.getElementById('notificationBadge');
+        
+        // Add each notification to the list
+        notifications.forEach(notification => {
+            const notificationDate = new Date(notification.createdAt);
+            const formattedDate = notificationDate.toLocaleDateString();
+            const formattedTime = notificationDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
             
-            if (!notificationBadge) return;
+            const notificationItem = document.createElement('div');
+            notificationItem.className = `notification-item ${notification.isRead ? '' : 'unread'}`;
+            notificationItem.setAttribute('data-id', notification._id);
+            notificationItem.innerHTML = `
+                <div class="notification-title">${notification.title}</div>
+                <div class="notification-message">${notification.message}</div>
+                <div class="notification-time">
+                    <i class="fas fa-clock"></i> ${formattedDate} at ${formattedTime}
+                </div>
+            `;
             
-            // Count unread notifications
-            const unreadCount = notifications.filter(n => !n.isRead).length;
-            
-            if (unreadCount > 0) {
-                notificationBadge.textContent = unreadCount;
-                notificationBadge.style.display = 'flex';
-            } else {
-                notificationBadge.style.display = 'none';
-            }
-        }
-
-        // View event details
-        function viewEventDetails(eventId) {
-            window.location.href = `/leader-events?id=${eventId}`;
-        }
-
-        // Setup mobile menu toggle
-        function setupMobileMenu() {
-            const mobileMenuToggle = document.getElementById('mobileMenuToggle');
-            const sidebar = document.getElementById('sidebar');
-            
-            if (mobileMenuToggle && sidebar) {
-                mobileMenuToggle.addEventListener('click', function() {
-                    sidebar.classList.toggle('active');
-                });
-                
-                // Close sidebar when clicking on a link
-                document.querySelectorAll('.sidebar-menu a').forEach(link => {
-                    link.addEventListener('click', () => {
-                        sidebar.classList.remove('active');
-                    });
-                });
-            }
-        }
-
-        // Setup notification dropdown
-        function setupNotificationDropdown() {
-            const notificationIcon = document.getElementById('notificationIcon');
-            const notificationDropdown = document.getElementById('notificationDropdown');
-            const markAllRead = document.getElementById('markAllRead');
-            
-            // Toggle notification dropdown
-            notificationIcon.addEventListener('click', function(e) {
-                e.stopPropagation();
-                notificationDropdown.classList.toggle('active');
-                
-                // Refresh notifications when dropdown is opened
-                fetchNotifications();
-            });
-            
-            // Close dropdown when clicking outside
-            document.addEventListener('click', function(e) {
-                if (!notificationDropdown.contains(e.target) && !notificationIcon.contains(e.target)) {
-                    notificationDropdown.classList.remove('active');
+            // Add click event to mark as read
+            notificationItem.addEventListener('click', function() {
+                if (!notification.isRead) {
+                    markNotificationAsRead(notification._id);
                 }
             });
             
-            // Mark all as read
+            notificationList.appendChild(notificationItem);
+        });
+    }
+
+    // Update notification badge
+    function updateNotificationBadge(notifications) {
+        const notificationBadge = document.getElementById('notificationBadge');
+        
+        if (!notificationBadge) return;
+        
+        // Count unread notifications
+        const unreadCount = notifications.filter(n => !n.isRead).length;
+        
+        if (unreadCount > 0) {
+            notificationBadge.textContent = unreadCount;
+            notificationBadge.style.display = 'flex';
+        } else {
+            notificationBadge.style.display = 'none';
+        }
+    }
+
+    // View event details
+    function viewEventDetails(eventId) {
+        window.location.href = `/leader-events?id=${eventId}`;
+    }
+
+    // Setup mobile menu toggle
+    function setupMobileMenu() {
+        const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+        const sidebar = document.getElementById('sidebar');
+        
+        if (mobileMenuToggle && sidebar) {
+            mobileMenuToggle.addEventListener('click', function() {
+                sidebar.classList.toggle('active');
+            });
+            
+            // Close sidebar when clicking on a link
+            document.querySelectorAll('.sidebar-menu a').forEach(link => {
+                link.addEventListener('click', () => {
+                    sidebar.classList.remove('active');
+                });
+            });
+        }
+    }
+
+    // Setup notification dropdown
+    function setupNotificationDropdown() {
+        const notificationIcon = document.getElementById('notificationIcon');
+        const notificationDropdown = document.getElementById('notificationDropdown');
+        const markAllRead = document.getElementById('markAllRead');
+        
+        // Toggle notification dropdown
+        notificationIcon.addEventListener('click', function(e) {
+            e.stopPropagation();
+            notificationDropdown.classList.toggle('active');
+            
+            // Refresh notifications when dropdown is opened
+            fetchNotifications();
+        });
+        
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!notificationDropdown.contains(e.target) && !notificationIcon.contains(e.target)) {
+                notificationDropdown.classList.remove('active');
+            }
+        });
+        
+        // Mark all as read
+        if (markAllRead) {
             markAllRead.addEventListener('click', async function() {
                 try {
                     await axios.put(`${API_URL}/notifications/mark-all-read`);
@@ -1465,83 +1539,113 @@ function updateClubMembers(members) {
                     fetchNotifications();
                 } catch (error) {
                     console.error('Error marking all notifications as read:', error);
+                    const status = error.response?.status;
+                    const msg = error.response?.data?.message || 'Failed to mark notifications';
+                    
+                    if (status === 401) {
+                      localStorage.removeItem('token');
+                      localStorage.removeItem('user');
+                      window.location.href = '/login?error=auth';
+                    }
                 }
             });
         }
+    }
 
-        // Mark notification as read
-        async function markNotificationAsRead(notificationId) {
-            try {
-                await axios.put(`${API_URL}/notifications/${notificationId}/read`);
-                
-                // Refresh notifications
-                fetchNotifications();
-            } catch (error) {
-                console.error('Error marking notification as read:', error);
-            }
-        }
-
-        // Open send notification modal
-        function openSendNotificationModal() {
-            const modal = document.getElementById('sendNotificationModal');
-            if (modal) {
-                modal.classList.add('active');
-                // Reset form
-                document.getElementById('sendNotificationForm').reset();
-            }
-        }
-
-        // Close send notification modal
-        function closeSendNotificationModal() {
-            const modal = document.getElementById('sendNotificationModal');
-            if (modal) {
-                modal.classList.remove('active');
-            }
-        }
-
-        // Send notification to club members
-        async function sendNotification() {
-            const title = document.getElementById('notificationTitle').value.trim();
-            const message = document.getElementById('notificationMessage').value.trim();
+    // Mark notification as read
+    async function markNotificationAsRead(notificationId) {
+        try {
+            await axios.put(`${API_URL}/notifications/${notificationId}/read`);
             
-            if (!title || !message) {
-                showError('Please fill in all fields');
-                return;
-            }
+            // Refresh notifications
+            fetchNotifications();
+        } catch (error) {
+            console.error('Error marking notification as read:', error);
+            const status = error.response?.status;
+            const msg = error.response?.data?.message || 'Failed to mark notification';
             
-            try {
-                showLoading(true);
-                
-                // Send notification to all club members
-                await axios.post(`${API_URL}/notifications/send-to-club`, {
-                    clubId: clubId,
-                    title: title,
-                    message: message
-                });
-                
-                // Close modal
-                closeSendNotificationModal();
-                
-                // Show success message
-                showSuccess('Notification sent successfully to all club members');
-                
-                // Refresh notifications
-                fetchNotifications();
-            } catch (error) {
-                console.error('Error sending notification:', error);
-                const errorMsg = error.response?.data?.message || 'Failed to send notification. Please try again.';
-                showError(errorMsg);
-            } finally {
-                showLoading(false);
+            if (status === 401) {
+              localStorage.removeItem('token');
+              localStorage.removeItem('user');
+              window.location.href = '/login?error=auth';
             }
         }
+    }
 
-        // Logout function
-        function logout() {
-            localStorage.removeItem('token');
-            localStorage.removeItem('user');
-            window.location.href = '/login';
+    // Open send notification modal
+    function openSendNotificationModal() {
+        const modal = document.getElementById('sendNotificationModal');
+        if (modal) {
+            modal.classList.add('active');
+            // Reset form
+            document.getElementById('sendNotificationForm').reset();
         }
-    </script>
+    }
+
+    // Close send notification modal
+    function closeSendNotificationModal() {
+        const modal = document.getElementById('sendNotificationModal');
+        if (modal) {
+            modal.classList.remove('active');
+        }
+    }
+
+    // Send notification to club members
+    async function sendNotification() {
+        const title = document.getElementById('notificationTitle').value.trim();
+        const message = document.getElementById('notificationMessage').value.trim();
+        
+        if (!title || !message) {
+            showError('Please fill in all fields');
+            return;
+        }
+        
+        if (!clubId) {
+            showError('No club selected');
+            return;
+        }
+        
+        try {
+            showLoading(true);
+            
+            // Send notification to all club members
+            await axios.post(`${API_URL}/notifications/send-to-club`, {
+                clubId: clubId,
+                title: title,
+                message: message
+            });
+            
+            // Close modal
+            closeSendNotificationModal();
+            
+            // Show success message
+            showSuccess('Notification sent successfully to all club members');
+            
+            // Refresh notifications
+            fetchNotifications();
+        } catch (error) {
+            console.error('Error sending notification:', error);
+            const status = error.response?.status;
+            const errorMsg = error.response?.data?.message || 'Failed to send notification. Please try again.';
+            
+            if (status === 401) {
+              localStorage.removeItem('token');
+              localStorage.removeItem('user');
+              window.location.href = '/login?error=auth';
+            } else {
+              showError(errorMsg);
+            }
+        } finally {
+            showLoading(false);
+        }
+    }
+
+    // Logout function
+    function logout() {
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        window.location.href = '/login';
+    }
+</script>
 </body>
 </html>

@@ -100,8 +100,28 @@ router.get('/', clubController.getClubs);
 // Get clubs monitored by faculty - IMPORTANT: This must come before /:id route
 router.get('/faculty-monitored', protect, faculty, clubController.getFacultyMonitoredClubs);
 
-// Get a club by ID
-router.get('/:id', clubController.getClubById);
+// Get a club by ID - FIXED: Added explicit populate for members._id to fix partial loading
+router.get('/:id', protect, async (req, res) => {
+  try {
+    const club = await Club.findById(req.params.id)
+      .populate('faculty', 'name username systemRole')
+      .populate('leader', 'name username systemRole')
+      .populate({
+        path: 'members._id',
+        select: 'name username systemRole clubRole email joinDate'  // Full populate for members
+      })
+      .populate('events', 'title date status');
+
+    if (!club) {
+      return res.status(404).json({ message: 'Club not found' });
+    }
+
+    res.json(club);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Server Error' });
+  }
+});
 
 // Get a club by ID with full details
 router.get('/:id/full', protect, admin, clubController.getClubByIdFull);

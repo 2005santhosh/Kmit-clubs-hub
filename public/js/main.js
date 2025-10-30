@@ -1,95 +1,68 @@
-     document.addEventListener('DOMContentLoaded', function() {
-            const navToggle = document.getElementById('navToggle');
-            const navMenu = document.getElementById('navMenu');
-            
-            navToggle.addEventListener('click', function() {
-                navMenu.classList.toggle('active');
-                navToggle.classList.toggle('active');
-            });
-            
-            // Close mobile menu when clicking on a link
-            document.querySelectorAll('.nav-link').forEach(link => {
-                link.addEventListener('click', () => {
-                    navMenu.classList.remove('active');
-                    navToggle.classList.remove('active');
-                });
-            });
-            
-            // Active navigation link based on scroll position
-            const sections = document.querySelectorAll('section[id]');
-            const navLinks = document.querySelectorAll('.nav-link');
-            
-            window.addEventListener('scroll', () => {
-                let current = '';
-                
-                sections.forEach(section => {
-                    const sectionTop = section.offsetTop;
-                    if (window.scrollY >= sectionTop - 250) {
-                        current = section.getAttribute('id');
-                    }
-                });
-                
-                navLinks.forEach(link => {
-                    link.classList.remove('active');
-                    if (link.getAttribute('href').includes(current)) {
-                        link.classList.add('active');
-                    }
-                });
-            });
-            
-            // Club data (top 3 clubs by members)
-            const topClubs = [
-                {
-                    id: 8,
-                    name: "Kreeda (Sports Club)",
-                    description: "Promote sportsmanship and physical fitness through various athletic activities and competitions.",
-                    members: 180,
-                    image: "https://images.pexels.com/photos/845987/pexels-photo-845987.jpeg?auto=compress&cs=tinysrgb&w=800"
-                },
-                {
-                    id: 13,
-                    name: "Recurse (Technical Club)",
-                    description: "Dive into the world of technology, coding, and innovation through workshops and projects.",
-                    members: 130,
-                    image: "https://images.pexels.com/photos/5386754/pexels-photo-5386754.jpeg?auto=compress&cs=tinysrgb&w=800"
-                },
-                {
-                    id: 14,
-                    name: "Mudra (Dance Club)",
-                    description: "Express yourself through various dance forms and participate in energetic performances.",
-                    members: 125,
-                    image: "https://images.pexels.com/photos/2647626/pexels-photo-2647626.jpeg?auto=compress&cs=tinysrgb&w=800"
-                }
-            ];
-            
-            // Events data
-            const eventsData = [
-                {
-                    id: 1,
-                    title: "TechFest 2025",
-                    description: "Annual technical festival featuring competitions, workshops, and exhibitions.",
-                    date: "15 March 2025",
-                    club: "Recurse (Technical Club)"
-                },
-                {
-                    id: 2,
-                    title: "Fashion Show",
-                    description: "Annual showcase of latest trends and creative designs by Riti club members.",
-                    date: "22 March 2025",
-                    club: "Riti (Fashion Club)"
-                },
-                {
-                    id: 3,
-                    title: "Community Service Drive",
-                    description: "Join NSS and StreetCause for a day of community service and social impact.",
-                    date: "5 April 2025",
-                    club: "NSS & StreetCause"
-                }
-            ];
-            
-            // Render top clubs
+document.addEventListener('DOMContentLoaded', function() {
+    const navToggle = document.getElementById('navToggle');
+    const navMenu = document.getElementById('navMenu');
+    
+    navToggle.addEventListener('click', function() {
+        navMenu.classList.toggle('active');
+        navToggle.classList.toggle('active');
+    });
+    
+    // Close mobile menu when clicking on a link
+    document.querySelectorAll('.nav-link').forEach(link => {
+        link.addEventListener('click', () => {
+            navMenu.classList.remove('active');
+            navToggle.classList.remove('active');
+        });
+    });
+    
+    // Active navigation link based on scroll position
+    const sections = document.querySelectorAll('section[id]');
+    const navLinks = document.querySelectorAll('.nav-link');
+    
+    window.addEventListener('scroll', () => {
+        let current = '';
+        
+        sections.forEach(section => {
+            const sectionTop = section.offsetTop;
+            if (window.scrollY >= sectionTop - 250) {
+                current = section.getAttribute('id');
+            }
+        });
+        
+        navLinks.forEach(link => {
+            link.classList.remove('active');
+            if (link.getAttribute('href').includes(current)) {
+                link.classList.add('active');
+            }
+        });
+    });
+
+    // Function to load top clubs from backend
+    async function loadClubs() {
+        try {
+            const response = await fetch('/api/clubs');
+            if (!response.ok) {
+                throw new Error('Failed to fetch clubs');
+            }
+            const clubs = await response.json();
+
+            // Sort by members count descending, take top 3
+            const topClubs = clubs
+                .sort((a, b) => (b.members ? b.members.length : 0) - (a.members ? a.members.length : 0))
+                .slice(0, 3);
+
+            // Format for display
+            const formattedClubs = topClubs.map(club => ({
+                id: club._id,
+                name: club.name,
+                description: (club.description || '').substring(0, 100) + '...',
+                members: club.members ? club.members.length : 0,
+                image: club.bannerImage || club.logo || 'https://via.placeholder.com/400x220?text=No+Image'
+            }));
+
+            // Render
             const clubsPreview = document.getElementById('clubsPreview');
-            clubsPreview.innerHTML = topClubs.map(club => `
+            clubsPreview.innerHTML = formattedClubs.map(club => `
                 <div class="club-card" onclick="window.location.href='club-detail.html?id=${club.id}'">
                     <div class="club-image">
                         <img src="${club.image}" alt="${club.name}">
@@ -103,57 +76,102 @@
                     </div>
                 </div>
             `).join('');
-            
-            // Render events
+
+        } catch (error) {
+            console.error('Error loading clubs:', error);
+            const clubsPreview = document.getElementById('clubsPreview');
+            clubsPreview.innerHTML = '<div class="error">Failed to load clubs. Please try again later.</div>';
+        }
+    }
+
+    // Function to load upcoming events from backend
+    async function loadEvents() {
+        try {
+            const response = await fetch('/api/events');
+            if (!response.ok) {
+                throw new Error('Failed to fetch events');
+            }
+            const events = await response.json();
+
+            // Filter upcoming events (use current date dynamically)
+            const now = new Date();
+            const upcoming = events
+                .filter(event => new Date(event.date) > now)
+                .sort((a, b) => new Date(a.date) - new Date(b.date))
+                .slice(0, 3);
+
+            // Format for display
+            const formattedEvents = upcoming.map(event => ({
+                id: event._id,
+                title: event.title,
+                description: (event.description || '').substring(0, 100) + '...',
+                date: event.date,
+                club: event.clubId ? event.clubId.name : 'Unknown Club'
+            }));
+
+            // Render
             const eventsPreview = document.getElementById('eventsPreview');
-            eventsPreview.innerHTML = eventsData.map(event => {
-                const [day, month, year] = event.date.split(' ');
+            eventsPreview.innerHTML = formattedEvents.map(event => {
+                const eventDate = new Date(event.date);
+                const day = eventDate.getDate();
+                const month = eventDate.toLocaleString('default', { month: 'long' });
                 return `
-                <div class="event-card">
-                    <div class="event-date">
-                        <div class="event-day">${day}</div>
-                        <div class="event-month">${month}</div>
-                    </div>
-                    <div class="event-info">
-                        <h3 class="event-title">${event.title}</h3>
-                        <p class="event-description">${event.description}</p>
-                        <div class="event-club">
-                            <i class="fas fa-users"></i> ${event.club}
+                    <div class="event-card" onclick="window.location.href='event-details.html?id=${event.id}'">
+                        <div class="event-date">
+                            <div class="event-day">${day}</div>
+                            <div class="event-month">${month}</div>
+                        </div>
+                        <div class="event-info">
+                            <h3 class="event-title">${event.title}</h3>
+                            <p class="event-description">${event.description}</p>
+                            <div class="event-club">
+                                <i class="fas fa-users"></i> ${event.club}
+                            </div>
                         </div>
                     </div>
-                </div>
                 `;
             }).join('');
-            
-            // Scroll animations
-            const observerOptions = {
-                threshold: 0.1,
-                rootMargin: '0px 0px -100px 0px'
-            };
-            
-            const observer = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        entry.target.classList.add('visible');
-                    }
-                });
-            }, observerOptions);
-            
-            document.querySelectorAll('.fade-in').forEach(el => {
-                observer.observe(el);
-            });
-            
-            // Add smooth scrolling
-            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-                anchor.addEventListener('click', function (e) {
-                    e.preventDefault();
-                    const target = document.querySelector(this.getAttribute('href'));
-                    if (target) {
-                        window.scrollTo({
-                            top: target.offsetTop - 80,
-                            behavior: 'smooth'
-                        });
-                    }
-                });
-            });
+
+        } catch (error) {
+            console.error('Error loading events:', error);
+            const eventsPreview = document.getElementById('eventsPreview');
+            eventsPreview.innerHTML = '<div class="error">Failed to load events. Please try again later.</div>';
+        }
+    }
+    
+    // Load real data on page load
+    loadClubs();
+    loadEvents();
+    
+    // Scroll animations
+    const observerOptions = {
+        threshold: 0.1,
+        rootMargin: '0px 0px -100px 0px'
+    };
+    
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('visible');
+            }
         });
+    }, observerOptions);
+    
+    document.querySelectorAll('.fade-in').forEach(el => {
+        observer.observe(el);
+    });
+    
+    // Add smooth scrolling
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+            e.preventDefault();
+            const target = document.querySelector(this.getAttribute('href'));
+            if (target) {
+                window.scrollTo({
+                    top: target.offsetTop - 80,
+                    behavior: 'smooth'
+                });
+            }
+        });
+    });
+});

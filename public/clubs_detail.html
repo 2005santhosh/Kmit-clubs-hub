@@ -1056,596 +1056,142 @@
             
             // Get club ID from URL
             const urlParams = new URLSearchParams(window.location.search);
-            const clubId = parseInt(urlParams.get('id'));
+            const clubId = urlParams.get('id');
             
-            // All clubs data
-            const clubsData = [
-                {
-                    id: 1,
-                    name: "Riti (Fashion Club)",
-                    description: "Explore the world of fashion, design, and style with creative workshops and shows.",
-                    members: 95,
-                    category: "cultural",
-                    president: "Simran Kaur",
-                    secretary: "Aryan Singh",
-                    facultyCoordinator: "Dr. Pooja Sharma",
-                    established: "2015",
-                    image: "https://images.pexels.com/photos/298863/pexels-photo-298863.jpeg?auto=compress&cs=tinysrgb&w=500",
-                    events: [
-                        { name: "Fashion Show 2024", date: "30 March 2024", description: "Annual showcase of latest trends and creative designs." },
-                        { name: "Design Workshop", date: "20 April 2024", description: "Workshop on fashion design and styling techniques." },
-                        { name: "Sustainable Fashion Talk", date: "15 May 2024", description: "Discussion on eco-friendly fashion practices." }
-                    ],
-                    gallery: [
-                        "https://images.pexels.com/photos/298863/pexels-photo-298863.jpeg?auto=compress&cs=tinysrgb&w=500",
-                        "https://images.pexels.com/photos/298864/pexels-photo-298864.jpeg?auto=compress&cs=tinysrgb&w=500",
-                        "https://images.pexels.com/photos/298865/pexels-photo-298865.jpeg?auto=compress&cs=tinysrgb&w=500"
-                    ],
-                    clubMembers: [
-                        { name: "Simran Kaur", rollNumber: "KMIT401", position: "President", contact: "simran@kmit.edu.in" },
-                        { name: "Aryan Singh", rollNumber: "KMIT402", position: "Secretary", contact: "aryan@kmit.edu.in" },
-                        { name: "Priya Sharma", rollNumber: "KMIT403", position: "Member", contact: "priya@kmit.edu.in" },
-                        { name: "Rahul Verma", rollNumber: "KMIT404", position: "Member", contact: "rahul@kmit.edu.in" },
-                        { name: "Anjali Patel", rollNumber: "KMIT405", position: "Member", contact: "anjali@kmit.edu.in" },
-                        { name: "Vikram Singh", rollNumber: "KMIT406", position: "Member", contact: "vikram@kmit.edu.in" },
-                        { name: "Neha Kumar", rollNumber: "KMIT407", position: "Member", contact: "neha@kmit.edu.in" },
-                        { name: "Rajesh Reddy", rollNumber: "KMIT408", position: "Member", contact: "rajesh@kmit.edu.in" }
-                    ]
-                },
-                {
-                    id: 2,
-                    name: "NSS (Social Service Club)",
-                    description: "Engage in community service and social welfare activities to make a positive impact.",
-                    members: 150,
-                    category: "social",
-                    president: "Deepak Kumar",
-                    secretary: "Sunita Devi",
-                    facultyCoordinator: "Dr. Rajesh Singh",
-                    established: "2010",
-                    image: "https://images.pexels.com/photos/6646904/pexels-photo-6646904.jpeg?auto=compress&cs=tinysrgb&w=500",
-                    events: [
-                        { name: "Blood Donation Camp", date: "5 April 2024", description: "Annual blood donation drive in collaboration with local hospitals." },
-                        { name: "Tree Plantation Drive", date: "20 April 2024", description: "Environmental initiative to plant trees in and around campus." },
-                        { name: "Old Age Home Visit", date: "10 May 2024", description: "Visit to local old age home to spend time with residents." }
-                    ],
-                    gallery: [
-                        "https://images.pexels.com/photos/6646904/pexels-photo-6646904.jpeg?auto=compress&cs=tinysrgb&w=500",
-                        "https://images.pexels.com/photos/6646905/pexels-photo-6646905.jpeg?auto=compress&cs=tinysrgb&w=500",
-                        "https://images.pexels.com/photos/6646906/pexels-photo-6646906.jpeg?auto=compress&cs=tinysrgb&w=500"
-                    ],
-                    clubMembers: [
-                        { name: "Deepak Kumar", rollNumber: "KMIT501", position: "President", contact: "deepak@kmit.edu.in" },
-                        { name: "Sunita Devi", rollNumber: "KMIT502", position: "Secretary", contact: "sunita@kmit.edu.in" },
-                        { name: "Ramesh Singh", rollNumber: "KMIT503", position: "Member", contact: "ramesh@kmit.edu.in" },
-                        { name: "Geeta Sharma", rollNumber: "KMIT504", position: "Member", contact: "geeta@kmit.edu.in" },
-                        { name: "Amit Patel", rollNumber: "KMIT505", position: "Member", contact: "amit@kmit.edu.in" },
-                        { name: "Priya Verma", rollNumber: "KMIT506", position: "Member", contact: "priya@kmit.edu.in" },
-                        { name: "Rahul Kumar", rollNumber: "KMIT507", position: "Member", contact: "rahul@kmit.edu.in" },
-                        { name: "Neha Singh", rollNumber: "KMIT508", position: "Member", contact: "neha@kmit.edu.in" }
-                    ]
-                },
-                {
-                    id: 3,
-                    name: "StreetCause (Social Impact)",
-                    description: "Drive social change through innovative projects and community initiatives.",
-                    members: 75,
-                    category: "social",
-                    president: "Ananya Reddy",
-                    secretary: "Vivek Sharma",
-                    facultyCoordinator: "Dr. Meera Nair",
-                    established: "2017",
-                    image: "https://images.pexels.com/photos/4145350/pexels-photo-4145350.jpeg?auto=compress&cs=tinysrgb&w=500",
-                    events: [
-                        { name: "Cleanliness Drive", date: "8 April 2024", description: "Initiative to clean local areas and promote hygiene." },
-                        { name: "Education for All", date: "22 April 2024", description: "Teaching underprivileged children in nearby communities." },
-                        { name: "Social Innovation Challenge", date: "15 May 2024", description: "Competition to develop solutions for social problems." }
-                    ],
-                    gallery: [
-                        "https://images.pexels.com/photos/4145350/pexels-photo-4145350.jpeg?auto=compress&cs=tinysrgb&w=500",
-                        "https://images.pexels.com/photos/4145351/pexels-photo-4145351.jpeg?auto=compress&cs=tinysrgb&w=500",
-                        "https://images.pexels.com/photos/4145352/pexels-photo-4145352.jpeg?auto=compress&cs=tinysrgb&w=500"
-                    ],
-                    clubMembers: [
-                        { name: "Ananya Reddy", rollNumber: "KMIT601", position: "President", contact: "ananya@kmit.edu.in" },
-                        { name: "Vivek Sharma", rollNumber: "KMIT602", position: "Secretary", contact: "vivek@kmit.edu.in" },
-                        { name: "Priya Singh", rollNumber: "KMIT603", position: "Member", contact: "priya@kmit.edu.in" },
-                        { name: "Rahul Kumar", rollNumber: "KMIT604", position: "Member", contact: "rahul@kmit.edu.in" },
-                        { name: "Neha Patel", rollNumber: "KMIT605", position: "Member", contact: "neha@kmit.edu.in" },
-                        { name: "Amit Verma", rollNumber: "KMIT606", position: "Member", contact: "amit@kmit.edu.in" },
-                        { name: "Sunita Reddy", rollNumber: "KMIT607", position: "Member", contact: "sunita@kmit.edu.in" },
-                        { name: "Rajesh Sharma", rollNumber: "KMIT608", position: "Member", contact: "rajesh@kmit.edu.in" }
-                    ]
-                },
-                {
-                    id: 4,
-                    name: "Rotaract (Community Service)",
-                    description: "Part of a global organization dedicated to community service and leadership development.",
-                    members: 110,
-                    category: "social",
-                    president: "Kavita Menon",
-                    secretary: "Rajesh Nair",
-                    facultyCoordinator: "Dr. Suresh Patel",
-                    established: "2012",
-                    image: "https://images.pexels.com/photos/853489/pexels-photo-853489.jpeg?auto=compress&cs=tinysrgb&w=500",
-                    events: [
-                        { name: "Community Health Camp", date: "12 April 2024", description: "Free health check-up camp for local community members." },
-                        { name: "Leadership Workshop", date: "25 April 2024", description: "Workshop to develop leadership skills among students." },
-                        { name: "International Service Project", date: "20 May 2024", description: "Collaborative project with Rotaract clubs from other countries." }
-                    ],
-                    gallery: [
-                        "https://images.pexels.com/photos/853489/pexels-photo-853489.jpeg?auto=compress&cs=tinysrgb&w=500",
-                        "https://images.pexels.com/photos/853490/pexels-photo-853490.jpeg?auto=compress&cs=tinysrgb&w=500",
-                        "https://images.pexels.com/photos/853491/pexels-photo-853491.jpeg?auto=compress&cs=tinysrgb&w=500"
-                    ],
-                    clubMembers: [
-                        { name: "Kavita Menon", rollNumber: "KMIT701", position: "President", contact: "kavita@kmit.edu.in" },
-                        { name: "Rajesh Nair", rollNumber: "KMIT702", position: "Secretary", contact: "rajesh@kmit.edu.in" },
-                        { name: "Anil Sharma", rollNumber: "KMIT703", position: "Member", contact: "anil@kmit.edu.in" },
-                        { name: "Priya Singh", rollNumber: "KMIT704", position: "Member", contact: "priya@kmit.edu.in" },
-                        { name: "Rahul Kumar", rollNumber: "KMIT705", position: "Member", contact: "rahul@kmit.edu.in" },
-                        { name: "Neha Patel", rollNumber: "KMIT706", position: "Member", contact: "neha@kmit.edu.in" },
-                        { name: "Vivek Reddy", rollNumber: "KMIT707", position: "Member", contact: "vivek@kmit.edu.in" },
-                        { name: "Sunita Verma", rollNumber: "KMIT708", position: "Member", contact: "sunita@kmit.edu.in" }
-                    ]
-                },
-                {
-                    id: 5,
-                    name: "Kaivalya (Yoga Club)",
-                    description: "Promote physical and mental well-being through yoga and meditation practices.",
-                    members: 65,
-                    category: "cultural",
-                    president: "Swati Iyer",
-                    secretary: "Ramesh Kumar",
-                    facultyCoordinator: "Dr. Anjali Sharma",
-                    established: "2016",
-                    image: "https://images.pexels.com/photos/3822920/pexels-photo-3822920.jpeg?auto=compress&cs=tinysrgb&w=500",
-                    events: [
-                        { name: "International Yoga Day", date: "21 June 2024", description: "Special yoga session to celebrate International Yoga Day." },
-                        { name: "Meditation Retreat", date: "15 April 2024", description: "Weekend retreat focused on meditation and mindfulness." },
-                        { name: "Yoga Workshop", date: "5 May 2024", description: "Workshop on advanced yoga techniques and practices." }
-                    ],
-                    gallery: [
-                        "https://images.pexels.com/photos/3822920/pexels-photo-3822920.jpeg?auto=compress&cs=tinysrgb&w=500",
-                        "https://images.pexels.com/photos/3822921/pexels-photo-3822921.jpeg?auto=compress&cs=tinysrgb&w=500",
-                        "https://images.pexels.com/photos/3822922/pexels-photo-3822922.jpeg?auto=compress&cs=tinysrgb&w=500"
-                    ],
-                    clubMembers: [
-                        { name: "Swati Iyer", rollNumber: "KMIT801", position: "President", contact: "swati@kmit.edu.in" },
-                        { name: "Ramesh Kumar", rollNumber: "KMIT802", position: "Secretary", contact: "ramesh@kmit.edu.in" },
-                        { name: "Priya Sharma", rollNumber: "KMIT803", position: "Member", contact: "priya@kmit.edu.in" },
-                        { name: "Rahul Singh", rollNumber: "KMIT804", position: "Member", contact: "rahul@kmit.edu.in" },
-                        { name: "Neha Patel", rollNumber: "KMIT805", position: "Member", contact: "neha@kmit.edu.in" },
-                        { name: "Amit Verma", rollNumber: "KMIT806", position: "Member", contact: "amit@kmit.edu.in" },
-                        { name: "Sunita Reddy", rollNumber: "KMIT807", position: "Member", contact: "sunita@kmit.edu.in" },
-                        { name: "Rajesh Kumar", rollNumber: "KMIT808", position: "Member", contact: "rajesh@kmit.edu.in" }
-                    ]
-                },
-                {
-                    id: 6,
-                    name: "PR (Public Relations)",
-                    description: "Develop communication skills and manage public image for college events and activities.",
-                    members: 55,
-                    category: "technical",
-                    president: "Meera Reddy",
-                    secretary: "Vikram Singh",
-                    facultyCoordinator: "Dr. Pooja Nair",
-                    established: "2018",
-                    image: "https://images.pexels.com/photos/3184418/pexels-photo-3184418.jpeg?auto=compress&cs=tinysrgb&w=500",
-                    events: [
-                        { name: "Media Workshop", date: "10 April 2024", description: "Workshop on media relations and public speaking." },
-                        { name: "College Fest Promotion", date: "25 April 2024", description: "Promotional activities for annual college fest." },
-                        { name: "Press Conference", date: "15 May 2024", description: "Organizing press conference for college announcements." }
-                    ],
-                    gallery: [
-                        "https://images.pexels.com/photos/3184418/pexels-photo-3184418.jpeg?auto=compress&cs=tinysrgb&w=500",
-                        "https://images.pexels.com/photos/3184419/pexels-photo-3184419.jpeg?auto=compress&cs=tinysrgb&w=500",
-                        "https://images.pexels.com/photos/3184420/pexels-photo-3184420.jpeg?auto=compress&cs=tinysrgb&w=500"
-                    ],
-                    clubMembers: [
-                        { name: "Meera Reddy", rollNumber: "KMIT901", position: "President", contact: "meera@kmit.edu.in" },
-                        { name: "Vikram Singh", rollNumber: "KMIT902", position: "Secretary", contact: "vikram@kmit.edu.in" },
-                        { name: "Priya Sharma", rollNumber: "KMIT903", position: "Member", contact: "priya@kmit.edu.in" },
-                        { name: "Rahul Kumar", rollNumber: "KMIT904", position: "Member", contact: "rahul@kmit.edu.in" },
-                        { name: "Neha Patel", rollNumber: "KMIT905", position: "Member", contact: "neha@kmit.edu.in" },
-                        { name: "Amit Verma", rollNumber: "KMIT906", position: "Member", contact: "amit@kmit.edu.in" },
-                        { name: "Sunita Reddy", rollNumber: "KMIT907", position: "Member", contact: "sunita@kmit.edu.in" },
-                        { name: "Rajesh Singh", rollNumber: "KMIT908", position: "Member", contact: "rajesh@kmit.edu.in" }
-                    ]
-                },
-                {
-                    id: 7,
-                    name: "OC (Organising Committee)",
-                    description: "Plan and execute college events, fests, and programs with precision and creativity.",
-                    members: 120,
-                    category: "technical",
-                    president: "Anil Sharma",
-                    secretary: "Priya Singh",
-                    facultyCoordinator: "Dr. Rajesh Verma",
-                    established: "2009",
-                    image: "https://images.pexels.com/photos/3184291/pexels-photo-3184291.jpeg?auto=compress&cs=tinysrgb&w=500",
-                    events: [
-                        { name: "College Fest 2024", date: "30 April 2024", description: "Annual college fest with various cultural and technical events." },
-                        { name: "Freshers Party", date: "15 August 2024", description: "Welcome party for new students." },
-                        { name: "Alumni Meet", date: "20 December 2024", description: "Annual gathering of college alumni." }
-                    ],
-                    gallery: [
-                        "https://images.pexels.com/photos/3184291/pexels-photo-3184291.jpeg?auto=compress&cs=tinysrgb&w=500",
-                        "https://images.pexels.com/photos/3184292/pexels-photo-3184292.jpeg?auto=compress&cs=tinysrgb&w=500",
-                        "https://images.pexels.com/photos/3184293/pexels-photo-3184293.jpeg?auto=compress&cs=tinysrgb&w=500"
-                    ],
-                    clubMembers: [
-                        { name: "Anil Sharma", rollNumber: "KMIT1001", position: "President", contact: "anil@kmit.edu.in" },
-                        { name: "Priya Singh", rollNumber: "KMIT1002", position: "Secretary", contact: "priya@kmit.edu.in" },
-                        { name: "Rahul Kumar", rollNumber: "KMIT1003", position: "Member", contact: "rahul@kmit.edu.in" },
-                        { name: "Neha Patel", rollNumber: "KMIT1004", position: "Member", contact: "neha@kmit.edu.in" },
-                        { name: "Amit Verma", rollNumber: "KMIT1005", position: "Member", contact: "amit@kmit.edu.in" },
-                        { name: "Sunita Reddy", rollNumber: "KMIT1006", position: "Member", contact: "sunita@kmit.edu.in" },
-                        { name: "Rajesh Sharma", rollNumber: "KMIT1007", position: "Member", contact: "rajesh@kmit.edu.in" },
-                        { name: "Priya Verma", rollNumber: "KMIT1008", position: "Member", contact: "priya@kmit.edu.in" }
-                    ]
-                },
-                {
-                    id: 8,
-                    name: "Kreeda (Sports Club)",
-                    description: "Promote sportsmanship and physical fitness through various athletic activities and competitions.",
-                    members: 180,
-                    category: "sports",
-                    president: "Rahul Sharma",
-                    secretary: "Priya Patel",
-                    facultyCoordinator: "Dr. Suresh Kumar",
-                    established: "2010",
-                    image: "https://images.pexels.com/photos/845987/pexels-photo-845987.jpeg?auto=compress&cs=tinysrgb&w=500",
-                    events: [
-                        { name: "Annual Sports Meet", date: "15 March 2024", description: "Inter-department sports competition with various athletic events." },
-                        { name: "Cricket Tournament", date: "25 April 2024", description: "Inter-college cricket tournament with teams from across the city." },
-                        { name: "Yoga Workshop", date: "10 May 2024", description: "Special yoga session for physical and mental well-being." }
-                    ],
-                    gallery: [
-                        "https://images.pexels.com/photos/845987/pexels-photo-845987.jpeg?auto=compress&cs=tinysrgb&w=500",
-                        "https://images.pexels.com/photos/159579/cricket-sport-stumps-159579.jpeg?auto=compress&cs=tinysrgb&w=500",
-                        "https://images.pexels.com/photos/46798/the-ball-stadion-football-the-pitch-46798.jpeg?auto=compress&cs=tinysrgb&w=500"
-                    ],
-                    clubMembers: [
-                        { name: "Rahul Sharma", rollNumber: "KMIT101", position: "President", contact: "rahul@kmit.edu.in" },
-                        { name: "Priya Patel", rollNumber: "KMIT102", position: "Secretary", contact: "priya@kmit.edu.in" },
-                        { name: "Amit Singh", rollNumber: "KMIT103", position: "Member", contact: "amit@kmit.edu.in" },
-                        { name: "Neha Gupta", rollNumber: "KMIT104", position: "Member", contact: "neha@kmit.edu.in" },
-                        { name: "Vikram Reddy", rollNumber: "KMIT105", position: "Member", contact: "vikram@kmit.edu.in" },
-                        { name: "Anjali Desai", rollNumber: "KMIT106", position: "Member", contact: "anjali@kmit.edu.in" },
-                        { name: "Rajesh Kumar", rollNumber: "KMIT107", position: "Member", contact: "rajesh@kmit.edu.in" },
-                        { name: "Sunita Verma", rollNumber: "KMIT108", position: "Member", contact: "sunita@kmit.edu.in" }
-                    ]
-                },
-                {
-                    id: 9,
-                    name: "Abhinaya (Drama Club)",
-                    description: "Express creativity through theatrical performances and acting workshops.",
-                    members: 70,
-                    category: "cultural",
-                    president: "Rajesh Nair",
-                    secretary: "Sunita Devi",
-                    facultyCoordinator: "Dr. Anil Menon",
-                    established: "2014",
-                    image: "https://images.pexels.com/photos/2647626/pexels-photo-2647626.jpeg?auto=compress&cs=tinysrgb&w=500",
-                    events: [
-                        { name: "Annual Play", date: "20 April 2024", description: "Theatrical performance by club members." },
-                        { name: "Acting Workshop", date: "10 May 2024", description: "Workshop on acting techniques and stage presence." },
-                        { name: "Street Play", date: "5 June 2024", description: "Street play on social issues." }
-                    ],
-                    gallery: [
-                        "https://images.pexels.com/photos/2647626/pexels-photo-2647626.jpeg?auto=compress&cs=tinysrgb&w=500",
-                        "https://images.pexels.com/photos/2647627/pexels-photo-2647627.jpeg?auto=compress&cs=tinysrgb&w=500",
-                        "https://images.pexels.com/photos/2647628/pexels-photo-2647628.jpeg?auto=compress&cs=tinysrgb&w=500"
-                    ],
-                    clubMembers: [
-                        { name: "Rajesh Nair", rollNumber: "KMIT1101", position: "President", contact: "rajesh@kmit.edu.in" },
-                        { name: "Sunita Devi", rollNumber: "KMIT1102", position: "Secretary", contact: "sunita@kmit.edu.in" },
-                        { name: "Priya Sharma", rollNumber: "KMIT1103", position: "Member", contact: "priya@kmit.edu.in" },
-                        { name: "Rahul Kumar", rollNumber: "KMIT1104", position: "Member", contact: "rahul@kmit.edu.in" },
-                        { name: "Neha Patel", rollNumber: "KMIT1105", position: "Member", contact: "neha@kmit.edu.in" },
-                        { name: "Amit Verma", rollNumber: "KMIT1106", position: "Member", contact: "amit@kmit.edu.in" },
-                        { name: "Sunita Reddy", rollNumber: "KMIT1107", position: "Member", contact: "sunita@kmit.edu.in" },
-                        { name: "Rajesh Singh", rollNumber: "KMIT1108", position: "Member", contact: "rajesh@kmit.edu.in" }
-                    ]
-                },
-                {
-                    id: 10,
-                    name: "Vachan (Speakers Club)",
-                    description: "Enhance public speaking, debating, and presentation skills through regular practice.",
-                    members: 85,
-                    category: "cultural",
-                    president: "Kavita Sharma",
-                    secretary: "Rahul Verma",
-                    facultyCoordinator: "Dr. Meera Iyer",
-                    established: "2013",
-                    image: "https://images.pexels.com/photos/5386754/pexels-photo-5386754.jpeg?auto=compress&cs=tinysrgb&w=500",
-                    events: [
-                        { name: "Debate Competition", date: "15 April 2024", description: "Inter-college debate competition on current topics." },
-                        { name: "Elocution Contest", date: "5 May 2024", description: "Contest to test oratory skills of participants." },
-                        { name: "Public Speaking Workshop", date: "20 May 2024", description: "Workshop to improve public speaking skills." }
-                    ],
-                    gallery: [
-                        "https://images.pexels.com/photos/5386754/pexels-photo-5386754.jpeg?auto=compress&cs=tinysrgb&w=500",
-                        "https://images.pexels.com/photos/5386755/pexels-photo-5386755.jpeg?auto=compress&cs=tinysrgb&w=500",
-                        "https://images.pexels.com/photos/5386756/pexels-photo-5386756.jpeg?auto=compress&cs=tinysrgb&w=500"
-                    ],
-                    clubMembers: [
-                        { name: "Kavita Sharma", rollNumber: "KMIT1201", position: "President", contact: "kavita@kmit.edu.in" },
-                        { name: "Rahul Verma", rollNumber: "KMIT1202", position: "Secretary", contact: "rahul@kmit.edu.in" },
-                        { name: "Priya Singh", rollNumber: "KMIT1203", position: "Member", contact: "priya@kmit.edu.in" },
-                        { name: "Rajesh Kumar", rollNumber: "KMIT1204", position: "Member", contact: "rajesh@kmit.edu.in" },
-                        { name: "Neha Patel", rollNumber: "KMIT1205", position: "Member", contact: "neha@kmit.edu.in" },
-                        { name: "Amit Reddy", rollNumber: "KMIT1206", position: "Member", contact: "amit@kmit.edu.in" },
-                        { name: "Sunita Verma", rollNumber: "KMIT1207", position: "Member", contact: "sunita@kmit.edu.in" },
-                        { name: "Rahul Sharma", rollNumber: "KMIT1208", position: "Member", contact: "rahul@kmit.edu.in" }
-                    ]
-                },
-                {
-                    id: 11,
-                    name: "TOL (Traces of Lens)",
-                    description: "Capture moments and express creativity through the art of photography.",
-                    members: 90,
-                    category: "arts",
-                    president: "Vivek Reddy",
-                    secretary: "Priya Nair",
-                    facultyCoordinator: "Dr. Anil Sharma",
-                    established: "2015",
-                    image: "https://images.pexels.com/photos/1595385/pexels-photo-1595385.jpeg?auto=compress&cs=tinysrgb&w=500",
-                    events: [
-                        { name: "Photography Exhibition", date: "25 April 2024", description: "Annual showcase of student photography talent." },
-                        { name: "Photo Walk", date: "10 May 2024", description: "Guided photography walk around the city." },
-                        { name: "Photography Workshop", date: "20 May 2024", description: "Workshop on photography techniques and editing." }
-                    ],
-                    gallery: [
-                        "https://images.pexels.com/photos/1595385/pexels-photo-1595385.jpeg?auto=compress&cs=tinysrgb&w=500",
-                        "https://images.pexels.com/photos/1595386/pexels-photo-1595386.jpeg?auto=compress&cs=tinysrgb&w=500",
-                        "https://images.pexels.com/photos/1595387/pexels-photo-1595387.jpeg?auto=compress&cs=tinysrgb&w=500"
-                    ],
-                    clubMembers: [
-                        { name: "Vivek Reddy", rollNumber: "KMIT1301", position: "President", contact: "vivek@kmit.edu.in" },
-                        { name: "Priya Nair", rollNumber: "KMIT1302", position: "Secretary", contact: "priya@kmit.edu.in" },
-                        { name: "Rahul Kumar", rollNumber: "KMIT1303", position: "Member", contact: "rahul@kmit.edu.in" },
-                        { name: "Neha Patel", rollNumber: "KMIT1304", position: "Member", contact: "neha@kmit.edu.in" },
-                        { name: "Amit Verma", rollNumber: "KMIT1305", position: "Member", contact: "amit@kmit.edu.in" },
-                        { name: "Sunita Sharma", rollNumber: "KMIT1306", position: "Member", contact: "sunita@kmit.edu.in" },
-                        { name: "Rajesh Singh", rollNumber: "KMIT1307", position: "Member", contact: "rajesh@kmit.edu.in" },
-                        { name: "Priya Reddy", rollNumber: "KMIT1308", position: "Member", contact: "priya@kmit.edu.in" }
-                    ]
-                },
-                {
-                    id: 12,
-                    name: "Aakarshan (Arts Club)",
-                    description: "Explore various art forms and express creativity through painting, crafts, and design.",
-                    members: 100,
-                    category: "arts",
-                    president: "Anjali Menon",
-                    secretary: "Rajesh Patel",
-                    facultyCoordinator: "Dr. Sunita Iyer",
-                    established: "2011",
-                    image: "https://images.pexels.com/photos/1560932/pexels-photo-1560932.jpeg?auto=compress&cs=tinysrgb&w=500",
-                    events: [
-                        { name: "Art Exhibition", date: "30 April 2024", description: "Exhibition of artworks created by club members." },
-                        { name: "Painting Workshop", date: "15 May 2024", description: "Workshop on painting techniques and styles." },
-                        { name: "Craft Fair", date: "10 June 2024", description: "Fair to showcase and sell handmade crafts." }
-                    ],
-                    gallery: [
-                        "https://images.pexels.com/photos/1560932/pexels-photo-1560932.jpeg?auto=compress&cs=tinysrgb&w=500",
-                        "https://images.pexels.com/photos/1560933/pexels-photo-1560933.jpeg?auto=compress&cs=tinysrgb&w=500",
-                        "https://images.pexels.com/photos/1560934/pexels-photo-1560934.jpeg?auto=compress&cs=tinysrgb&w=500"
-                    ],
-                    clubMembers: [
-                        { name: "Anjali Menon", rollNumber: "KMIT1401", position: "President", contact: "anjali@kmit.edu.in" },
-                        { name: "Rajesh Patel", rollNumber: "KMIT1402", position: "Secretary", contact: "rajesh@kmit.edu.in" },
-                        { name: "Priya Sharma", rollNumber: "KMIT1403", position: "Member", contact: "priya@kmit.edu.in" },
-                        { name: "Rahul Kumar", rollNumber: "KMIT1404", position: "Member", contact: "rahul@kmit.edu.in" },
-                        { name: "Neha Singh", rollNumber: "KMIT1405", position: "Member", contact: "neha@kmit.edu.in" },
-                        { name: "Amit Verma", rollNumber: "KMIT1406", position: "Member", contact: "amit@kmit.edu.in" },
-                        { name: "Sunita Reddy", rollNumber: "KMIT1407", position: "Member", contact: "sunita@kmit.edu.in" },
-                        { name: "Rajesh Nair", rollNumber: "KMIT1408", position: "Member", contact: "rajesh@kmit.edu.in" }
-                    ]
-                },
-                {
-                    id: 13,
-                    name: "Recurse (Technical Club)",
-                    description: "Dive into the world of technology, coding, and innovation through workshops and projects.",
-                    members: 130,
-                    category: "technical",
-                    president: "Arjun Mehta",
-                    secretary: "Kavita Nair",
-                    facultyCoordinator: "Dr. Ramesh Iyer",
-                    established: "2012",
-                    image: "https://images.pexels.com/photos/5386754/pexels-photo-5386754.jpeg?auto=compress&cs=tinysrgb&w=500",
-                    events: [
-                        { name: "Hackathon 2024", date: "20 March 2024", description: "24-hour coding competition with exciting prizes." },
-                        { name: "AI Workshop", date: "15 April 2024", description: "Hands-on workshop on artificial intelligence and machine learning." },
-                        { name: "Tech Talk Series", date: "5 May 2024", description: "Industry experts sharing insights on emerging technologies." }
-                    ],
-                    gallery: [
-                        "https://images.pexels.com/photos/5386754/pexels-photo-5386754.jpeg?auto=compress&cs=tinysrgb&w=500",
-                        "https://images.pexels.com/photos/3184291/pexels-photo-3184291.jpeg?auto=compress&cs=tinysrgb&w=500",
-                        "https://images.pexels.com/photos/1181244/pexels-photo-1181244.jpeg?auto=compress&cs=tinysrgb&w=500"
-                    ],
-                    clubMembers: [
-                        { name: "Arjun Mehta", rollNumber: "KMIT201", position: "President", contact: "arjun@kmit.edu.in" },
-                        { name: "Kavita Nair", rollNumber: "KMIT202", position: "Secretary", contact: "kavita@kmit.edu.in" },
-                        { name: "Rohan Joshi", rollNumber: "KMIT203", position: "Member", contact: "rohan@kmit.edu.in" },
-                        { name: "Pooja Singh", rollNumber: "KMIT204", position: "Member", contact: "pooja@kmit.edu.in" },
-                        { name: "Vivek Patel", rollNumber: "KMIT205", position: "Member", contact: "vivek@kmit.edu.in" },
-                        { name: "Divya Sharma", rollNumber: "KMIT206", position: "Member", contact: "divya@kmit.edu.in" },
-                        { name: "Kiran Kumar", rollNumber: "KMIT207", position: "Member", contact: "kiran@kmit.edu.in" },
-                        { name: "Meera Reddy", rollNumber: "KMIT208", position: "Member", contact: "meera@kmit.edu.in" }
-                    ]
-                },
-                {
-                    id: 14,
-                    name: "Mudra (Dance Club)",
-                    description: "Express yourself through various dance forms and participate in energetic performances.",
-                    members: 125,
-                    category: "cultural",
-                    president: "Sneha Rao",
-                    secretary: "Rohit Verma",
-                    facultyCoordinator: "Dr. Anjali Menon",
-                    established: "2013",
-                    image: "https://images.pexels.com/photos/2647626/pexels-photo-2647626.jpeg?auto=compress&cs=tinysrgb&w=500",
-                    events: [
-                        { name: "Annual Dance Show", date: "25 March 2024", description: "Showcase of various dance forms by club members." },
-                        { name: "Dance Workshop", date: "10 April 2024", description: "Professional dance training by industry experts." },
-                        { name: "Inter-College Dance Competition", date: "5 May 2024", description: "Competition with dance teams from various colleges." }
-                    ],
-                    gallery: [
-                        "https://images.pexels.com/photos/2647626/pexels-photo-2647626.jpeg?auto=compress&cs=tinysrgb&w=500",
-                        "https://images.pexels.com/photos/2690323/pexels-photo-2690323.jpeg?auto=compress&cs=tinysrgb&w=500",
-                        "https://images.pexels.com/photos/3812365/pexels-photo-3812365.jpeg?auto=compress&cs=tinysrgb&w=500"
-                    ],
-                    clubMembers: [
-                        { name: "Sneha Rao", rollNumber: "KMIT301", position: "President", contact: "sneha@kmit.edu.in" },
-                        { name: "Rohit Verma", rollNumber: "KMIT302", position: "Secretary", contact: "rohit@kmit.edu.in" },
-                        { name: "Ananya Singh", rollNumber: "KMIT303", position: "Member", contact: "ananya@kmit.edu.in" },
-                        { name: "Karthik Reddy", rollNumber: "KMIT304", position: "Member", contact: "karthik@kmit.edu.in" },
-                        { name: "Priya Sharma", rollNumber: "KMIT305", position: "Member", contact: "priya@kmit.edu.in" },
-                        { name: "Amit Patel", rollNumber: "KMIT306", position: "Member", contact: "amit@kmit.edu.in" },
-                        { name: "Neha Kumar", rollNumber: "KMIT307", position: "Member", contact: "neha@kmit.edu.in" },
-                        { name: "Rajesh Singh", rollNumber: "KMIT308", position: "Member", contact: "rajesh@kmit.edu.in" }
-                    ]
-                },
-                {
-                    id: 15,
-                    name: "Aalap (Singing Club)",
-                    description: "Nurture vocal talents and explore various genres of music through singing sessions.",
-                    members: 80,
-                    category: "cultural",
-                    president: "Meera Sharma",
-                    secretary: "Vikram Nair",
-                    facultyCoordinator: "Dr. Priya Menon",
-                    established: "2016",
-                    image: "https://images.pexels.com/photos/1646931/pexels-photo-1646931.jpeg?auto=compress&cs=tinysrgb&w=500",
-                    events: [
-                        { name: "Annual Concert", date: "20 April 2024", description: "Musical performance by club members." },
-                        { name: "Singing Workshop", date: "10 May 2024", description: "Workshop on vocal techniques and music theory." },
-                        { name: "Inter-College Music Competition", date: "5 June 2024", description: "Competition with singers from various colleges." }
-                    ],
-                    gallery: [
-                        "https://images.pexels.com/photos/1646931/pexels-photo-1646931.jpeg?auto=compress&cs=tinysrgb&w=500",
-                        "https://images.pexels.com/photos/1646932/pexels-photo-1646932.jpeg?auto=compress&cs=tinysrgb&w=500",
-                        "https://images.pexels.com/photos/1646933/pexels-photo-1646933.jpeg?auto=compress&cs=tinysrgb&w=500"
-                    ],
-                    clubMembers: [
-                        { name: "Meera Sharma", rollNumber: "KMIT1501", position: "President", contact: "meera@kmit.edu.in" },
-                        { name: "Vikram Nair", rollNumber: "KMIT1502", position: "Secretary", contact: "vikram@kmit.edu.in" },
-                        { name: "Priya Singh", rollNumber: "KMIT1503", position: "Member", contact: "priya@kmit.edu.in" },
-                        { name: "Rahul Kumar", rollNumber: "KMIT1504", position: "Member", contact: "rahul@kmit.edu.in" },
-                        { name: "Neha Patel", rollNumber: "KMIT1505", position: "Member", contact: "neha@kmit.edu.in" },
-                        { name: "Amit Verma", rollNumber: "KMIT1506", position: "Member", contact: "amit@kmit.edu.in" },
-                        { name: "Sunita Reddy", rollNumber: "KMIT1507", position: "Member", contact: "sunita@kmit.edu.in" },
-                        { name: "Rajesh Sharma", rollNumber: "KMIT1508", position: "Member", contact: "rajesh@kmit.edu.in" }
-                    ]
-                },
-                {
-                    id: 16,
-                    name: "Kmitra (Magazine Club)",
-                    description: "Develop writing, editing, and publishing skills while creating the college magazine.",
-                    members: 60,
-                    category: "arts",
-                    president: "Anil Reddy",
-                    secretary: "Sunita Patel",
-                    facultyCoordinator: "Dr. Rajesh Nair",
-                    established: "2017",
-                    image: "https://images.pexels.com/photos/590022/pexels-photo-590022.jpeg?auto=compress&cs=tinysrgb&w=500",
-                    events: [
-                        { name: "Magazine Launch", date: "30 April 2024", description: "Launch of the annual college magazine." },
-                        { name: "Writing Workshop", date: "15 May 2024", description: "Workshop on creative writing and journalism." },
-                        { name: "Article Competition", date: "10 June 2024", description: "Competition for best articles on various topics." }
-                    ],
-                    gallery: [
-                        "https://images.pexels.com/photos/590022/pexels-photo-590022.jpeg?auto=compress&cs=tinysrgb&w=500",
-                        "https://images.pexels.com/photos/590023/pexels-photo-590023.jpeg?auto=compress&cs=tinysrgb&w=500",
-                        "https://images.pexels.com/photos/590024/pexels-photo-590024.jpeg?auto=compress&cs=tinysrgb&w=500"
-                    ],
-                    clubMembers: [
-                        { name: "Anil Reddy", rollNumber: "KMIT1601", position: "President", contact: "anil@kmit.edu.in" },
-                        { name: "Sunita Patel", rollNumber: "KMIT1602", position: "Secretary", contact: "sunita@kmit.edu.in" },
-                        { name: "Priya Sharma", rollNumber: "KMIT1603", position: "Member", contact: "priya@kmit.edu.in" },
-                        { name: "Rahul Kumar", rollNumber: "KMIT1604", position: "Member", contact: "rahul@kmit.edu.in" },
-                        { name: "Neha Singh", rollNumber: "KMIT1605", position: "Member", contact: "neha@kmit.edu.in" },
-                        { name: "Amit Verma", rollNumber: "KMIT1606", position: "Member", contact: "amit@kmit.edu.in" },
-                        { name: "Sunita Reddy", rollNumber: "KMIT1607", position: "Member", contact: "sunita@kmit.edu.in" },
-                        { name: "Rajesh Nair", rollNumber: "KMIT1608", position: "Member", contact: "rajesh@kmit.edu.in" }
-                    ]
-                }
-            ];
+            if (!clubId) {
+                // No club ID, redirect to clubs page
+                window.location.href = 'clubs.html';
+                return;
+            }
             
             // DOM elements
             const memberSearch = document.getElementById('memberSearch');
             const membersTableBody = document.getElementById('membersTableBody');
             const joinClubBtn = document.getElementById('joinClubBtn');
             
-            // Find the club by ID
-            const currentClub = clubsData.find(club => club.id === clubId);
-            
-            if (!currentClub) {
-                // Club not found, redirect to clubs page
-                window.location.href = 'clubs.html';
-                return;
-            }
-            
-            // Populate club detail
-            document.getElementById('clubLogo').src = currentClub.image;
-            document.getElementById('clubName').textContent = currentClub.name;
-            document.getElementById('clubDescription').textContent = currentClub.description;
-            document.getElementById('clubCategory').innerHTML = `<i class="fas fa-tag"></i> ${currentClub.category.charAt(0).toUpperCase() + currentClub.category.slice(1)}`;
-            document.getElementById('clubMembersCount').innerHTML = `<i class="fas fa-users"></i> ${currentClub.members}+ Members`;
-            document.getElementById('clubPresident').textContent = currentClub.president;
-            document.getElementById('clubSecretary').textContent = currentClub.secretary;
-            document.getElementById('clubFaculty').textContent = currentClub.facultyCoordinator;
-            document.getElementById('clubEstablished').textContent = currentClub.established;
-            
-            // Populate events
-            const eventsHtml = currentClub.events.map(event => `
-                <div class="event-item">
-                    <div class="event-date">${event.date}</div>
-                    <h4 class="event-name">${event.name}</h4>
-                    <p>${event.description}</p>
-                </div>
-            `).join('');
-            document.getElementById('clubEvents').innerHTML = eventsHtml;
-            
-            // Populate gallery
-            const galleryHtml = currentClub.gallery.map(img => `
-                <div class="gallery-item">
-                    <img src="${img}" alt="Club Gallery" loading="lazy">
-                </div>
-            `).join('');
-            document.getElementById('clubGallery').innerHTML = galleryHtml;
-            
-            // Populate members table
-            function renderMembersTable(members) {
-                const rowsHtml = members.map(member => `
-                    <tr>
-                        <td>${member.name}</td>
-                        <td>${member.rollNumber}</td>
-                        <td>${member.position}</td>
-                        <td><a href="mailto:${member.contact}">${member.contact}</a></td>
-                    </tr>
+            // Function to populate club details
+            function populateClubDetails(club) {
+                document.getElementById('clubLogo').src = club.bannerImage || club.logo || 'https://via.placeholder.com/180?text=No+Image';
+                document.getElementById('clubName').textContent = club.name;
+                document.getElementById('clubDescription').textContent = club.description || 'No description available.';
+                const category = club.category || club.type || 'General';
+                document.getElementById('clubCategory').innerHTML = `<i class="fas fa-tag"></i> ${category.charAt(0).toUpperCase() + category.slice(1)}`;
+                const membersCount = club.members ? club.members.length : 0;
+                document.getElementById('clubMembersCount').innerHTML = `<i class="fas fa-users"></i> ${membersCount} Members`;
+                
+                // Leadership
+                const leader = club.leader ? `${club.leader.name} (${club.leader.username})` : 'Not assigned';
+                document.getElementById('clubPresident').textContent = leader;
+                document.getElementById('clubSecretary').textContent = 'Not specified'; // No secretary field
+                const faculty = club.faculty ? `${club.faculty.name} (${club.faculty.username})` : 'Not assigned';
+                document.getElementById('clubFaculty').textContent = faculty;
+                const established = club.createdAt ? new Date(club.createdAt).getFullYear() : 'N/A';
+                document.getElementById('clubEstablished').textContent = established;
+                
+                // Events
+                const eventsHtml = (club.events || []).map(event => `
+                    <div class="event-item">
+                        <div class="event-date">${new Date(event.date).toLocaleDateString()}</div>
+                        <h4 class="event-name">${event.title}</h4>
+                        <p>${event.description || 'No description available.'}</p>
+                    </div>
                 `).join('');
-                membersTableBody.innerHTML = rowsHtml;
+                document.getElementById('clubEvents').innerHTML = eventsHtml || '<p>No events scheduled.</p>';
+                
+                // Gallery (use event thumbnails if available, else placeholder)
+                const galleryImages = (club.events || []).filter(e => e.thumbnail).map(e => e.thumbnail).slice(0, 6);
+                const galleryHtml = galleryImages.map(img => `
+                    <div class="gallery-item">
+                        <img src="${img}" alt="Club Gallery" loading="lazy">
+                    </div>
+                `).join('') || `
+                    <div class="gallery-item">
+                        <img src="https://via.placeholder.com/200x180?text=Club+Gallery" alt="Club Gallery" loading="lazy">
+                    </div>
+                `;
+                document.getElementById('clubGallery').innerHTML = galleryHtml;
+                
+                // Members table
+                renderMembersTable(club.members || []);
             }
             
-            renderMembersTable(currentClub.clubMembers);
+            // Render members table
+            function renderMembersTable(members) {
+                const rowsHtml = members.map(member => {
+                    const memberUser = member._id; // Populated user
+                    return `
+                        <tr>
+                            <td>${memberUser?.name || 'N/A'}</td>
+                            <td>${memberUser?.username || 'N/A'}</td>
+                            <td>${member.role || 'Member'}</td>
+                            <td>${memberUser?.email || 'N/A'}</td>
+                        </tr>
+                    `;
+                }).join('');
+                membersTableBody.innerHTML = rowsHtml || '<tr><td colspan="4">No members found.</td></tr>';
+            }
             
             // Search members
             memberSearch.addEventListener('input', function() {
                 const searchTerm = this.value.toLowerCase();
-                const filteredMembers = currentClub.clubMembers.filter(member => 
-                    member.name.toLowerCase().includes(searchTerm) || 
-                    member.rollNumber.toLowerCase().includes(searchTerm)
-                );
-                renderMembersTable(filteredMembers);
+                // Re-fetch or filter from stored club; for simplicity, refetch full club and filter
+                fetchClubAndFilter(searchTerm);
             });
             
+            // Function to fetch club and filter members if needed
+            async function fetchClubAndFilter(searchTerm = '') {
+                try {
+                    const response = await fetch(`/api/clubs/${clubId}/full`);
+                    if (!response.ok) {
+                        throw new Error('Failed to fetch club');
+                    }
+                    const club = await response.json();
+                    let filteredMembers = club.members || [];
+                    if (searchTerm) {
+                        filteredMembers = filteredMembers.filter(m => 
+                            (m._id?.name || '').toLowerCase().includes(searchTerm) ||
+                            (m._id?.username || '').toLowerCase().includes(searchTerm)
+                        );
+                    }
+                    renderMembersTable(filteredMembers);
+                    if (!searchTerm) {
+                        populateClubDetails(club);
+                    }
+                } catch (error) {
+                    console.error('Error fetching club:', error);
+                    document.querySelector('.club-header').innerHTML = '<p class="error">Failed to load club details. <a href="clubs.html">Go back to clubs</a></p>';
+                }
+            }
+            
             // Join club button
-            joinClubBtn.addEventListener('click', function() {
-                alert(`Thank you for your interest in joining ${currentClub.name}! Please fill out the membership form to complete your registration.`);
+            joinClubBtn.addEventListener('click', async function() {
+                const token = localStorage.getItem('token'); // Assume token stored on login
+                if (!token) {
+                    alert('Please login to join a club.');
+                    window.location.href = '/login';
+                    return;
+                }
+                try {
+                    const response = await fetch(`/api/clubs/${clubId}/join`, {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                            'Content-Type': 'application/json'
+                        }
+                    });
+                    if (!response.ok) {
+                        throw new Error('Failed to join club');
+                    }
+                    const data = await response.json();
+                    alert(`Successfully joined ${data.club?.name || 'the club'}! You earned ${data.pointsEarned} points.`);
+                } catch (error) {
+                    console.error('Error joining club:', error);
+                    alert('Failed to join club. Please try again.');
+                }
             });
+            
+            // Initial load
+            fetchClubAndFilter();
             
             // Scroll animations
             const observerOptions = {

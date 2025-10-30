@@ -652,10 +652,6 @@
                     <p>View detailed analytics about your club's performance</p>
                 </div>
                 <div class="dashboard-actions">
-                    <div class="notification-icon">
-                        <i class="fas fa-bell"></i>
-                        <span class="notification-badge" id="notificationBadge">2</span>
-                    </div>
                     <button class="btn btn-secondary" onclick="logout()">
                         <i class="fas fa-sign-out-alt"></i> Logout
                     </button>
@@ -791,179 +787,131 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script>
-        // API base URL
-        const API_URL = '/api';
-        let clubId = '';
-        let analyticsData = {};
-        let membershipGrowthChart = null;
-        let membershipRetentionChart = null;
-        let membershipDemographicsChart = null;
-        let eventAttendanceChart = null;
-        let eventPopularityChart = null;
-        let eventSatisfactionChart = null;
-        let engagementTrendChart = null;
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // API base URL
+    const API_URL = '/api';
+    let clubId = '';
+    let analyticsData = {};
+    let membershipGrowthChart = null;
+    let membershipRetentionChart = null;
+    let membershipDemographicsChart = null;
+    let eventAttendanceChart = null;
+    let eventPopularityChart = null;
+    let eventSatisfactionChart = null;
+    let engagementTrendChart = null;
 
-        // Check if user is logged in
-        document.addEventListener('DOMContentLoaded', function() {
-            // Check for token in localStorage
-            const token = localStorage.getItem('token');
-            if (!token) {
-                window.location.href = '/login';
+    // Check if user is logged in
+    document.addEventListener('DOMContentLoaded', function() {
+        // Check for token in localStorage
+        const token = localStorage.getItem('token');
+        if (!token) {
+            window.location.href = '/login';
+            return;
+        }
+        
+        // Set up axios default headers
+        axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+        
+        // Set default date range (last 30 days)
+        const today = new Date();
+        const thirtyDaysAgo = new Date(today);
+        thirtyDaysAgo.setDate(today.getDate() - 30);
+        
+        document.getElementById('dateFrom').value = formatDateForInput(thirtyDaysAgo);
+        document.getElementById('dateTo').value = formatDateForInput(today);
+        
+        // Initialize page
+        initializePage();
+        
+        // Set up mobile menu toggle
+        setupMobileMenu();
+    });
+
+    // Format date for input field
+    function formatDateForInput(date) {
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+    }
+
+    // Updated initializePage() - robust _id extraction for populated objects
+    async function initializePage() {
+        try {
+            showLoading(true);
+            hideError();
+            hideSuccess();
+            
+            // Fetch user data
+            const userData = await fetchUserData();
+            console.log('userData clubs[0]:', userData.clubs?.[0]);  // DEBUG: Structure
+            
+            updateUserInterface(userData);
+            
+            // Extract clubId robustly (handle both 'club' and 'clubs' array)
+            let tempClubId = null;
+            if (userData.club && userData.club._id) {
+                tempClubId = extractClubId(userData.club._id);
+            } else if (userData.clubs && Array.isArray(userData.clubs) && userData.clubs[0] && userData.clubs[0]._id) {
+                tempClubId = extractClubId(userData.clubs[0]._id);
+            }
+            
+            if (!tempClubId || tempClubId === '[object Object]') {
+                console.error('Invalid club ID:', tempClubId);
+                showError('No club assigned or invalid club data. Please contact an administrator.');
                 return;
             }
             
-            // Check if user is active
-            const user = JSON.parse(localStorage.getItem('user') || '{}');
-            if (user.status !== 'active') {
+            clubId = tempClubId;
+            console.log('Extracted clubId:', clubId);  // Should now be string ID like '68f64c3c9e879fab535bb0a4'
+            
+            // Fetch analytics data
+            await fetchAnalyticsData(clubId);
+            
+            // Render key metrics
+            renderKeyMetrics();
+            
+            // Initialize charts
+            initializeCharts();
+            
+            // Render engagement summaries
+            renderEngagementSummaries();
+            
+        } catch (error) {
+            console.error('Error initializing page:', error);
+            showError('Failed to load analytics data. Please try again later.');
+            
+            // If unauthorized, redirect to login
+            if (error.response && error.response.status === 401) {
                 localStorage.removeItem('token');
-                localStorage.removeItem('user');
-                window.location.href = '/login?error=inactive';
-                return;
+                window.location.href = '/login';
             }
-            
-            // Set up axios default headers
-            axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-            
-            // Set default date range (last 30 days)
-            const today = new Date();
-            const thirtyDaysAgo = new Date(today);
-            thirtyDaysAgo.setDate(today.getDate() - 30);
-            
-            document.getElementById('dateFrom').value = formatDateForInput(thirtyDaysAgo);
-            document.getElementById('dateTo').value = formatDateForInput(today);
-            
-            // Initialize page
-            initializePage();
-            
-            // Set up mobile menu toggle
-            setupMobileMenu();
-        });
-
-        // Format date for input field
-        function formatDateForInput(date) {
-            const year = date.getFullYear();
-            const month = String(date.getMonth() + 1).padStart(2, '0');
-            const day = String(date.getDate()).padStart(2, '0');
-            return `${year}-${month}-${day}`;
+        } finally {
+            showLoading(false);
         }
+    }
 
-        // Initialize page with data fetching
-        async function initializePage() {
-            try {
-                showLoading(true);
-                hideError();
-                hideSuccess();
-                
-                // Fetch user data
-                const userData = await fetchUserData();
-                updateUserInterface(userData);
-                
-                // Check if user has a club
-                if (!userData.club) {
-                    showError('You are not associated with any club. Please contact an administrator.');
-                    showLoading(false);
-                    return;
-                }
-                
-                clubId = userData.club._id;
-                
-                // Fetch analytics data
-                await fetchAnalyticsData(clubId);
-                
-                // Render key metrics
-                renderKeyMetrics();
-                
-                // Initialize charts
-                initializeCharts();
-                
-                // Render engagement summaries
-                renderEngagementSummaries();
-                
-            } catch (error) {
-                console.error('Error initializing page:', error);
-                showError('Failed to load analytics data. Please try again later.');
-                
-                // If unauthorized, redirect to login
-                if (error.response && error.response.status === 401) {
-                    localStorage.removeItem('token');
-                    window.location.href = '/login';
-                }
-            } finally {
-                showLoading(false);
-            }
+    // Helper function to robustly extract club ID (handles populated objects)
+    function extractClubId(clubIdField) {
+        if (typeof clubIdField === 'string') return clubIdField;
+        if (clubIdField && typeof clubIdField === 'object' && clubIdField._id) {
+            return clubIdField._id.toString();  // Nested _id in populated object
         }
-
-        // Show/hide loading spinner
-        function showLoading(show) {
-            const spinner = document.getElementById('loadingSpinner');
-            if (spinner) {
-                spinner.style.display = show ? 'block' : 'none';
-            }
+        if (clubIdField && typeof clubIdField === 'object' && clubIdField.toString) {
+            return clubIdField.toString();  // Raw ObjectId
         }
+        return null;
+    }
 
-        // Show/hide error message
-        function showError(message) {
-            const errorElement = document.getElementById('errorMessage');
-            if (errorElement) {
-                errorElement.textContent = message;
-                errorElement.style.display = 'block';
-            }
-        }
-
-        function hideError() {
-            const errorElement = document.getElementById('errorMessage');
-            if (errorElement) {
-                errorElement.style.display = 'none';
-            }
-        }
-
-        // Show/hide success message
-        function showSuccess(message) {
-            const successElement = document.getElementById('successMessage');
-            if (successElement) {
-                successElement.textContent = message;
-                successElement.style.display = 'block';
-                
-                // Auto hide after 5 seconds
-                setTimeout(() => {
-                    hideSuccess();
-                }, 5000);
-            }
-        }
-
-        function hideSuccess() {
-            const successElement = document.getElementById('successMessage');
-            if (successElement) {
-                successElement.style.display = 'none';
-            }
-        }
-
-        // Fetch user data
-        async function fetchUserData() {
-            const response = await axios.get(`${API_URL}/auth/me`);
-            return response.data;
-        }
-
-        // Fetch analytics data
-        async function fetchAnalyticsData(clubId) {
-            const dateFrom = document.getElementById('dateFrom').value;
-            const dateTo = document.getElementById('dateTo').value;
-            
-            const response = await axios.get(`${API_URL}/analytics/clubs/${clubId}`, {
-                params: {
-                    dateFrom: dateFrom,
-                    dateTo: dateTo
-                }
-            });
-            
-            analyticsData = response.data;
-            console.log('Analytics data:', analyticsData);
-        }
-
-        // Update user interface with user data
+   // Update user interface with user data
         function updateUserInterface(userData) {
+            // Update user name in dashboard header
+            // const welcomeMessage = document.getElementById('welcomeMessage');
+            // if (welcomeMessage) {
+            //     welcomeMessage.textContent = `Welcome back, ${userData.name}! Manage your club activities here.`;
+            // }
+            
             // Update user profile in sidebar
             const userAvatar = document.getElementById('userAvatar');
             const userName = document.getElementById('userName');
@@ -978,528 +926,597 @@
             }
             
             if (userRole) {
-                userRole.textContent = `Club Leader - ${userData.club ? userData.club.name : 'No Club'}`;
+                // FIXED: Use clubs[0] for club name if populated
+                const clubName = (userData.clubs && userData.clubs[0] && userData.clubs[0]._id && userData.clubs[0]._id.name) ? userData.clubs[0]._id.name : 'No Club';
+                userRole.textContent = `Club Leader - ${clubName}`;
             }
         }
 
-        // Render key metrics
-        function renderKeyMetrics() {
-            const metricsGrid = document.getElementById('keyMetricsGrid');
-            if (!metricsGrid) return;
-            
-            // Clear grid
-            metricsGrid.innerHTML = '';
-            
-            // Validate data structure
-            if (!analyticsData.keyMetrics) {
-                metricsGrid.innerHTML = '<div class="error-message">Metrics data not available</div>';
-                return;
-            }
-            
-            const metrics = analyticsData.keyMetrics;
-            
-            // Create metric cards
-            const metricsData = [
-                {
-                    title: 'Total Members',
-                    value: metrics.totalMembers || 0,
-                    change: metrics.membersChange || 5,
-                    icon: 'fa-users'
-                },
-                {
-                    title: 'New Members',
-                    value: metrics.newMembers || 0,
-                    change: metrics.newMembersChange || 12,
-                    icon: 'fa-user-plus'
-                },
-                {
-                    title: 'Active Members',
-                    value: metrics.activeMembers || 0,
-                    change: metrics.activeMembersChange || 3,
-                    icon: 'fa-user-check'
-                },
-                {
-                    title: 'Retention Rate',
-                    value: `${metrics.retentionRate || 0}%`,
-                    change: metrics.retentionChange || 3,
-                    icon: 'fa-sync-alt'
-                },
-                {
-                    title: 'Events Organized',
-                    value: metrics.eventsOrganized || 0,
-                    change: metrics.eventsChange || 8,
-                    icon: 'fa-calendar-check'
-                },
-                {
-                    title: 'Avg. Attendance',
-                    value: `${metrics.averageAttendance || 0}%`,
-                    change: metrics.attendanceChange || 10,
-                    icon: 'fa-percentage'
-                },
-                {
-                    title: 'Engagement Rate',
-                    value: `${metrics.engagementRate || 0}%`,
-                    change: metrics.engagementChange || 7,
-                    icon: 'fa-chart-line'
-                },
-                {
-                    title: 'Satisfaction Score',
-                    value: metrics.satisfactionScore || 0,
-                    change: metrics.satisfactionChange || 5,
-                    icon: 'fa-star'
-                }
-            ];
-            
-            metricsData.forEach(metric => {
-                const isPositive = metric.change >= 0;
-                const changeClass = isPositive ? 'positive' : 'negative';
-                const changeIcon = isPositive ? 'fa-arrow-up' : 'fa-arrow-down';
-                
-                const metricCard = document.createElement('div');
-                metricCard.className = 'stat-card';
-                metricCard.innerHTML = `
-                    <div class="stat-card-header">
-                        <div class="stat-card-title">${metric.title}</div>
-                        <i class="fas ${metric.icon} stat-card-icon"></i>
-                    </div>
-                    <div class="stat-card-value">${metric.value}</div>
-                    <div class="stat-card-change ${changeClass}">
-                        <i class="fas ${changeIcon}"></i>
-                        ${Math.abs(metric.change)}% from last period
-                    </div>
-                `;
-                
-                metricsGrid.appendChild(metricCard);
-            });
+    // Show/hide loading spinner
+    function showLoading(show) {
+        const spinner = document.getElementById('loadingSpinner');
+        if (spinner) {
+            spinner.style.display = show ? 'block' : 'none';
         }
+    }
 
-        // Initialize all charts
-        function initializeCharts() {
-            try {
-                // Membership charts
-                initializeMembershipGrowthChart();
-                initializeMembershipRetentionChart();
-                initializeMembershipDemographicsChart();
-                
-                // Event charts
-                initializeEventAttendanceChart();
-                initializeEventPopularityChart();
-                initializeEventSatisfactionChart();
-                
-                // Engagement chart
-                initializeEngagementTrendChart();
-            } catch (error) {
-                console.error('Error initializing charts:', error);
-                showError('Failed to initialize charts. Some data may be missing.');
-            }
+    // Show/hide error message
+    function showError(message) {
+        const errorElement = document.getElementById('errorMessage');
+        if (errorElement) {
+            errorElement.textContent = message;
+            errorElement.style.display = 'block';
         }
+    }
 
-        // Initialize membership growth chart
-        function initializeMembershipGrowthChart() {
-            const ctx = document.getElementById('membershipGrowthChart');
-            if (!ctx) return;
+    function hideError() {
+        const errorElement = document.getElementById('errorMessage');
+        if (errorElement) {
+            errorElement.style.display = 'none';
+        }
+    }
+
+    // Show/hide success message
+    function showSuccess(message) {
+        const successElement = document.getElementById('successMessage');
+        if (successElement) {
+            successElement.textContent = message;
+            successElement.style.display = 'block';
             
-            // Validate data structure
-            if (!analyticsData.membership || !Array.isArray(analyticsData.membership.growth)) {
-                console.error('Invalid membership growth data');
-                return;
+            // Auto hide after 5 seconds
+            setTimeout(() => {
+                hideSuccess();
+            }, 5000);
+        }
+    }
+
+    function hideSuccess() {
+        const successElement = document.getElementById('successMessage');
+        if (successElement) {
+            successElement.style.display = 'none';
+        }
+    }
+
+    // Fetch user data
+    async function fetchUserData() {
+        const response = await axios.get(`${API_URL}/auth/me`);
+        return response.data;
+    }
+
+    // Fetch analytics data
+    async function fetchAnalyticsData(clubId) {
+        const dateFrom = document.getElementById('dateFrom').value;
+        const dateTo = document.getElementById('dateTo').value;
+        
+        const response = await axios.get(`${API_URL}/analytics/clubs/${clubId}`, {
+            params: {
+                dateFrom: dateFrom,
+                dateTo: dateTo
             }
+        });
+        
+        analyticsData = response.data;
+        console.log('Analytics data:', analyticsData);
+    }
+
+    // Render key metrics
+    function renderKeyMetrics() {
+        const metricsGrid = document.getElementById('keyMetricsGrid');
+        if (!metricsGrid) return;
+        
+        // Clear grid
+        metricsGrid.innerHTML = '';
+        
+        // Validate data structure
+        if (!analyticsData.keyMetrics) {
+            metricsGrid.innerHTML = '<div class="error-message">Metrics data not available</div>';
+            return;
+        }
+        
+        const metrics = analyticsData.keyMetrics;
+        
+        // Create metric cards
+        const metricsData = [
+            {
+                title: 'Total Members',
+                value: metrics.totalMembers || 0,
+                change: metrics.membersChange || 5,
+                icon: 'fa-users'
+            },
+            {
+                title: 'New Members',
+                value: metrics.newMembers || 0,
+                change: metrics.newMembersChange || 12,
+                icon: 'fa-user-plus'
+            },
+            {
+                title: 'Active Members',
+                value: metrics.activeMembers || 0,
+                change: metrics.activeMembersChange || 3,
+                icon: 'fa-user-check'
+            },
+            {
+                title: 'Retention Rate',
+                value: `${metrics.retentionRate || 0}%`,
+                change: metrics.retentionChange || 3,
+                icon: 'fa-sync-alt'
+            },
+            {
+                title: 'Events Organized',
+                value: metrics.eventsOrganized || 0,
+                change: metrics.eventsChange || 8,
+                icon: 'fa-calendar-check'
+            },
+            {
+                title: 'Avg. Attendance',
+                value: `${metrics.averageAttendance || 0}%`,
+                change: metrics.attendanceChange || 10,
+                icon: 'fa-percentage'
+            },
+            {
+                title: 'Engagement Rate',
+                value: `${metrics.engagementRate || 0}%`,
+                change: metrics.engagementChange || 7,
+                icon: 'fa-chart-line'
+            },
+            {
+                title: 'Satisfaction Score',
+                value: metrics.satisfactionScore || 0,
+                change: metrics.satisfactionChange || 5,
+                icon: 'fa-star'
+            }
+        ];
+        
+        metricsData.forEach(metric => {
+            const isPositive = metric.change >= 0;
+            const changeClass = isPositive ? 'positive' : 'negative';
+            const changeIcon = isPositive ? 'fa-arrow-up' : 'fa-arrow-down';
             
-            const data = analyticsData.membership.growth;
+            const metricCard = document.createElement('div');
+            metricCard.className = 'stat-card';
+            metricCard.innerHTML = `
+                <div class="stat-card-header">
+                    <div class="stat-card-title">${metric.title}</div>
+                    <i class="fas ${metric.icon} stat-card-icon"></i>
+                </div>
+                <div class="stat-card-value">${metric.value}</div>
+                <div class="stat-card-change ${changeClass}">
+                    <i class="fas ${changeIcon}"></i>
+                    ${Math.abs(metric.change)}% from last period
+                </div>
+            `;
             
-            membershipGrowthChart = new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: data.map(item => item.month),
-                    datasets: [{
-                        label: 'Total Members',
-                        data: data.map(item => item.count),
-                        borderColor: '#003366',
-                        backgroundColor: 'rgba(0, 51, 102, 0.1)',
-                        fill: true
-                    }, {
-                        label: 'New Members',
-                        data: data.map(item => item.new),
-                        borderColor: '#ffc107',
-                        backgroundColor: 'rgba(255, 193, 7, 0.1)',
-                        fill: true
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        y: {
-                            beginAtZero: true
-                        }
+            metricsGrid.appendChild(metricCard);
+        });
+    }
+
+    // Initialize all charts
+    function initializeCharts() {
+        try {
+            // Membership charts
+            initializeMembershipGrowthChart();
+            initializeMembershipRetentionChart();
+            initializeMembershipDemographicsChart();
+            
+            // Event charts
+            initializeEventAttendanceChart();
+            initializeEventPopularityChart();
+            initializeEventSatisfactionChart();
+            
+            // Engagement chart
+            initializeEngagementTrendChart();
+        } catch (error) {
+            console.error('Error initializing charts:', error);
+            showError('Failed to initialize charts. Some data may be missing.');
+        }
+    }
+
+    // Initialize membership growth chart
+    function initializeMembershipGrowthChart() {
+        const ctx = document.getElementById('membershipGrowthChart');
+        if (!ctx) return;
+        
+        // Validate data structure
+        if (!analyticsData.membership || !Array.isArray(analyticsData.membership.growth)) {
+            console.error('Invalid membership growth data');
+            return;
+        }
+        
+        const data = analyticsData.membership.growth;
+        
+        membershipGrowthChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: data.map(item => item.month),
+                datasets: [{
+                    label: 'Total Members',
+                    data: data.map(item => item.count),
+                    borderColor: '#003366',
+                    backgroundColor: 'rgba(0, 51, 102, 0.1)',
+                    fill: true
+                }, {
+                    label: 'New Members',
+                    data: data.map(item => item.new),
+                    borderColor: '#ffc107',
+                    backgroundColor: 'rgba(255, 193, 7, 0.1)',
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true
                     }
                 }
-            });
-        }
-
-        // Initialize membership retention chart
-        function initializeMembershipRetentionChart() {
-            const ctx = document.getElementById('membershipRetentionChart');
-            if (!ctx) return;
-            
-            // Validate data structure
-            if (!analyticsData.membership || !Array.isArray(analyticsData.membership.retention)) {
-                console.error('Invalid membership retention data');
-                return;
             }
-            
-            const data = analyticsData.membership.retention;
-            
-            membershipRetentionChart = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: data.map(item => item.month),
-                    datasets: [{
-                        label: 'Retention Rate (%)',
-                        data: data.map(item => item.rate),
-                        backgroundColor: '#003366'
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            max: 100
-                        }
+        });
+    }
+
+    // Initialize membership retention chart
+    function initializeMembershipRetentionChart() {
+        const ctx = document.getElementById('membershipRetentionChart');
+        if (!ctx) return;
+        
+        // Validate data structure
+        if (!analyticsData.membership || !Array.isArray(analyticsData.membership.retention)) {
+            console.error('Invalid membership retention data');
+            return;
+        }
+        
+        const data = analyticsData.membership.retention;
+        
+        membershipRetentionChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: data.map(item => item.month),
+                datasets: [{
+                    label: 'Retention Rate (%)',
+                    data: data.map(item => item.rate),
+                    backgroundColor: '#003366'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100
                     }
                 }
-            });
-        }
-
-        // Initialize membership demographics chart
-        function initializeMembershipDemographicsChart() {
-            const ctx = document.getElementById('membershipDemographicsChart');
-            if (!ctx) return;
-            
-            // Validate data structure
-            if (!analyticsData.membership || !analyticsData.membership.demographics) {
-                console.error('Invalid membership demographics data');
-                return;
             }
-            
-            const demographics = analyticsData.membership.demographics;
-            
-            membershipDemographicsChart = new Chart(ctx, {
-                type: 'doughnut',
-                data: {
-                    labels: Object.keys(demographics),
-                    datasets: [{
-                        data: Object.values(demographics),
-                        backgroundColor: [
-                            '#003366',
-                            '#ffc107',
-                            '#28a745',
-                            '#dc3545',
-                            '#17a2b8'
-                        ]
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false
-                }
-            });
-        }
+        });
+    }
 
-        // Initialize event attendance chart
-        function initializeEventAttendanceChart() {
-            const ctx = document.getElementById('eventAttendanceChart');
-            if (!ctx) return;
-            
-            // Validate data structure
-            if (!analyticsData.events || !Array.isArray(analyticsData.events.attendance)) {
-                console.error('Invalid event attendance data');
-                return;
+    // Initialize membership demographics chart
+    function initializeMembershipDemographicsChart() {
+        const ctx = document.getElementById('membershipDemographicsChart');
+        if (!ctx) return;
+        
+        // Validate data structure
+        if (!analyticsData.membership || !analyticsData.membership.demographics) {
+            console.error('Invalid membership demographics data');
+            return;
+        }
+        
+        const demographics = analyticsData.membership.demographics;
+        
+        membershipDemographicsChart = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: Object.keys(demographics),
+                datasets: [{
+                    data: Object.values(demographics),
+                    backgroundColor: [
+                        '#003366',
+                        '#ffc107',
+                        '#28a745',
+                        '#dc3545',
+                        '#17a2b8'
+                    ]
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false
             }
-            
-            const data = analyticsData.events.attendance;
-            
-            eventAttendanceChart = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: data.map(item => item.event),
-                    datasets: [{
-                        label: 'Attendance',
-                        data: data.map(item => item.count),
-                        backgroundColor: '#003366'
-                    }, {
-                        label: 'Expected',
-                        data: data.map(item => item.expected),
-                        backgroundColor: '#ffc107'
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        y: {
-                            beginAtZero: true
-                        }
+        });
+    }
+
+    // Initialize event attendance chart
+    function initializeEventAttendanceChart() {
+        const ctx = document.getElementById('eventAttendanceChart');
+        if (!ctx) return;
+        
+        // Validate data structure
+        if (!analyticsData.events || !Array.isArray(analyticsData.events.attendance)) {
+            console.error('Invalid event attendance data');
+            return;
+        }
+        
+        const data = analyticsData.events.attendance;
+        
+        eventAttendanceChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: data.map(item => item.event),
+                datasets: [{
+                    label: 'Attendance',
+                    data: data.map(item => item.count),
+                    backgroundColor: '#003366'
+                }, {
+                    label: 'Expected',
+                    data: data.map(item => item.expected),
+                    backgroundColor: '#ffc107'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true
                     }
                 }
-            });
-        }
+            }
+        });
+    }
 
-        // Initialize event popularity chart
-        function initializeEventPopularityChart() {
-            const ctx = document.getElementById('eventPopularityChart');
-            if (!ctx) return;
+    // Initialize event popularity chart
+    function initializeEventPopularityChart() {
+        const ctx = document.getElementById('eventPopularityChart');
+        if (!ctx) return;
+        
+        // Validate data structure
+        if (!analyticsData.events || !analyticsData.events.popularity) {
+            console.error('Invalid event popularity data');
+            return;
+        }
+        
+        const popularity = analyticsData.events.popularity;
+        
+        eventPopularityChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: Object.keys(popularity),
+                datasets: [{
+                    label: 'Attendance Rate (%)',
+                    data: Object.values(popularity),
+                    backgroundColor: '#003366'
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: {
+                        beginAtZero: true,
+                        max: 100
+                    }
+                }
+            }
+        });
+    }
+
+    // Initialize event satisfaction chart
+    function initializeEventSatisfactionChart() {
+        const ctx = document.getElementById('eventSatisfactionChart');
+        if (!ctx) return;
+        
+        // Validate data structure
+        if (!analyticsData.events || !Array.isArray(analyticsData.events.satisfaction)) {
+            console.error('Invalid event satisfaction data');
+            return;
+        }
+        
+        const data = analyticsData.events.satisfaction;
+        
+        eventSatisfactionChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: data.map(item => item.event),
+                datasets: [{
+                    label: 'Satisfaction Score',
+                    data: data.map(item => item.score),
+                    backgroundColor: '#003366'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 5
+                    }
+                }
+            }
+        });
+    }
+
+    // Initialize engagement trend chart
+    function initializeEngagementTrendChart() {
+        const ctx = document.getElementById('engagementTrendChart');
+        if (!ctx) return;
+        
+        // Validate data structure
+        if (!analyticsData.engagement || !Array.isArray(analyticsData.engagement.trend)) {
+            console.error('Invalid engagement trend data');
+            return;
+        }
+        
+        const data = analyticsData.engagement.trend;
+        
+        engagementTrendChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: data.map(item => item.month),
+                datasets: [{
+                    label: 'Engagement Rate (%)',
+                    data: data.map(item => item.rate),
+                    borderColor: '#003366',
+                    backgroundColor: 'rgba(0, 51, 102, 0.1)',
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100
+                    }
+                }
+            }
+        });
+    }
+
+    // Render engagement summaries
+    function renderEngagementSummaries() {
+        // Most active members
+        const mostActiveMembers = document.getElementById('mostActiveMembers');
+        if (mostActiveMembers) {
+            mostActiveMembers.innerHTML = '';
             
             // Validate data structure
-            if (!analyticsData.events || !analyticsData.events.popularity) {
-                console.error('Invalid event popularity data');
+            if (!analyticsData.engagement || !Array.isArray(analyticsData.engagement.mostActiveMembers)) {
+                mostActiveMembers.innerHTML = '<li class="summary-item"><span class="summary-item-name">No data available</span><span class="summary-item-value">-</span></li>';
                 return;
             }
             
-            const popularity = analyticsData.events.popularity;
+            const members = analyticsData.engagement.mostActiveMembers;
             
-            eventPopularityChart = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: Object.keys(popularity),
-                    datasets: [{
-                        label: 'Attendance Rate (%)',
-                        data: Object.values(popularity),
-                        backgroundColor: '#003366'
-                    }]
-                },
-                options: {
-                    indexAxis: 'y',
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        x: {
-                            beginAtZero: true,
-                            max: 100
-                        }
-                    }
-                }
-            });
-        }
-
-        // Initialize event satisfaction chart
-        function initializeEventSatisfactionChart() {
-            const ctx = document.getElementById('eventSatisfactionChart');
-            if (!ctx) return;
-            
-            // Validate data structure
-            if (!analyticsData.events || !Array.isArray(analyticsData.events.satisfaction)) {
-                console.error('Invalid event satisfaction data');
-                return;
-            }
-            
-            const data = analyticsData.events.satisfaction;
-            
-            eventSatisfactionChart = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: data.map(item => item.event),
-                    datasets: [{
-                        label: 'Satisfaction Score',
-                        data: data.map(item => item.score),
-                        backgroundColor: '#003366'
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            max: 5
-                        }
-                    }
-                }
-            });
-        }
-
-        // Initialize engagement trend chart
-        function initializeEngagementTrendChart() {
-            const ctx = document.getElementById('engagementTrendChart');
-            if (!ctx) return;
-            
-            // Validate data structure
-            if (!analyticsData.engagement || !Array.isArray(analyticsData.engagement.trend)) {
-                console.error('Invalid engagement trend data');
-                return;
-            }
-            
-            const data = analyticsData.engagement.trend;
-            
-            engagementTrendChart = new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: data.map(item => item.month),
-                    datasets: [{
-                        label: 'Engagement Rate (%)',
-                        data: data.map(item => item.rate),
-                        borderColor: '#003366',
-                        backgroundColor: 'rgba(0, 51, 102, 0.1)',
-                        fill: true
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            max: 100
-                        }
-                    }
-                }
-            });
-        }
-
-        // Render engagement summaries
-        function renderEngagementSummaries() {
-            // Most active members
-            const mostActiveMembers = document.getElementById('mostActiveMembers');
-            if (mostActiveMembers) {
-                mostActiveMembers.innerHTML = '';
-                
-                // Validate data structure
-                if (!analyticsData.engagement || !Array.isArray(analyticsData.engagement.mostActiveMembers)) {
-                    mostActiveMembers.innerHTML = '<li class="summary-item"><span class="summary-item-name">No data available</span><span class="summary-item-value">-</span></li>';
-                    return;
-                }
-                
-                const members = analyticsData.engagement.mostActiveMembers;
-                
-                if (members.length === 0) {
-                    mostActiveMembers.innerHTML = '<li class="summary-item"><span class="summary-item-name">No data available</span><span class="summary-item-value">-</span></li>';
-                } else {
-                    members.forEach(member => {
-                        const item = document.createElement('li');
-                        item.className = 'summary-item';
-                        item.innerHTML = `
-                            <span class="summary-item-name">${member.name}</span>
-                            <span class="summary-item-value">${member.score}%</span>
-                        `;
-                        mostActiveMembers.appendChild(item);
-                    });
-                }
-            }
-            
-            // Engagement by role
-            const engagementByRole = document.getElementById('engagementByRole');
-            if (engagementByRole) {
-                engagementByRole.innerHTML = '';
-                
-                // Validate data structure
-                if (!analyticsData.engagement || !analyticsData.engagement.byRole) {
-                    engagementByRole.innerHTML = '<li class="summary-item"><span class="summary-item-name">No data available</span><span class="summary-item-value">-</span></li>';
-                    return;
-                }
-                
-                const roles = analyticsData.engagement.byRole;
-                
-                if (Object.keys(roles).length === 0) {
-                    engagementByRole.innerHTML = '<li class="summary-item"><span class="summary-item-name">No data available</span><span class="summary-item-value">-</span></li>';
-                } else {
-                    Object.entries(roles).forEach(([role, rate]) => {
-                        const item = document.createElement('li');
-                        item.className = 'summary-item';
-                        item.innerHTML = `
-                            <span class="summary-item-name">${role}</span>
-                            <span class="summary-item-value">${rate}%</span>
-                        `;
-                        engagementByRole.appendChild(item);
-                    });
-                }
-            }
-        }
-
-        // Update analytics based on filter changes
-        async function updateAnalytics() {
-            try {
-                showLoading(true);
-                hideError();
-                
-                // Fetch updated analytics data
-                await fetchAnalyticsData(clubId);
-                
-                // Re-render all components
-                renderKeyMetrics();
-                
-                // Destroy and re-initialize charts
-                if (membershipGrowthChart) membershipGrowthChart.destroy();
-                if (membershipRetentionChart) membershipRetentionChart.destroy();
-                if (membershipDemographicsChart) membershipDemographicsChart.destroy();
-                if (eventAttendanceChart) eventAttendanceChart.destroy();
-                if (eventPopularityChart) eventPopularityChart.destroy();
-                if (eventSatisfactionChart) eventSatisfactionChart.destroy();
-                if (engagementTrendChart) engagementTrendChart.destroy();
-                
-                initializeCharts();
-                
-                // Re-render engagement summaries
-                renderEngagementSummaries();
-                
-                showSuccess('Analytics updated successfully');
-                
-            } catch (error) {
-                console.error('Error updating analytics:', error);
-                showError('Failed to update analytics data. Please try again.');
-            } finally {
-                showLoading(false);
-            }
-        }
-
-        // Switch between chart tabs
-        function switchChart(category, type) {
-            // Update tab buttons
-            const tabs = document.querySelectorAll(`.chart-tab`);
-            tabs.forEach(tab => {
-                tab.classList.remove('active');
-                if (tab.getAttribute('onclick').includes(`${category}-${type}`)) {
-                    tab.classList.add('active');
-                }
-            });
-            
-            // Update chart content
-            const allContents = document.querySelectorAll(`.chart-content`);
-            allContents.forEach(content => {
-                if (content.id === `${category}-${type}`) {
-                    content.classList.add('active');
-                } else {
-                    content.classList.remove('active');
-                }
-            });
-        }
-
-        // Setup mobile menu toggle
-        function setupMobileMenu() {
-            const mobileMenuToggle = document.getElementById('mobileMenuToggle');
-            const sidebar = document.getElementById('sidebar');
-            
-            if (mobileMenuToggle && sidebar) {
-                mobileMenuToggle.addEventListener('click', function() {
-                    sidebar.classList.toggle('active');
-                });
-                
-                // Close sidebar when clicking on a link
-                document.querySelectorAll('.sidebar-menu a').forEach(link => {
-                    link.addEventListener('click', () => {
-                        sidebar.classList.remove('active');
-                    });
+            if (members.length === 0) {
+                mostActiveMembers.innerHTML = '<li class="summary-item"><span class="summary-item-name">No data available</span><span class="summary-item-value">-</span></li>';
+            } else {
+                members.forEach(member => {
+                    const item = document.createElement('li');
+                    item.className = 'summary-item';
+                    item.innerHTML = `
+                        <span class="summary-item-name">${member.name}</span>
+                        <span class="summary-item-value">${member.score}%</span>
+                    `;
+                    mostActiveMembers.appendChild(item);
                 });
             }
         }
-
-        // Logout function
-        function logout() {
-            localStorage.removeItem('token');
-            localStorage.removeItem('user');
-            window.location.href = '/login';
+        
+        // Engagement by role
+        const engagementByRole = document.getElementById('engagementByRole');
+        if (engagementByRole) {
+            engagementByRole.innerHTML = '';
+            
+            // Validate data structure
+            if (!analyticsData.engagement || !analyticsData.engagement.byRole) {
+                engagementByRole.innerHTML = '<li class="summary-item"><span class="summary-item-name">No data available</span><span class="summary-item-value">-</span></li>';
+                return;
+            }
+            
+            const roles = analyticsData.engagement.byRole;
+            
+            if (Object.keys(roles).length === 0) {
+                engagementByRole.innerHTML = '<li class="summary-item"><span class="summary-item-name">No data available</span><span class="summary-item-value">-</span></li>';
+            } else {
+                Object.entries(roles).forEach(([role, rate]) => {
+                    const item = document.createElement('li');
+                    item.className = 'summary-item';
+                    item.innerHTML = `
+                        <span class="summary-item-name">${role}</span>
+                        <span class="summary-item-value">${rate}%</span>
+                    `;
+                    engagementByRole.appendChild(item);
+                });
+            }
         }
-    </script>
+    }
+
+    // Update analytics based on filter changes
+    async function updateAnalytics() {
+        try {
+            showLoading(true);
+            hideError();
+            
+            // Fetch updated analytics data
+            await fetchAnalyticsData(clubId);
+            
+            // Re-render all components
+            renderKeyMetrics();
+            
+            // Destroy and re-initialize charts
+            if (membershipGrowthChart) membershipGrowthChart.destroy();
+            if (membershipRetentionChart) membershipRetentionChart.destroy();
+            if (membershipDemographicsChart) membershipDemographicsChart.destroy();
+            if (eventAttendanceChart) eventAttendanceChart.destroy();
+            if (eventPopularityChart) eventPopularityChart.destroy();
+            if (eventSatisfactionChart) eventSatisfactionChart.destroy();
+            if (engagementTrendChart) engagementTrendChart.destroy();
+            
+            initializeCharts();
+            
+            // Re-render engagement summaries
+            renderEngagementSummaries();
+            
+            showSuccess('Analytics updated successfully');
+            
+        } catch (error) {
+            console.error('Error updating analytics:', error);
+            showError('Failed to update analytics data. Please try again.');
+        } finally {
+            showLoading(false);
+        }
+    }
+
+    // Switch between chart tabs
+    function switchChart(category, type) {
+        // Update tab buttons
+        const tabs = document.querySelectorAll(`.chart-tab`);
+        tabs.forEach(tab => {
+            tab.classList.remove('active');
+            if (tab.getAttribute('onclick').includes(`${category}-${type}`)) {
+                tab.classList.add('active');
+            }
+        });
+        
+        // Update chart content
+        const allContents = document.querySelectorAll(`.chart-content`);
+        allContents.forEach(content => {
+            if (content.id === `${category}-${type}`) {
+                content.classList.add('active');
+            } else {
+                content.classList.remove('active');
+            }
+        });
+    }
+
+    // Setup mobile menu toggle
+    function setupMobileMenu() {
+        const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+        const sidebar = document.getElementById('sidebar');
+        
+        if (mobileMenuToggle && sidebar) {
+            mobileMenuToggle.addEventListener('click', function() {
+                sidebar.classList.toggle('active');
+            });
+            
+            // Close sidebar when clicking on a link
+            document.querySelectorAll('.sidebar-menu a').forEach(link => {
+                link.addEventListener('click', () => {
+                    sidebar.classList.remove('active');
+                });
+            });
+        }
+    }
+
+    // Logout function
+    function logout() {
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        window.location.href = '/login';
+    }
+</script>
 </body>
 </html>
