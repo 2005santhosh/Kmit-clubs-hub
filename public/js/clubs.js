@@ -45,7 +45,7 @@ document.addEventListener('DOMContentLoaded', function() {
         clubs.forEach(club => {
             const clubCard = document.createElement('div');
             clubCard.className = 'club-card fade-in';
-            clubCard.onclick = () => window.location.href = `club-detail.html?id=${club._id}`;
+            clubCard.onclick = () => window.location.href = `clubs_detail.html?id=${club._id}`;
             
             clubCard.innerHTML = `
                 <div class="club-image">

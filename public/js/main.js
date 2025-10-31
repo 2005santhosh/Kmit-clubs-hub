@@ -63,7 +63,7 @@ document.addEventListener('DOMContentLoaded', function() {
             // Render
             const clubsPreview = document.getElementById('clubsPreview');
             clubsPreview.innerHTML = formattedClubs.map(club => `
-                <div class="club-card" onclick="window.location.href='club-detail.html?id=${club.id}'">
+                <div class="club-card" onclick="window.location.href='clubs_detail.html?id=${club.id}'">
                     <div class="club-image">
                         <img src="${club.image}" alt="${club.name}">
                     </div>

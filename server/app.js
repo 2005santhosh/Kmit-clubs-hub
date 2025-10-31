@@ -161,6 +161,7 @@ const generalLimiter = rateLimit({
 });
 
 // Full club details endpoint - MOVED BEFORE clubRoutes to make it public and match first
+// Full club details endpoint - PUBLIC (before auth routes)
 app.get("/api/clubs/:id/full", async (req, res) => {
   try {
     const { id } = req.params;
@@ -170,18 +171,33 @@ app.get("/api/clubs/:id/full", async (req, res) => {
     }
 
     const club = await Club.findById(id)
-      .populate('faculty', 'name username department role systemRole')
-      .populate('leader', 'name username role systemRole')
-      .populate('members._id', 'name username')
-      .populate('events', 'title date status');
+      .populate('faculty', 'name username department role systemRole')  // Direct field
+      .populate('leader', 'name username role systemRole')              // Direct field
+      .populate({
+        path: 'members.user',  // FIXED: Use 'user' key from schema, not '_id'
+        select: 'name username email'  // Add email if needed; populated now
+      })
+      .populate({
+        path: 'events',
+        select: 'title date status description thumbnail'  // FIXED: Add description & thumbnail for gallery/events
+      });
 
     if (!club) {
       return res.status(404).json({ message: 'Club not found' });
     }
 
+    // Log for debugging (remove after fix)
+    console.log('Populated Club Debug:', {
+      name: club.name,
+      leader: club.leader ? `${club.leader.name} (${club.leader.username})` : 'None',
+      faculty: club.faculty ? `${club.faculty.name} (${club.faculty.username})` : 'None',
+      members: club.members.map(m => ({ role: m.role, user: m.user ? `${m.user.name} (${m.user.username})` : 'Unpopulated' })),
+      events: club.events.map(e => ({ title: e.title, description: e.description }))
+    });
+
     res.json(club);
   } catch (error) {
-    console.error(error);
+    console.error('Club fetch error:', error);
     res.status(500).json({ message: 'Server Error' });
   }
 });
@@ -1350,7 +1366,7 @@ app.get("/club-details", (req, res) => {
   res.sendFile(path.join(__dirname, "../public/club-details.html"));
 });
 
-app.get("/club-detail", (req, res) => {
+app.get("/clubs_detail", (req, res) => {
   res.sendFile(path.join(__dirname, "../public/clubs_detail.html"));
 });
 

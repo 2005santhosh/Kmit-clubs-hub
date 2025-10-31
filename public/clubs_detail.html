@@ -987,7 +987,6 @@
                                 <th>Name</th>
                                 <th>Roll Number</th>
                                 <th>Position</th>
-                                <th>Contact</th>
                             </tr>
                         </thead>
                         <tbody id="membersTableBody">
@@ -1069,8 +1068,82 @@
             const membersTableBody = document.getElementById('membersTableBody');
             const joinClubBtn = document.getElementById('joinClubBtn');
             
-            // Function to populate club details
+            let currentClub = null;
+            
+            // Function to normalize URL to absolute
+            function normalizeUrl(url) {
+                if (!url) return null;
+                try {
+                    // If it's already a full URL with protocol
+                    new URL(url);
+                    return url;
+                } catch (e) {
+                    // Assume it's a domain or path, prepend https://
+                    if (url.startsWith('http')) {
+                        return url;
+                    }
+                    return `https://${url}`;
+                }
+            }
+            
+            // Function to handle user display from ID or object
+            function getUserDisplay(userOrId) {
+                if (!userOrId) return null;
+                if (typeof userOrId === 'object' && userOrId !== null && userOrId.name) {
+                    return userOrId;
+                }
+                // Assume string ObjectId
+                if (typeof userOrId === 'string') {
+                    return {
+                        name: `User ${userOrId.slice(-6)}`,
+                        username: userOrId
+                    };
+                }
+                return null;
+            }
+            
+            // Function to get user from member (prioritizes member.user)
+            function getUserFromMember(member) {
+                return getUserDisplay(member?.user);
+            }
+            
+            // Fetch with auth and fallback
+            async function fetchWithAuth(url) {
+                const token = localStorage.getItem('token');
+                let headers = { 'Content-Type': 'application/json' };
+                if (token) {
+                    headers.Authorization = `Bearer ${token}`;
+                }
+                let response = await fetch(url, { headers });
+                if (response.status === 401 && token) {
+                    // Invalid token, remove and retry without
+                    localStorage.removeItem('token');
+                    headers = { 'Content-Type': 'application/json' };
+                    response = await fetch(url, { headers });
+                }
+                if (!response.ok) {
+                    // Fallback to basic endpoint if /full failed
+                    if (url.endsWith('/full')) {
+                        const basicUrl = url.replace('/full', '');
+                        const basicResponse = await fetch(basicUrl, { 
+                            headers: { 'Content-Type': 'application/json' } 
+                        });
+                        if (basicResponse.ok) {
+                            console.log('Fallback to basic endpoint successful');
+                            return await basicResponse.json();
+                        }
+                    }
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return await response.json();
+            }
+            
+            // Function to populate club details (handles partial population)
             function populateClubDetails(club) {
+                console.log('Frontend Club Data:', club);
+                console.log('Leader in frontend:', club.leader);
+                console.log('Faculty in frontend:', club.faculty);
+                
                 document.getElementById('clubLogo').src = club.bannerImage || club.logo || 'https://via.placeholder.com/180?text=No+Image';
                 document.getElementById('clubName').textContent = club.name;
                 document.getElementById('clubDescription').textContent = club.description || 'No description available.';
@@ -1079,12 +1152,23 @@
                 const membersCount = club.members ? club.members.length : 0;
                 document.getElementById('clubMembersCount').innerHTML = `<i class="fas fa-users"></i> ${membersCount} Members`;
                 
-                // Leadership
-                const leader = club.leader ? `${club.leader.name} (${club.leader.username})` : 'Not assigned';
+                // Leadership - handle populated or ID
+                const leaderUser = getUserDisplay(club.leader);
+                const leader = leaderUser ? `${leaderUser.name} (${leaderUser.username})` : 'Not assigned';
                 document.getElementById('clubPresident').textContent = leader;
-                document.getElementById('clubSecretary').textContent = 'Not specified'; // No secretary field
-                const faculty = club.faculty ? `${club.faculty.name} (${club.faculty.username})` : 'Not assigned';
+                
+                // Secretary from members
+                const secretaryMember = club.members ? club.members.find(m => m.role && m.role.toLowerCase() === 'secretary') : null;
+                const secUser = getUserFromMember(secretaryMember);
+                const secretary = secUser ? `${secUser.name} (${secUser.username})` : 'Not assigned';
+                document.getElementById('clubSecretary').textContent = secretary;
+                
+                // Faculty
+                const facultyUser = getUserDisplay(club.faculty);
+                const faculty = facultyUser ? `${facultyUser.name} (${facultyUser.username})` : 'Not assigned';
                 document.getElementById('clubFaculty').textContent = faculty;
+                
+                // Established
                 const established = club.createdAt ? new Date(club.createdAt).getFullYear() : 'N/A';
                 document.getElementById('clubEstablished').textContent = established;
                 
@@ -1098,7 +1182,7 @@
                 `).join('');
                 document.getElementById('clubEvents').innerHTML = eventsHtml || '<p>No events scheduled.</p>';
                 
-                // Gallery (use event thumbnails if available, else placeholder)
+                // Gallery
                 const galleryImages = (club.events || []).filter(e => e.thumbnail).map(e => e.thumbnail).slice(0, 6);
                 const galleryHtml = galleryImages.map(img => `
                     <div class="gallery-item">
@@ -1110,88 +1194,75 @@
                     </div>
                 `;
                 document.getElementById('clubGallery').innerHTML = galleryHtml;
-                
-                // Members table
-                renderMembersTable(club.members || []);
             }
             
             // Render members table
             function renderMembersTable(members) {
+                console.log('Members in frontend:', members);
                 const rowsHtml = members.map(member => {
-                    const memberUser = member._id; // Populated user
+                    const memberUser = getUserFromMember(member);
                     return `
                         <tr>
                             <td>${memberUser?.name || 'N/A'}</td>
                             <td>${memberUser?.username || 'N/A'}</td>
                             <td>${member.role || 'Member'}</td>
-                            <td>${memberUser?.email || 'N/A'}</td>
                         </tr>
                     `;
                 }).join('');
-                membersTableBody.innerHTML = rowsHtml || '<tr><td colspan="4">No members found.</td></tr>';
+                membersTableBody.innerHTML = rowsHtml || '<tr><td colspan="3">No members found.</td></tr>';
             }
             
-            // Search members
+            // Search members (local filter)
             memberSearch.addEventListener('input', function() {
                 const searchTerm = this.value.toLowerCase();
-                // Re-fetch or filter from stored club; for simplicity, refetch full club and filter
-                fetchClubAndFilter(searchTerm);
+                if (!currentClub || !currentClub.members) return;
+                
+                const filteredMembers = currentClub.members.filter(m => {
+                    const userObj = getUserFromMember(m);
+                    const name = (userObj?.name || '').toLowerCase();
+                    const username = (userObj?.username || '').toLowerCase();
+                    return name.includes(searchTerm) || username.includes(searchTerm);
+                });
+                
+                renderMembersTable(filteredMembers);
             });
             
-            // Function to fetch club and filter members if needed
-            async function fetchClubAndFilter(searchTerm = '') {
+            // Fetch club
+            async function fetchClub() {
                 try {
-                    const response = await fetch(`/api/clubs/${clubId}/full`);
-                    if (!response.ok) {
-                        throw new Error('Failed to fetch club');
+                    currentClub = await fetchWithAuth(`/api/clubs/${clubId}/full`);
+                    console.log('Successfully fetched full club data');
+                    // Normalize registerLink
+                    if (currentClub.registerLink) {
+                        currentClub.registerLink = normalizeUrl(currentClub.registerLink);
+                        console.log('Normalized registerLink:', currentClub.registerLink);
                     }
-                    const club = await response.json();
-                    let filteredMembers = club.members || [];
-                    if (searchTerm) {
-                        filteredMembers = filteredMembers.filter(m => 
-                            (m._id?.name || '').toLowerCase().includes(searchTerm) ||
-                            (m._id?.username || '').toLowerCase().includes(searchTerm)
-                        );
-                    }
-                    renderMembersTable(filteredMembers);
-                    if (!searchTerm) {
-                        populateClubDetails(club);
-                    }
+                    populateClubDetails(currentClub);
+                    renderMembersTable(currentClub.members || []);
                 } catch (error) {
                     console.error('Error fetching club:', error);
-                    document.querySelector('.club-header').innerHTML = '<p class="error">Failed to load club details. <a href="clubs.html">Go back to clubs</a></p>';
+                    // Show limited view or error
+                    document.querySelector('.club-header').innerHTML = '<p class="error" style="color: red; text-align: center;">Failed to load club details. Please <a href="/login">login</a> for full access or <a href="clubs.html">go back to clubs</a>.</p>';
+                    // Optionally hide sections like members
+                    document.querySelectorAll('.club-info-section').forEach(sec => {
+                        if (sec.querySelector('h3').textContent.includes('Members')) {
+                            sec.style.display = 'none';
+                        }
+                    });
                 }
             }
             
             // Join club button
-            joinClubBtn.addEventListener('click', async function() {
-                const token = localStorage.getItem('token'); // Assume token stored on login
-                if (!token) {
-                    alert('Please login to join a club.');
-                    window.location.href = '/login';
-                    return;
-                }
-                try {
-                    const response = await fetch(`/api/clubs/${clubId}/join`, {
-                        method: 'POST',
-                        headers: {
-                            'Authorization': `Bearer ${token}`,
-                            'Content-Type': 'application/json'
-                        }
-                    });
-                    if (!response.ok) {
-                        throw new Error('Failed to join club');
-                    }
-                    const data = await response.json();
-                    alert(`Successfully joined ${data.club?.name || 'the club'}! You earned ${data.pointsEarned} points.`);
-                } catch (error) {
-                    console.error('Error joining club:', error);
-                    alert('Failed to join club. Please try again.');
+            joinClubBtn.addEventListener('click', function() {
+                if (currentClub && currentClub.registerLink) {
+                    window.open(currentClub.registerLink, '_blank');
+                } else {
+                    alert('No registration link available for this club or club data not fully loaded. Please try logging in.');
                 }
             });
             
             // Initial load
-            fetchClubAndFilter();
+            fetchClub();
             
             // Scroll animations
             const observerOptions = {
