@@ -139,12 +139,51 @@ connectDB();
 // Connect to Redis
 connectRedis();
 
-// Security middleware
+// Security middleware - UPDATED: Added new hash for events.html inline script
 app.use(
   helmet({
-    contentSecurityPolicy: process.env.NODE_ENV === 'production',
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        scriptSrc: process.env.NODE_ENV === 'production'
+          ? [
+              "'self'",
+              "'sha256-fe5Z8hp5id4fg13YkzEIp7/HHqmJ+Edwsc+NZZF7PKM='",
+              "'sha256-1YIqPVxYROO5FTFGn4UHB2L/LvLs/LgE+3YQnnwxolU='",
+              "'sha256-+CDbPrGJI3hrmbJHDviuaoCES9I00qDJCDoiUAux6x0='"
+            ]
+          : [
+              "'self'",
+              "'unsafe-inline'"
+            ],
+        styleSrc: [
+          "'self'",
+          "'unsafe-inline'",
+          "https://cdnjs.cloudflare.com",
+          "https://fonts.googleapis.com"
+        ],
+        fontSrc: [
+          "'self'",
+          "https://cdnjs.cloudflare.com",
+          "https://fonts.gstatic.com"
+        ],
+        imgSrc: [
+          "'self'",
+          "data:",
+          "https:",
+          "http://localhost:3000"
+        ],
+        connectSrc: [
+          "'self'",
+          "https://kmit-clubs-hub.onrender.com",
+          "http://localhost:3000"
+        ],
+        frameAncestors: ["'none'"],
+        formAction: ["'self'"]
+      },
+    },
     crossOriginEmbedderPolicy: process.env.NODE_ENV === 'production',
-  }),
+  })
 );
 
 // Rate limiting
