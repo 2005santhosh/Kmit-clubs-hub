@@ -1434,7 +1434,7 @@ app.get("/leader-settings", (req, res) => {
 
 // Student-specific routes
 app.get("/student_dashboard", (req, res) => {
-  res.sendFile(path.join(__dirname, "../public/student_dashboard.html"));
+  res.sendFile(path.join(__dirname, "../public/Student_dashboard.html"));
 });
 
 app.get("/student_clubs", (req, res) => {
