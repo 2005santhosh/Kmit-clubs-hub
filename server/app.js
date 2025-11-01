@@ -139,23 +139,20 @@ connectDB();
 // Connect to Redis
 connectRedis();
 
-// Security middleware - UPDATED: Added new hash for events.html inline script
+// Security middleware - FIXED: Added scriptSrcAttr: ["'unsafe-inline'"] to allow inline event handlers (e.g., onclick) across all static pages, resolving the global CSP violation for event handlers on pages like student_dashboard.html and others. Retained 'unsafe-inline' for script-src and style-src.
 app.use(
   helmet({
     contentSecurityPolicy: {
       directives: {
         defaultSrc: ["'self'"],
-        scriptSrc: process.env.NODE_ENV === 'production'
-          ? [
-              "'self'",
-              "'sha256-fe5Z8hp5id4fg13YkzEIp7/HHqmJ+Edwsc+NZZF7PKM='",
-              "'sha256-1YIqPVxYROO5FTFGn4UHB2L/LvLs/LgE+3YQnnwxolU='",
-              "'sha256-+CDbPrGJI3hrmbJHDviuaoCES9I00qDJCDoiUAux6x0='"
-            ]
-          : [
-              "'self'",
-              "'unsafe-inline'"
-            ],
+        scriptSrc: [
+          "'self'",
+          "'unsafe-inline'",
+          "https://cdn.jsdelivr.net"
+        ],
+        scriptSrcAttr: [
+          "'unsafe-inline'" // Added to allow inline event handlers like onclick, etc.
+        ],
         styleSrc: [
           "'self'",
           "'unsafe-inline'",
@@ -176,7 +173,8 @@ app.use(
         connectSrc: [
           "'self'",
           "https://kmit-clubs-hub.onrender.com",
-          "http://localhost:3000"
+          "http://localhost:3000",
+          "https://cdn.jsdelivr.net"
         ],
         frameAncestors: ["'none'"],
         formAction: ["'self'"]
