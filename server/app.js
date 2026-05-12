@@ -148,7 +148,8 @@ app.use(
         scriptSrc: [
           "'self'",
           "'unsafe-inline'",
-          "https://cdn.jsdelivr.net"
+          "https://cdn.jsdelivr.net",
+          "https://cdn.socket.io"
         ],
         scriptSrcAttr: [
           "'unsafe-inline'" // Added to allow inline event handlers like onclick, etc.
@@ -170,12 +171,13 @@ app.use(
           "https:",
           "http://localhost:3000"
         ],
-        connectSrc: [
-          "'self'",
-          "https://kmit-clubs-hub.onrender.com",
-          "http://localhost:3000",
-          "https://cdn.jsdelivr.net"
-        ],
+       connectSrc: [
+  "'self'",
+  "https://kmit-clubs-hub.onrender.com",
+  "http://localhost:3000",
+  "https://cdn.jsdelivr.net",
+  "https://cdn.socket.io"
+],
         frameAncestors: ["'none'"],
         formAction: ["'self'"]
       },
