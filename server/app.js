@@ -91,7 +91,7 @@ const authorizeRole = (allowedRoles) => {
   };
 };
 
-// JWT token generation function
+// JWT token generation function student_dashboard
 const generateToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET || 'kmitclubshub', {
     expiresIn: process.env.JWT_EXPIRE || '30d',
@@ -1434,7 +1434,7 @@ app.get("/leader-settings", (req, res) => {
 
 // Student-specific routes
 app.get("/student_dashboard", (req, res) => {
-  res.sendFile(path.join(__dirname, "../public/Student_dashboard.html"));
+  res.sendFile(path.join(__dirname, "../public/student_dashboard.html"));
 });
 
 app.get("/student_clubs", (req, res) => {
